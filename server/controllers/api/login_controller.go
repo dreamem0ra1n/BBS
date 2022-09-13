@@ -54,7 +54,9 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	// if !loginMethod.Password {
 	// 	return web.JsonErrorMsg("账号密码登录/注册已禁用")
 	// }
-	if !captcha.VerifyString(captchaId, captchaCode) {
+
+	// Do not use captchaCode.
+	if false && !captcha.VerifyString(captchaId, captchaCode) {
 		return web.JsonError(errs.CaptchaError)
 	}
 	user, err := services.UserService.SignIn(username, password)

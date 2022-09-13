@@ -72,7 +72,7 @@ func (c *TopicController) GetEditBy(topicId int64) *web.JsonResult {
 		return web.JsonErrorMsg("当前类型帖子不支持修改")
 	}
 
-	// 非作者、且非管理员
+	// 非拥有者、且非管理员
 	if topic.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
 		return web.JsonErrorMsg("无权限")
 	}

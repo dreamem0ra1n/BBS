@@ -36,6 +36,7 @@ func (c *TagController) GetTags() *web.JsonResult {
 	return web.JsonPageData(render.BuildTags(tags), paging)
 }
 
+// TODO: ban this api after frontend remove the function
 // 标签自动完成
 func (c *TagController) PostAutocomplete() *web.JsonResult {
 	input := c.Ctx.FormValue("input")
