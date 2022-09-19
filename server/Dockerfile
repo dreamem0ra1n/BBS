@@ -8,10 +8,8 @@ COPY . .
 RUN GOOS=linux GOARCH=amd64 go build -v -o /usr/src/app/ ./... \
 	&& ls /usr/src/app
 
-FROM alpine:latest as prod
+FROM busybox:latest as prod
 WORKDIR /
 COPY --from=builder /usr/src/app/bbs-go /bbs-go
-# redirect log to stdout
-# RUN ln -sf /dev/stdout /data/logs/bbs-go.log
 
 CMD ["/bbs-go"]

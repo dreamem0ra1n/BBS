@@ -1,0 +1,65 @@
+services:
+  bbs_admin:
+    image: bbs_neo_admin
+    ports:
+      - "8080:8080"
+    networks:
+      - traefik_net
+      - default
+    restart_policy:
+      condition: on-failure
+    labels:
+        - "traefik.tags=http"
+        - "traefik.port=8080"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=traefik_net"
+        - "traefik.backend=bbs_admin"
+        - "traefik.frontend.rule=Host:admin.bbss.zjuqsc.com"
+
+  bbs_frontend:
+    image: bbs_neo_site
+    ports:
+      - "3000:3000"
+    networks:
+      - traefik_net
+      - default
+    restart_policy:
+      condition: on-failure
+    labels:
+        - "traefik.tags=http"
+        - "traefik.port=3000"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=traefik_net"
+        - "traefik.backend=bbs_frontend"
+        - "traefik.frontend.rule=Host:bbss.zjuqsc.com"
+
+  bbs_backend:
+    image: bbs_neo_backend
+    ports:
+      - "8082:8082"
+    networks:
+      - traefik_net
+      - default
+    configs:
+      - source: bbs_neo_config
+        target: /bbs-go.yaml
+        mode: 0440
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    labels:
+        - "traefik.tags=http"
+        - "traefik.port=8082"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=traefik_net"
+        - "traefik.backend=bbs_backend"
+        - "traefik.frontend.rule=Host:api.bbss.zjuqsc.com"
+
+configs:
+  bbs_neo_config:
+    external: true
+
+networks:
+  traefik_net:
+    external: true
