@@ -17,10 +17,17 @@ type Model struct {
 
 type User struct {
 	Model
-	Username         sql.NullString `gorm:"size:32;unique;" json:"username" form:"username"`                    // 用户名
-	Email            sql.NullString `gorm:"size:128;unique;" json:"email" form:"email"`                         // 邮箱
-	EmailVerified    bool           `gorm:"not null;default:false" json:"emailVerified" form:"emailVerified"`   // 邮箱是否验证
-	Nickname         string         `gorm:"size:16;" json:"nickname" form:"nickname"`                           // 昵称
+	Username         sql.NullString `gorm:"size:32;unique;" json:"username" form:"username"`                  // 学号（同时作为用户名）
+	Email            sql.NullString `gorm:"size:128;unique;" json:"email" form:"email"`                       // 邮箱
+	EmailVerified    bool           `gorm:"not null;default:false" json:"emailVerified" form:"emailVerified"` // 邮箱是否验证
+	Nickname         string         `gorm:"size:16;" json:"nickname" form:"nickname"`                         // 昵称
+	Realname         string         `gorm:"size:32;" json:"realname" form:"realname"`                         // 真实姓名
+	Major            string         `gorm:"size:64;" json:"major" form:"major"`                               // 专业
+	Birthday         string         `gorm:"size:32;" json:"birthday" form:"birthday"`
+	Department       string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
+	Mobile           string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话
+	WX               string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
+	QQ               string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
 	Avatar           string         `gorm:"type:text" json:"avatar" form:"avatar"`                              // 头像
 	BackgroundImage  string         `gorm:"type:text" json:"backgroundImage" form:"backgroundImage"`            // 个人中心背景图片
 	Password         string         `gorm:"size:512" json:"password" form:"password"`                           // 密码

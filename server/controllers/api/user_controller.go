@@ -51,22 +51,28 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	if user.Id != userId {
 		return web.JsonErrorMsg("无权限")
 	}
-	nickname := strings.TrimSpace(params.FormValue(c.Ctx, "nickname"))
+	// nickname can't be modified due to the feature of qsc! qwq
+	// nickname := strings.TrimSpace(params.FormValue(c.Ctx, "nickname"))
 	homePage := params.FormValue(c.Ctx, "homePage")
 	description := params.FormValue(c.Ctx, "description")
-
-	if len(nickname) == 0 {
-		return web.JsonErrorMsg("昵称不能为空")
-	}
+	major := params.FormValue(c.Ctx, "major")
+	birthday := params.FormValue(c.Ctx, "birthday")
+	mobile := params.FormValue(c.Ctx, "mobile")
+	wx := params.FormValue(c.Ctx, "wx")
+	qq := params.FormValue(c.Ctx, "qq")
 
 	if len(homePage) > 0 && validate.IsURL(homePage) != nil {
 		return web.JsonErrorMsg("个人主页地址错误")
 	}
 
 	err := services.UserService.Updates(user.Id, map[string]interface{}{
-		"nickname":    nickname,
 		"home_page":   homePage,
 		"description": description,
+		"major":       major,
+		"birthday":    birthday,
+		"mobile":      mobile,
+		"wx":          wx,
+		"qq":          qq,
 	})
 	if err != nil {
 		return web.JsonError(err)

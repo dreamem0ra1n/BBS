@@ -10,13 +10,20 @@ import (
 type UserInfo struct {
 	Id           int64  `json:"id"`
 	Nickname     string `json:"nickname"`
-	Avatar       string `json:"avatar"`
-	SmallAvatar  string `json:"smallAvatar"`
-	TopicCount   int    `json:"topicCount"`   // 话题数量
-	CommentCount int    `json:"commentCount"` // 跟帖数量
-	FansCount    int    `json:"fansCount"`    // 粉丝数量
-	FollowCount  int    `json:"followCount"`  // 关注数量
-	Score        int    `json:"score"`        // 积分
+	Realname     string `json:"realname" form:"realname"`     // 真实姓名
+	Major        string `json:"major" form:"major"`           // 专业
+	Birthday     string `json:"birthday" form:"birthday"`     // 生日
+	Department   string `json:"department" form:"department"` // 部门
+	Mobile       string `json:"mobile" form:"mobile"`         // 电话
+	WX           string `json:"wechat" form:"wechat"`         // 微信号
+	QQ           string `json:"qq" form:"qq"`                 // QQ号
+	Avatar       string `json:"avatar"`                       // 头像
+	SmallAvatar  string `json:"smallAvatar"`                  // 小头像
+	TopicCount   int    `json:"topicCount"`                   // 话题数量
+	CommentCount int    `json:"commentCount"`                 // 跟帖数量
+	FansCount    int    `json:"fansCount"`                    // 粉丝数量
+	FollowCount  int    `json:"followCount"`                  // 关注数量
+	Score        int    `json:"score"`                        // 积分
 	Description  string `json:"description"`
 	CreateTime   int64  `json:"createTime"`
 
