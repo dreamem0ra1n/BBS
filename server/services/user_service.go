@@ -247,20 +247,21 @@ func (s *userService) SignUp(username, email, nickname, password, rePassword str
 
 // SignIn 登录
 func (s *userService) SignIn(username, password string) (*model.User, error) {
+	// 按理来说这里不应该出错的
 	if len(username) == 0 {
-		return nil, errors.New("用户名/邮箱不能为空")
+		return nil, errors.New("用户名为空 ")
 	}
 	if len(password) == 0 {
-		return nil, errors.New("密码不能为空")
+		return nil, errors.New("密码为空")
 	}
 	var user *model.User = nil
-	if err := validate.IsEmail(username); err == nil { // 如果用户输入的是邮箱
-		user = s.GetByEmail(username)
-	} else {
-		user = s.GetByUsername(username)
+	user = s.GetByUsername(username)
+
+	if user == nil {
+		return nil, errors.New("NO_SUCH_USER")
 	}
-	if user == nil || user.Status != constants.StatusOk {
-		return nil, errors.New("用户不存在或被禁用")
+	if user.Status != constants.StatusOk {
+		return nil, errors.New("用户被禁用")
 	}
 	if !passwd.ValidatePassword(user.Password, password) {
 		return nil, errors.New("密码错误")
