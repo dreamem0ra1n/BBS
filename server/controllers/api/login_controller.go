@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/common/dates"
@@ -60,14 +61,17 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	client := &http.Client{}
 	parms := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", "https://www.qsc.zju.edu.cn/passport/v4/profile", parms)
+	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
 
 	cookie := &http.Cookie{
-		Name:   "SESSION_TOKEN",
-		Value:  successCookieVal,
-		MaxAge: 300,
+		Name:    "SESSION_TOKEN",
+		Value:   successCookieVal,
+		Expires: time.Now().Add(111 * time.Second),
 	}
 	req.AddCookie(cookie)
 	HTTPresp, err := client.Do(req)
+	defer HTTPresp.Body.Close()
+
 	if err != nil {
 		logrus.Error("error happen when send request to passport", err)
 		return web.JsonError(err)
@@ -78,20 +82,23 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		logrus.Error("error happen when read response from passport", err)
 		return web.JsonError(err)
 	}
+	bodyStr := string(body)
 
 	var resp struct {
-		Name      string
-		ZjuId     string
-		LoginType string
+		Data struct {
+			Logined bool `json:"logined"`
+			User    struct {
+				Name      string `json:"Name"`
+				ZjuId     string `json:"ZjuId"`
+				LoginType string `json:"LoginType"`
+			} `json:"user"`
+		} `json:"Data"`
 	}
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		logrus.Error("error happen when unmarshal the body", err)
-		return web.JsonError(err)
-	}
+	err = json.Unmarshal([]byte(bodyStr), &resp)
 
-	username := resp.Name
-	ZjuId := resp.ZjuId
+	username := resp.Data.User.Name
+	ZjuId := resp.Data.User.ZjuId
+	_ = resp.Data.User.LoginType
 
 	user, err := services.UserService.SignIn(ZjuId, ZjuId)
 	if err.Error() == "NO_SUCH_USER" {
