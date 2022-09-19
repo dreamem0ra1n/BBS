@@ -2,6 +2,9 @@ package api
 
 import (
 	"bbs-go/controllers/render"
+	"io/ioutil"
+	"net/http"
+	"strings"
 
 	"github.com/dchest/captcha"
 	"github.com/kataras/iris/v12"
@@ -15,6 +18,7 @@ type LoginController struct {
 	Ctx iris.Context
 }
 
+// No need to use
 // 注册
 func (c *LoginController) PostSignup() *web.JsonResult {
 	var (
@@ -43,22 +47,20 @@ func (c *LoginController) PostSignup() *web.JsonResult {
 
 // 用户名密码登录
 func (c *LoginController) PostSignin() *web.JsonResult {
-	var (
-		captchaId   = c.Ctx.PostValueTrim("captchaId")
-		captchaCode = c.Ctx.PostValueTrim("captchaCode")
-		username    = c.Ctx.PostValueTrim("username")
-		password    = c.Ctx.PostValueTrim("password")
-		ref         = c.Ctx.FormValue("ref")
-	)
-	// loginMethod := services.SysConfigService.GetLoginMethod()
-	// if !loginMethod.Password {
-	// 	return web.JsonErrorMsg("账号密码登录/注册已禁用")
-	// }
+	successCookieVal := c.Ctx.GetCookie("SESSION_TOKEN")
 
-	// Do not use captchaCode.
-	if false && !captcha.VerifyString(captchaId, captchaCode) {
-		return web.JsonError(errs.CaptchaError)
+	client := &http.Client{}
+	parms := ioutil.NopCloser(strings.NewReader(""))
+	req, err := http.NewRequest("GET", "https://www.qsc.zju.edu.cn/passport/v4/profile", parms)
+
+	cookie := &http.Cookie{
+		Name:   "SESSION_TOKEN",
+		Value:  successCookieVal,
+		MaxAge: 300,
 	}
+	req.AddCookie(cookie)
+	client.Do(req)
+
 	user, err := services.UserService.SignIn(username, password)
 	if err != nil {
 		return web.JsonError(err)
