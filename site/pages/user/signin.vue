@@ -37,34 +37,6 @@
                   /></span>
                 </div>
               </div>
-
-              <div class="field">
-                <label class="label">验证码</label>
-                <div class="control has-icons-left">
-                  <div class="field is-horizontal">
-                    <div class="field login-captcha-input">
-                      <input
-                        v-model="captchaCode"
-                        class="input"
-                        type="text"
-                        placeholder="验证码"
-                        @keyup.enter="submitLogin"
-                      />
-                      <span class="icon is-small is-left"
-                        ><i class="iconfont icon-captcha"
-                      /></span>
-                    </div>
-                    <div
-                      v-if="captchaUrl"
-                      class="field login-captcha-img"
-                      @click="showCaptcha"
-                    >
-                      <img :src="captchaUrl" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div class="field">
                 <button class="button is-success" @click="submitLogin">
                   登录
@@ -78,17 +50,7 @@
             <div
               v-if="loginMethod.qq || loginMethod.github || loginMethod.osc"
               class="third-party-line"
-            >
-              <div class="third-party-title">
-                <span>第三方账号登录</span>
-              </div>
-            </div>
-
-            <div class="third-parties">
-              <github-login v-if="loginMethod.github" :ref-url="ref" />
-              <osc-login v-if="loginMethod.osc" :ref-url="ref" />
-              <qq-login v-if="loginMethod.qq" :ref-url="ref" />
-            </div>
+            ></div>
           </div>
         </div>
       </div>
@@ -107,9 +69,9 @@ export default {
     return {
       username: '',
       password: '',
-      captchaId: '',
-      captchaUrl: '',
-      captchaCode: '',
+      // captchaId: '',
+      // captchaUrl: '',
+      // captchaCode: '',
     }
   },
   head() {
@@ -128,33 +90,20 @@ export default {
       return this.$store.state.config.config.loginMethod
     },
   },
-  mounted() {
-    if (this.redirectIfLogined()) {
-      return
-    }
-    this.showCaptcha()
-  },
   methods: {
     async submitLogin() {
       try {
         if (!this.username) {
-          this.$message.error('请输入用户名或邮箱')
+          this.$message.error('请输入用户名')
           return
         }
         if (!this.password) {
           this.$message.error('请输入密码')
           return
         }
-        if (!this.captchaCode) {
-          this.$message.error('请输入验证码')
-          return
-        }
         const user = await this.$store.dispatch('user/signin', {
-          captchaId: this.captchaId,
-          captchaCode: this.captchaCode,
           username: this.username,
           password: this.password,
-          ref: this.ref,
         })
         if (this.ref) {
           // 跳到登录前
@@ -165,7 +114,6 @@ export default {
         }
       } catch (e) {
         this.$message.error(e.message || e)
-        await this.showCaptcha()
       }
     },
     async showCaptcha() {

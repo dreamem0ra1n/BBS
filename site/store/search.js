@@ -5,6 +5,7 @@ export const state = () => ({
   page: 1,
   searchPage: null,
   loading: false,
+  tags: [],
 })
 
 export const mutations = {
@@ -26,6 +27,9 @@ export const mutations = {
   setLoading(state, loading) {
     state.loading = loading
   },
+  setTags(state, tags) {
+    state.tags = tags
+  },
 }
 
 export const actions = {
@@ -33,6 +37,10 @@ export const actions = {
     context.commit('setKeyword', keyword || '')
     context.commit('setNodeId', nodeId || 0)
     context.commit('setPage', page || 1)
+  },
+  initTags(context) {
+    // this.$axios.
+    // context.commit("setTags",)
   },
   changeNodeId(context, nodeId) {
     context.commit('setNodeId', nodeId || 0)

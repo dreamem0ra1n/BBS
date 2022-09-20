@@ -1,5 +1,6 @@
 <template>
   <div class="load-more">
+    <div>让我康康</div>
     <slot :results="results" />
     <div class="has-more">
       <button
