@@ -28,8 +28,9 @@ func BuildUserInfo(user *model.User) *model.UserInfo {
 		return nil
 	}
 	ret := &model.UserInfo{
-		Id:           user.Id,
-		Nickname:     user.Nickname,
+		Id:       user.Id,
+		Nickname: user.Nickname,
+		
 		Avatar:       user.Avatar,
 		SmallAvatar:  HandleOssImageStyleAvatar(user.Avatar),
 		TopicCount:   user.TopicCount,
