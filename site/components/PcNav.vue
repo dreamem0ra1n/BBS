@@ -68,9 +68,7 @@
           </div>
           <div v-else class="navbar-item">
             <div class="buttons">
-              <nuxt-link class="button login-btn" to="/user/signin"
-                >登录
-              </nuxt-link>
+              <button class="button login-btn" @click="signIn">登录</button>
             </div>
           </div>
           <div class="navbar-item">
@@ -91,6 +89,13 @@ export default {
       navbarActive: false,
     }
   },
+  mounted() {
+    this.$axios
+      .post('/api/login/signin', { ref: window.location.href })
+      .then((res) => {
+        console.log(res)
+      })
+  },
   computed: {
     user() {
       return this.$store.state.user.current
@@ -101,8 +106,17 @@ export default {
     config() {
       return this.$store.state.config.config
     },
+    zju_login() {
+      return (
+        'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+        window.location.href
+      )
+    },
   },
   methods: {
+    signIn() {
+      window.location.href = '/user/signin'
+    },
     async signout() {
       try {
         await this.$store.dispatch('user/signout')

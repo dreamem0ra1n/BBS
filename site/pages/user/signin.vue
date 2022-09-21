@@ -7,13 +7,13 @@
           <div class="widget-content">
             <template v-if="loginMethod.password">
               <div class="field">
-                <label class="label">用户名/邮箱</label>
+                <label class="label">用户名</label>
                 <div class="control has-icons-left">
                   <input
                     v-model="username"
                     class="input is-success"
                     type="text"
-                    placeholder="请输入用户名或邮箱"
+                    placeholder="请输入用户名"
                     @keyup.enter="submitLogin"
                   />
                   <span class="icon is-small is-left"

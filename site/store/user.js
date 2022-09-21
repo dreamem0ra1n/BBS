@@ -31,17 +31,17 @@ export const actions = {
 
   // 登录
   async signin(context, { username, password }) {
-     await this.$axios.post(
+    /*  await this.$axios.post(
       'https://www.qsc.zju.edu.cn/passport/v4/qsc/login',
       {
-        // captchaId,
-        // captchaCode,
         username,
         password,
       }
-    )
-    const ret =await this.$axios.post('/api/login/signin',{
-      ref:window.location.href,
+    ) */
+    const ret = await this.$axios.post('/api/login/signin', {
+      // ref:window.location.href,
+      username,
+      password,
     })
     context.dispatch('loginSuccess', ret)
     return ret.user

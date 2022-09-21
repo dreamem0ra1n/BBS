@@ -37,13 +37,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <input
-                v-model="form.nickname"
-                class="input"
-                type="text"
-                autocomplete="off"
-                placeholder="请输入昵称"
-              />
+              <div>{{ form.nickname }}</div>
             </div>
           </div>
         </div>
@@ -72,6 +66,25 @@
       <div class="field is-horizontal">
         <div class="field-label is-normal">
           <label class="label">个人主页</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.homePage"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入个人主页"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">专业</label>
         </div>
         <div class="field-body">
           <div class="field">
@@ -119,6 +132,11 @@ export default {
         nickname: '',
         homePage: '',
         description: '',
+        major: '',
+        birthday: '',
+        mobile: '',
+        wx: '',
+        qq: '',
       },
     }
   },
@@ -130,11 +148,7 @@ export default {
   methods: {
     async submitForm() {
       try {
-        await this.$axios.post('/api/user/edit/' + this.user.id, {
-          nickname: this.form.nickname,
-          homePage: this.form.homePage,
-          description: this.form.description,
-        })
+        await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
         await this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {

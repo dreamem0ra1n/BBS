@@ -1,9 +1,11 @@
 import UserHelper from '~/common/UserHelper'
+import axios from '~/plugins/axios'
 
 export default function (context) {
   const user = context.store.state.user.current
   if (!user) {
-    toSignIn(context)
+    // toSignIn(context)
+    // LoginNeo()
     return
   }
   if (isAdminUrl(context)) {
