@@ -9,12 +9,12 @@
               <span>个人资料</span>
             </nuxt-link>
           </div>
-          <div class="profile-edit-tab-item">
+          <!--<div class="profile-edit-tab-item">
             <nuxt-link to="/user/profile/account">
               <i class="iconfont icon-username" />
               <span>账号设置</span>
             </nuxt-link>
-          </div>
+          </div>-->
         </div>
       </div>
       <div class="right-container">
@@ -23,9 +23,9 @@
             <li :class="{ 'is-active': active === 'profile' }">
               <nuxt-link to="/user/profile">个人资料</nuxt-link>
             </li>
-            <li :class="{ 'is-active': active === 'account' }">
+            <!--<li :class="{ 'is-active': active === 'account' }">
               <nuxt-link to="/user/profile/account">账号设置</nuxt-link>
-            </li>
+            </li>-->
           </ul>
         </div>
         <nuxt-child />
