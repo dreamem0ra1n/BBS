@@ -61,6 +61,12 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	client := &http.Client{}
 	parms := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", "https://www.qsc.zju.edu.cn/passport/v4/profile", parms)
+
+	if err != nil {
+		logrus.Error("error happen when request passport!", err)
+		return web.JsonError(err)
+	}
+
 	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
 
 	cookie := &http.Cookie{
