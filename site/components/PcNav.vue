@@ -91,6 +91,22 @@ export default {
       navbarActive: false,
     }
   },
+  mounted() {
+    this.$axios
+      .post('/api/login/signin', { ref: window.location.href })
+      .then((res) => {
+        console.log(res)
+        /* if (!res?.data?.success) {
+          console.log(res)
+          window.location =
+            'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
+            window.location.href
+        } */
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  },
   computed: {
     user() {
       return this.$store.state.user.current
