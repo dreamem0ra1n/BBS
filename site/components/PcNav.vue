@@ -94,6 +94,21 @@ export default {
       .post('/api/login/signin', { ref: window.location.href })
       .then((res) => {
         console.log(res)
+        /* if (!res?.data?.success) {
+          console.log(res)
+          window.location =
+            'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
+            window.location.href
+        } */
+      })
+      .catch((e) => {
+        console.log(e)
+        if (!e?.data?.success) {
+          console.log(e)
+          window.location =
+            'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
+            window.location.href
+        }
       })
   },
   computed: {
