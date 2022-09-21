@@ -103,7 +103,7 @@ export default {
       })
       .catch((e) => {
         console.log(e)
-        if (!e?.data?.success) {
+        if (e?.data?.success) {
           console.log(e)
           window.location =
             'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
