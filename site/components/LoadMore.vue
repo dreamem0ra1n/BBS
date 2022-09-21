@@ -108,6 +108,7 @@ export default {
     margin: 20px auto;
     button {
       width: 150px;
+      background-color: var(--qsc-color);
     }
   }
 

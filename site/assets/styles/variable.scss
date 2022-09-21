@@ -17,6 +17,7 @@ $navbar-box-shadow-color: var(--navbar-box-shadow-color);
 $title-color: var(--text);
 
 .light-mode {
+  --qsc-color: rgb(64, 158, 255);
   --scheme-main: $black;
   --scheme-main-bis: $black;
   --scheme-main-ter: $black;
@@ -59,6 +60,7 @@ $title-color: var(--text);
 }
 
 .dark-mode {
+  --qsc-color: rgb(64, 158, 255);
   --scheme-main: $white;
   --scheme-main-bis: $white;
   --scheme-main-ter: $white;

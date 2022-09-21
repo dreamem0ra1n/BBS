@@ -87,7 +87,7 @@ export default {
       }
 
       &.active {
-        background-color: #ea6f5a;
+        background-color: var(--qsc-color);
         color: var(--text-color5);
 
         a {

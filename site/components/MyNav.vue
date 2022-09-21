@@ -6,7 +6,31 @@
 </template>
 
 <script>
-export default {}
+export default {
+  mounted() {
+    this.$axios
+      .post('/api/login/signin', { ref: window.location.href })
+      .then((res) => {
+        console.log(res)
+        this.$store.commit('user/setCurrent', res.data)
+        /* if (!res?.data?.success) {
+          console.log(res)
+          window.location =
+            'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
+            window.location.href
+        } */
+      })
+      .catch((e) => {
+        console.log(e)
+        if (e?.data?.success) {
+          console.log(e)
+          window.location =
+            'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
+            window.location.href
+        }
+      })
+  },
+}
 </script>
 
 <style lang="scss">
