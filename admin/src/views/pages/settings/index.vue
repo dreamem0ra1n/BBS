@@ -64,14 +64,16 @@
                 />
               </el-select>
             </el-form-item>
-            <!--<template v-if="config.loginMethod">
+
+            <template v-if="config.loginMethod">
               <el-form-item label="登录方式">
                 <el-checkbox v-model="config.loginMethod.password"> 密码登录 </el-checkbox>
                 <el-checkbox v-model="config.loginMethod.qq"> QQ登录 </el-checkbox>
                 <el-checkbox v-model="config.loginMethod.github"> Github登录 </el-checkbox>
                 <el-checkbox v-model="config.loginMethod.osc"> OSChina登录 </el-checkbox>
               </el-form-item>
-            </template>-->
+            </template>
+
             <el-form-item label="站外链接跳转页面">
               <el-tooltip content="在跳转前需手动确认是否前往该站外链接" placement="top">
                 <el-switch v-model="config.urlRedirect" />
