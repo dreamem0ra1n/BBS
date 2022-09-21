@@ -120,10 +120,7 @@ func (c *LoginController) GetSignout() *web.JsonResult {
 }
 
 func registeUser(username string, ZJUId string) (*model.User, error) {
-	var build strings.Builder
-	build.WriteString(ZJUId)
-	build.WriteString("@zju.edu.cn")
-	email := build.String()
+	email := ZJUId + "@zju.edu.cn"
 
 	user := &model.User{
 		Username:   sqls.SqlNullString(ZJUId),
