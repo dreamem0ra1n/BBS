@@ -12,17 +12,18 @@ type AuthUnit struct {
 
 // 定义板块的id
 var (
-	Default_SECTION        = -1 // 默认权限对应板块id
-	GLOBAL_ADMIN_SECTION   = 0  // 高管和站长专属
-	ChanPinYanFa_SECTION   = 1  // 产品研发
-	JiShuYanFa_SECTION     = 2  // 技术研发
-	ChanPinYunYing_SECTION = 3  // 产品运营
-	TuiGuangCeHua_SECTION  = 4  // 推广策划
-	XinWenZiXun_SECTION    = 5  // 新闻资讯
-	SheJiYuShiJue_SECTION  = 6  // 设计与视觉
-	RenLiZiYuan_SECTION    = 7  // 人力资源部门
-	SheYing_SECTION        = 8  // 摄影
-	ShiPin_SECTION         = 9  // 视频
+	Announcement_SECTION   = -14514 // 公告
+	Default_SECTION        = -1     // 默认权限对应板块id
+	GLOBAL_ADMIN_SECTION   = 0      // 高管和站长专属
+	ChanPinYanFa_SECTION   = 1      // 产品研发
+	JiShuYanFa_SECTION     = 2      // 技术研发
+	ChanPinYunYing_SECTION = 3      // 产品运营
+	TuiGuangCeHua_SECTION  = 4      // 推广策划
+	XinWenZiXun_SECTION    = 5      // 新闻资讯
+	SheJiYuShiJue_SECTION  = 6      // 设计与视觉
+	RenLiZiYuan_SECTION    = 7      // 人力资源部门
+	SheYing_SECTION        = 8      // 摄影
+	ShiPin_SECTION         = 9      // 视频
 )
 
 // 定义权限名称
