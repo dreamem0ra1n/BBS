@@ -13,6 +13,7 @@ import (
 
 type CreateTopicForm struct {
 	Type        constants.TopicType
+	Section     string
 	CaptchaId   string
 	CaptchaCode string
 	NodeId      int64
@@ -26,6 +27,7 @@ type CreateTopicForm struct {
 }
 
 type CreateArticleForm struct {
+	Section     string
 	Title       string
 	Summary     string
 	Content     string

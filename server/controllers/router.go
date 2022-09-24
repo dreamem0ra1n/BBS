@@ -56,7 +56,7 @@ func Router() {
 	// api
 	mvc.Configure(app.Party("/api"), func(m *mvc.Application) {
 		m.Party("/topic").Handle(new(api.TopicController))
-		m.Party("/article").Handle(new(api.ArticleController))
+		// m.Party("/article").Handle(new(api.ArticleController))
 		m.Party("/login").Handle(new(api.LoginController))
 		m.Party("/user").Handle(new(api.UserController))
 		m.Party("/tag").Handle(new(api.TagController))
@@ -67,7 +67,7 @@ func Router() {
 		m.Party("/config").Handle(new(api.ConfigController))
 		m.Party("/upload").Handle(new(api.UploadController))
 		m.Party("/link").Handle(new(api.LinkController))
-		m.Party("/captcha").Handle(new(api.CaptchaController))
+		// m.Party("/captcha").Handle(new(api.CaptchaController))
 		// m.Party("/qq/login").Handle(new(api.QQLoginController))
 		// m.Party("/github/login").Handle(new(api.GithubLoginController))
 		// m.Party("/osc/login").Handle(new(api.OscLoginController))

@@ -1,5 +1,7 @@
 package model
 
+import "errors"
+
 type AuthUnit struct {
 	// Attribute
 	BelongSection int // 权限单元所属板块：[0]不属于任何板块；[n]表示对应板块
@@ -10,13 +12,61 @@ type AuthUnit struct {
 
 // 定义板块的id
 var (
-	GLOBAL_ADMIN = 0 // 高管和站长专属
-	SAMPLE_PLATE = 1
+	Default_SECTION        = -1 // 默认权限对应板块id
+	GLOBAL_ADMIN_SECTION   = 0  // 高管和站长专属
+	ChanPinYanFa_SECTION   = 1  // 产品研发
+	JiShuYanFa_SECTION     = 2  // 技术研发
+	ChanPinYunYing_SECTION = 3  // 产品运营
+	TuiGuangCeHua_SECTION  = 4  // 推广策划
+	XinWenZiXun_SECTION    = 5  // 新闻资讯
+	SheJiYuShiJue_SECTION  = 6  // 设计与视觉
+	RenLiZiYuan_SECTION    = 7  // 人力资源部门
+	SheYing_SECTION        = 8  // 摄影
+	ShiPin_SECTION         = 9  // 视频
 )
 
+// 定义权限名称
+var (
+	DefaultUser_NAME = "默认"
+	MasterUser_NAME  = "高管"
+	AdminUser_NAME   = "中管"
+	SeniorUser_NAME  = "高级成员"
+	NormalUser_NAME  = "正式成员"
+	InternUser_NAME  = "实习成员"
+)
+
+func GetAuthUnit(role string, arg int) (*AuthUnit, error) {
+	switch role {
+	case MasterUser_NAME:
+		return MasterUserAuthUnit(), nil
+	case AdminUser_NAME:
+		return AdminUserAuthUnit(arg), nil
+	case SeniorUser_NAME:
+		return SeniorUserAuthUnit(arg), nil
+	case NormalUser_NAME:
+		return NormalUserAuthUnit(arg), nil
+	case InternUser_NAME:
+		return InternUserAuthUnit(arg), nil
+	case DefaultUser_NAME:
+		return DefaultAuthUnit(), nil
+	default:
+		return nil, errors.New("no such role")
+	}
+}
+
+// 默认权限
+func DefaultAuthUnit() *AuthUnit {
+	ret := &AuthUnit{
+		BelongSection: Default_SECTION,
+		ReadLv:        1,
+		ManageLv:      1,
+	}
+	return ret
+}
+
 // 实习成员
-func InternUserAuthUnit(section int) AuthUnit {
-	ret := AuthUnit{
+func InternUserAuthUnit(section int) *AuthUnit {
+	ret := &AuthUnit{
 		BelongSection: section,
 		ReadLv:        1,
 		ManageLv:      1,
@@ -25,8 +75,8 @@ func InternUserAuthUnit(section int) AuthUnit {
 }
 
 // 正式成员
-func NormalUserAuthUnit(section int) AuthUnit {
-	ret := AuthUnit{
+func NormalUserAuthUnit(section int) *AuthUnit {
+	ret := &AuthUnit{
 		BelongSection: section,
 		ReadLv:        2,
 		ManageLv:      1,
@@ -35,8 +85,8 @@ func NormalUserAuthUnit(section int) AuthUnit {
 }
 
 // 顾问 / 高级成员
-func SeniorUserAuthUnit(section int) AuthUnit {
-	ret := AuthUnit{
+func SeniorUserAuthUnit(section int) *AuthUnit {
+	ret := &AuthUnit{
 		BelongSection: section,
 		ReadLv:        3,
 		ManageLv:      1,
@@ -45,8 +95,8 @@ func SeniorUserAuthUnit(section int) AuthUnit {
 }
 
 // 中管及项目经理
-func AdminUserAuthUnit(section int) AuthUnit {
-	ret := AuthUnit{
+func AdminUserAuthUnit(section int) *AuthUnit {
+	ret := &AuthUnit{
 		BelongSection: section,
 		ReadLv:        0,
 		ManageLv:      2,
@@ -55,9 +105,9 @@ func AdminUserAuthUnit(section int) AuthUnit {
 }
 
 // 高管和站长
-func MasterUserAuthUnit() AuthUnit {
-	ret := AuthUnit{
-		BelongSection: GLOBAL_ADMIN,
+func MasterUserAuthUnit() *AuthUnit {
+	ret := &AuthUnit{
+		BelongSection: GLOBAL_ADMIN_SECTION,
 		ReadLv:        -1,
 		ManageLv:      3,
 	}
