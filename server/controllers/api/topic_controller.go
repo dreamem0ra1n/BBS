@@ -252,6 +252,22 @@ func (c *TopicController) GetTopics() *web.JsonResult {
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
+// 根据 nodeId 和 tag 获取帖子列表
+func (c *TopicController) GetTopicsnt() *web.JsonResult {
+	var (
+		cursor     = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+		nodeId     = params.FormValueInt64Default(c.Ctx, "nodeId", 0)
+		tagId, err = params.FormValueInt64(c.Ctx, "tagId")
+		user       = services.UserTokenService.GetCurrent(c.Ctx)
+	)
+	if err != nil {
+		return web.JsonError(err)
+	}
+	//TODO: complete this
+	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor)
+	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
+}
+
 // 标签帖子列表
 func (c *TopicController) GetTagTopics() *web.JsonResult {
 	var (
