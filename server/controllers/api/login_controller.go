@@ -107,7 +107,7 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	_ = resp.Data.User.LoginType
 
 	user, err := services.UserService.SignIn(ZjuId, ZjuId)
-	if err.Error() == "NO_SUCH_USER" {
+	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registeUser(username, ZjuId)
 	} else if err != nil {
