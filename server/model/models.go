@@ -26,8 +26,8 @@ type User struct {
 	Birthday         string         `gorm:"size:32;" json:"birthday" form:"birthday"`
 	Department       string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
 	Mobile           string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话
-	WX               string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
-	QQ               string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
+	Wechat           string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
+	Qq               string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
 	Avatar           string         `gorm:"type:text" json:"avatar" form:"avatar"`                              // 头像
 	BackgroundImage  string         `gorm:"type:text" json:"backgroundImage" form:"backgroundImage"`            // 个人中心背景图片
 	Password         string         `gorm:"size:512" json:"password" form:"password"`                           // 密码
