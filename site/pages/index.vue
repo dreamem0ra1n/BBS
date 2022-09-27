@@ -32,6 +32,15 @@ export default {
   async asyncData({ $axios, store }) {
     store.commit('env/setCurrentNodeId', 0) // 设置当前所在node
     try {
+      await $axios
+        .post('/api/login/signin', { ref: null })
+        .then((res) => {
+          console.log(res)
+          this.$store.commit('user/setCurrent', res.data)
+        })
+        .catch((e) => {
+          console.log(e)
+        })
       const [nodes, topicsPage, scoreRank, links] = await Promise.all([
         $axios.get('/api/topic/nodes'),
         $axios.get('/api/topic/topics'),

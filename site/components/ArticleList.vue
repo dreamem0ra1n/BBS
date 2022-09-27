@@ -7,9 +7,9 @@
         itemtype="http://schema.org/BlogPosting"
       >
         <h1 class="article-title" itemprop="headline">
-          <nuxt-link :to="'/article/' + article.articleId">{{
+          <my-link :to="'/article/' + article.articleId">{{
             article.title
-          }}</nuxt-link>
+          }}</my-link>
         </h1>
 
         <div class="article-summary" itemprop="description">
@@ -19,7 +19,7 @@
         <div class="article-meta">
           <span class="article-meta-item">
             由
-            <nuxt-link
+            <my-link
               :to="'/user/' + article.user.id"
               class="article-author"
               itemprop="author"
@@ -27,7 +27,7 @@
               itemtype="http://schema.org/Person"
               ><span itemprop="name">{{
                 article.user.nickname
-              }}</span></nuxt-link
+              }}</span></my-link
             >发布于
             <time
               :datetime="article.createTime | formatDate('yyyy-MM-ddTHH:mm:ss')"
@@ -45,9 +45,9 @@
               :key="tag.tagId"
               class="article-tag"
             >
-              <nuxt-link :to="'/articles/' + tag.tagId" class>{{
+              <my-link :to="'/articles/' + tag.tagId" class>{{
                 tag.tagName
-              }}</nuxt-link>
+              }}</my-link>
             </span>
           </span>
 

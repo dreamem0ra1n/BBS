@@ -7,9 +7,9 @@
   >
     <div class="container">
       <div class="navbar-brand">
-        <nuxt-link to="/" class="navbar-item">
+        <my-link to="/" class="navbar-item">
           <img :alt="config.siteTitle" src="~/assets/images/logo.png" />
-        </nuxt-link>
+        </my-link>
         <a
           :class="{ 'is-active': navbarActive }"
           class="navbar-burger burger"
@@ -68,7 +68,9 @@
           </div>
           <div v-else class="navbar-item">
             <div class="buttons">
-              <button class="button login-btn" @click="signIn">登录</button>
+              <a class="button login-btn" :href="loginUrl" target="_blank"
+                >登录</a
+              >
             </div>
           </div>
           <div class="navbar-item">
@@ -99,10 +101,11 @@ export default {
     config() {
       return this.$store.state.config.config
     },
-    zju_login() {
+    loginUrl() {
       return (
-        'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
-        window.location.href
+        'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
+        // window.location.href
+        'http://localhost:3000'
       )
     },
   },

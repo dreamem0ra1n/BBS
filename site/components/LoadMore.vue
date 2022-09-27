@@ -1,6 +1,6 @@
 <template>
   <div class="load-more">
-    <div>让我康康</div>
+    <tag-bar></tag-bar>
     <slot :results="results" />
     <div class="has-more">
       <button
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import TagBar from './TagBar.vue'
 export default {
   props: {
     // 请求URL
@@ -45,9 +46,9 @@ export default {
   },
   data() {
     return {
-      cursor: this.initData.cursor, // 分页标识
-      results: this.initData.results || [], // 列表数据
-      hasMore: this.initData.hasMore, // 是否有更多数据
+      cursor: this.initData.cursor,
+      results: this.initData.results || [],
+      hasMore: this.initData.hasMore,
       loading: false, // 是否正在加载中
     }
   },
@@ -98,6 +99,7 @@ export default {
       }
     },
   },
+  components: { TagBar },
 }
 </script>
 
