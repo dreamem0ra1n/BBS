@@ -42,7 +42,18 @@
           </div>
         </div>
       </div>
-
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">职位</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <div>{{ form.role }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- 个性签名 -->
       <div class="field is-horizontal">
         <div class="field-label is-normal">
@@ -90,11 +101,87 @@
           <div class="field">
             <div class="control">
               <input
-                v-model="form.homePage"
+                v-model="form.major"
                 class="input"
                 type="text"
                 autocomplete="off"
-                placeholder="请输入个人主页"
+                placeholder="请输入专业"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">生日</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.birthday"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入生日"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">手机号</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.mobile"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入手机号"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">微信</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.wx"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入微信"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">QQ</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.qq"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入QQ"
               />
             </div>
           </div>
@@ -118,16 +205,20 @@
 <script>
 export default {
   middleware: 'authenticated',
-  async asyncData({ $axios }) {
+  /* async asyncData({ $axios }) {
     const user = await $axios.get('/api/user/current')
     const form = { ...user }
     return {
       user,
       form,
-    }
+    } 
+  }, */
+  mounted() {
+    this.user = this.$store.state.user.current
   },
   data() {
     return {
+      user: {},
       form: {
         nickname: '',
         homePage: '',
@@ -137,6 +228,7 @@ export default {
         mobile: '',
         wx: '',
         qq: '',
+        role: '',
       },
     }
   },
@@ -149,7 +241,7 @@ export default {
     async submitForm() {
       try {
         await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
-        await this.reload()
+        // wait this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {
         console.error(e)

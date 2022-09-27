@@ -3,7 +3,7 @@
     <div class="tags-container">
       <div
         v-for="tag in tags"
-        class="tags-selected"
+        :class="tagClass(tag.tagId)"
         @click="chooseTag(tag.tagId)"
         v-bind:key="tag.tagId"
       >
@@ -18,7 +18,9 @@ export default {
     console.log(params)
     const result = await $axios.get('/api/tag/tags/' + params.nodeId)
     return {
-      tags: result.data.data,
+      tags: result.data,
+      nodeId: params.nodeId || 0,
+      currTag: params.tagId || null,
     }
   },
   data() {
@@ -33,7 +35,13 @@ export default {
   },
   methods: {
     chooseTag(id) {
-      this.$linkTo('/topics/tag/' + id.toString())
+      this.$linkTo('/topic/' + this.nodeId.toString() + '/' + id.toString())
+    },
+    tagClass(id) {
+      if (this.currTag === id) {
+        return 'selected-item'
+      }
+      return 'tag-item'
     },
   },
 }
@@ -71,6 +79,9 @@ export default {
       font-size: 12px;
       white-space: nowrap;
       cursor: pointer;
+    }
+    .selected-item {
+      color: var(--text-link-color);
     }
   }
 }
