@@ -2,22 +2,20 @@
   <div class="select-tags">
     <input id="tags" v-model="tags" name="tags" type="hidden" />
     <div class="tags-selected">
-      sss
-      <div v-for="tag in tags" :key="tag" class="tag-item">
-        <span>{{ tag }}</span>
+      <div v-for="tag in tags" :key="tag.tagId" class="tag-item">
+        <span>{{ tag.tagName }}</span>
       </div>
     </div>
     <transition name="el-zoom-in-bottom">
-      <div v-show="presetTags.length > 0" class="autocomplete-tags">
+      <div class="autocomplete-tags">
         <div class="tags-container">
           <section class="tag-section">
             <div
-              v-for="(item, index) in presetTags"
-              :key="item"
-              :class="{ active: index === selectIndex }"
+              v-for="(item, index) in allTag[currentDepId]"
+              :key="index"
               class="tag-item"
-              @click="selectTag(index)"
-              v-text="item"
+              @click="selectTag(item.tagId)"
+              v-text="item.tagName"
             />
           </section>
         </div>
@@ -33,14 +31,14 @@ export default {
       const _allTag = []
       const _deps = await $axios.get('/api/topic/nodes')
       await Promise.all(
-        _deps.map((dep, index) => {
+        _deps.map((dep) => {
           return $axios.get('/api/tag/tags/' + dep.nodeId).then((depTag) => {
-            _allTag[index] = depTag
+            _allTag[dep.id] = depTag
           })
         })
       )
       return {
-        allTag: _allTag,
+        allTag: _allTag || [[{ tagId: 114514, tagName: '666' }]],
         deps: _deps,
       }
     } catch (e) {
@@ -57,8 +55,8 @@ export default {
   },
   data() {
     return {
-      tags: this.value.tags || [], //与上级组件中的 postForm.tags 双向绑定
-      allTag: [],
+      tags: this.value.tags || [], // 与上级组件中的 postForm.tags 双向绑定
+      allTag: [[{ tagId: 114514, tagName: '666' }]],
       deps: [],
       maxTagCount: 1, // 最多可以选择的标签数量
       maxWordCount: 15, // 每个标签最大字数
@@ -71,9 +69,8 @@ export default {
     }
   },
   computed: {
-    // 推荐标签
     showTags() {
-      return this.allTag
+      return this.allTag[this.currentDepId]
     },
   },
   methods: {
@@ -92,10 +89,16 @@ export default {
      */
     addTag(index) {
       this.selectIndex.push(index)
+      this.tags.push(
+        this.allTag[this.currentDepId].filter((tag) => tag.tagId === index)
+      )
     },
     removeTag(index) {
       this.selectIndex.filter((item) => {
         return item !== index
+      })
+      this.tags.filter((tag) => {
+        return tag.tagId !== index
       })
     },
   },
