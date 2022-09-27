@@ -80,7 +80,9 @@ type Tag struct {
 type Article struct {
 	Model
 	UserId      int64  `gorm:"index:idx_article_user_id" json:"userId" form:"userId"`             // 所属用户编号
+	SectionId   int64  `gorm:"index:idx_article_section_id" json:"sectionId" form:"sectionId"`    // 所属部门编号
 	Title       string `gorm:"size:128;not null;" json:"title" form:"title"`                      // 标题
+	AccessLv    int    `gorm:"type:int(11);" json:"access_lv" form:"access_lv"`                   // 可读权限
 	Summary     string `gorm:"type:text" json:"summary" form:"summary"`                           // 摘要
 	Content     string `gorm:"type:longtext;not null;" json:"content" form:"content"`             // 内容
 	ContentType string `gorm:"type:varchar(32);not null" json:"contentType" form:"contentType"`   // 内容类型：markdown、html
@@ -144,6 +146,7 @@ type Topic struct {
 	Type              constants.TopicType `gorm:"type:int;not null:default:0" json:"type" form:"type"`                             // 类型
 	NodeId            int64               `gorm:"not null;index:idx_node_id;" json:"nodeId" form:"nodeId"`                         // 节点编号
 	UserId            int64               `gorm:"not null;index:idx_topic_user_id;" json:"userId" form:"userId"`                   // 用户
+	AccessLv          int                 `gorm:"not null;" json:"access_lv" form:"access_lv"`                                     // 阅读权限等级
 	Title             string              `gorm:"size:128" json:"title" form:"title"`                                              // 标题
 	Content           string              `gorm:"type:longtext" json:"content" form:"content"`                                     // 内容
 	ImageList         string              `gorm:"type:longtext" json:"imageList" form:"imageList"`                                 // 图片
