@@ -36,21 +36,16 @@ func (c *TagController) GetTags() *web.JsonResult {
 	return web.JsonPageData(render.BuildTags(tags), paging)
 }
 
-// 标签列表
-func (c *TagController) GetTagsBy(secId int) *web.JsonResult {
-	// TODO: 需要更改这里的逻辑
-	page := params.FormValueIntDefault(c.Ctx, "page", 1)
-	tags, paging := services.TagService.FindPageByCnd(sqls.NewCnd().
-		Eq("status", constants.StatusOk).
-		Page(page, 200).Desc("id"))
-
-	return web.JsonPageData(render.BuildTags(tags), paging)
-}
-
-// TODO: ban this api after frontend remove the function
 // 标签自动补全
 func (c *TagController) PostAutocomplete() *web.JsonResult {
 	input := c.Ctx.FormValue("input")
 	tags := services.TagService.Autocomplete(input)
+	return web.JsonData(tags)
+}
+
+func (c *TagController) GetListBy(sectionId int) *web.JsonResult {
+	tags0 := services.TagService.GetTagsList(0)
+	tagsn := services.TagService.GetTagsList(sectionId)
+	tags := append(tags0, tagsn...)
 	return web.JsonData(tags)
 }
