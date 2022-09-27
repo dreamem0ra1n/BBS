@@ -78,7 +78,7 @@
 
         <div class="field">
           <div class="control">
-            <tag-input v-model="postForm" />
+            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
 
@@ -169,7 +169,11 @@ export default {
     this.showCaptcha()
   },
   methods: {
+    setTag(tags) {
+      this.postForm.tags = tags
+    },
     async submitCreate() {
+      console.log(this.postForm)
       if (this.publishing) {
         return
       }
