@@ -43,6 +43,12 @@ export default {
         }
       },
     },
+    showTag: {
+      type: Boolean,
+      default() {
+        return true
+      },
+    },
   },
   data() {
     return {

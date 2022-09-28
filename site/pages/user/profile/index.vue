@@ -158,7 +158,7 @@
           <div class="field">
             <div class="control">
               <input
-                v-model="form.wx"
+                v-model="form.wechat"
                 class="input"
                 type="text"
                 autocomplete="off"
@@ -226,7 +226,7 @@ export default {
         major: '',
         birthday: '',
         mobile: '',
-        wx: '',
+        wechat: '',
         qq: '',
         role: '',
       },
@@ -240,7 +240,28 @@ export default {
   methods: {
     async submitForm() {
       try {
-        await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
+        //  await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
+        await this.$axios({
+          method: 'post',
+          url: '/api/user/edit' + this.user.id.toString(),
+          headers: {
+            ContentType: 'application/x-www-form-urlencoded',
+          },
+          data: this.form,
+          transformRequest: [
+            function (data) {
+              let ret = ''
+              for (const item in data) {
+                ret +=
+                  encodeURIComponent(item) +
+                  '=' +
+                  encodeURIComponent(data[item]) +
+                  '&'
+              }
+              return ret
+            },
+          ],
+        })
         // wait this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {
