@@ -19,16 +19,8 @@ data: {
 
 `[POST]` `/api/user/edit/{uid_long}`
 
-```json
-data: {
-    "homePage": 个人主页,
-    "description": 个人介绍,
-    "major": 专业,
-    "birthday": 生日,
-    "mobile": 手机号,
-    "wx": 微信号,
-    "qq": QQ号,
-}
+```html
+"homePage=个人主页&description=个人介绍&major=专业&birthday=生日&mobile=手机&"wechat=微信号&qq=QQ号"
 ```
 
 ### 根据部门 id 获取 tag
@@ -43,9 +35,13 @@ data: {
 data: {
     [
         {
+            "id": tag id,
             "name": tag 名称,
             "section_id": 部门 id,
             "description": 描述,
+            "status": 可用状态，0 为可用,
+            "createTime": 创建时间,
+            "updateTime": 上次更新时间
         },
     ]
 }
@@ -54,17 +50,14 @@ data: {
 
 ### 根据 NodeId 和 TagId 获取帖子列表
 
-`[GET]` `/api/topic/topicsnt`
+`[POST]` `/api/topic/topicsnt`
 
 通过 部门id 和 tagid 查询帖子列表
 
-req 的 body 中需要传入：
-```json
-{
-    "cursor": ,
-    "nodeId": node id,
-    "tagId": tag id,
-}
+req 的 form 中需要传入：
+
+```html
+"cursor=cursor_id&nodeId=node_id&tagId=tag_id"
 ```
 
 resp 同 `/api/topic/topics`
