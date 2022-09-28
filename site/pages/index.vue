@@ -48,8 +48,13 @@ export default {
       .post('/api/login/signin', { ref: window.location.href })
       .then((res) => {
         console.log(res)
-        this.$store.commit('user/setCurrent', res.data.user)
-        this.$store.commit('user/setUserToken', res.data.token)
+        this.$store.commit('user/setCurrent', res.user)
+        this.$store.commit('user/setUserToken', res.token)
+        const config = this.$store.state.config.config
+        this.$cookies.set('userToken', res.token, {
+          maxAge: 86400 * config.tokenExpireDays,
+          path: '/',
+        })
       })
       .catch((e) => {
         console.log(e)
