@@ -98,12 +98,7 @@ export default {
     },
   },
   mounted() {
-    if (this.loginForm.username === "") {
-      this.$refs.username.focus();
-    } else if (this.loginForm.password === "") {
-      this.$refs.password.focus();
-    }
-    this.showCaptcha();
+    this.$store.dispatch("user/login");
   },
   methods: {
     async showCaptcha() {
