@@ -214,6 +214,7 @@ export default {
     } 
   }, */
   mounted() {
+    this.reload()
     this.user = this.$store.state.user.current
   },
   data() {
@@ -240,29 +241,8 @@ export default {
   methods: {
     async submitForm() {
       try {
-        //  await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
-        await this.$axios({
-          method: 'post',
-          url: '/api/user/edit' + this.user.id.toString(),
-          headers: {
-            ContentType: 'application/x-www-form-urlencoded',
-          },
-          data: this.form,
-          transformRequest: [
-            function (data) {
-              let ret = ''
-              for (const item in data) {
-                ret +=
-                  encodeURIComponent(item) +
-                  '=' +
-                  encodeURIComponent(data[item]) +
-                  '&'
-              }
-              return ret
-            },
-          ],
-        })
-        // wait this.reload()
+        await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
+        await this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {
         console.error(e)
@@ -277,6 +257,7 @@ export default {
     },
     async reload() {
       this.user = await this.$axios.get('/api/user/current')
+      this.$store.commit('user/setCurrent', this.user)
       this.form = { ...this.user }
     },
   },

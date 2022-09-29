@@ -19,18 +19,16 @@ export default {
     const tagId = parseInt(params.tagId)
     store.commit('env/setCurrentNodeId', +nodeId) // 设置当前所在node
     store.commit('env/setCurrentTag', +tagId)
-    console.log(params)
-    console.log($axios)
     const [node, topicsPage, tag] = await Promise.all([
       $axios.get('/api/topic/node?nodeId=' + nodeId),
       $axios.post('/api/topic/topicsnt', {
-        cursor: 1,
+        cursor: '',
         nodeId,
         tagId,
       }),
       $axios.get('/api/tag/' + tagId),
     ])
-    console.log(node)
+    console.log(topicsPage)
     return {
       node,
       tag,

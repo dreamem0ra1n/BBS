@@ -178,7 +178,7 @@ export default {
         return
       }
 
-      if (!this.postForm.nodeId) {
+      if (!this.postForm.nodeId && this.postForm.nodeId !== 0) {
         this.$message.error('请选择节点')
         return
       }
