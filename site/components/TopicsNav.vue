@@ -2,7 +2,7 @@
   <nav class="dock-nav">
     <ul>
       <li :class="{ active: currentNodeId === -2 }">
-        <nuxt-link to="/topics/node/feed">
+        <nuxt-link to="/topics/node/0">
           <span class="node-name">公告</span>
         </nuxt-link>
       </li>

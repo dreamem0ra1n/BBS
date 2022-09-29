@@ -22,7 +22,7 @@ export default {
     const [node, topicsPage, tag] = await Promise.all([
       $axios.get('/api/topic/node?nodeId=' + nodeId),
       $axios.post('/api/topic/topicsnt', {
-        cursor: '',
+        cursor: 0,
         nodeId,
         tagId,
       }),
