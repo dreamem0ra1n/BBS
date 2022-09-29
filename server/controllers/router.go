@@ -56,7 +56,7 @@ func Router() {
 	// api
 	mvc.Configure(app.Party("/api"), func(m *mvc.Application) {
 		m.Party("/topic").Handle(new(api.TopicController))
-		m.Party("/article").Handle(new(api.ArticleController))
+		// m.Party("/article").Handle(new(api.ArticleController))
 		m.Party("/login").Handle(new(api.LoginController))
 		m.Party("/user").Handle(new(api.UserController))
 		m.Party("/tag").Handle(new(api.TagController))
@@ -74,6 +74,7 @@ func Router() {
 		m.Party("/search").Handle(new(api.SearchController))
 		m.Party("/fans").Handle(new(api.FansController))
 		m.Party("/feed").Handle(new(api.FeedController))
+		m.Party("/file").Handle(new(api.FileController))
 	})
 
 	// admin

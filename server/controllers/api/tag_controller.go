@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bbs-go/model"
 	"bbs-go/model/constants"
 
 	"github.com/kataras/iris/v12"
@@ -44,8 +45,13 @@ func (c *TagController) PostAutocomplete() *web.JsonResult {
 }
 
 func (c *TagController) GetListBy(sectionId int) *web.JsonResult {
-	tags0 := services.TagService.GetTagsList(0)
-	tagsn := services.TagService.GetTagsList(sectionId)
-	tags := append(tags0, tagsn...)
+	tags := []model.Tag{}
+	if sectionId != 0 {
+		tags0 := services.TagService.GetTagsList(0)
+		tagsn := services.TagService.GetTagsList(sectionId)
+		tags = append(tags0, tagsn...)
+	} else if sectionId == 0 {
+		tags = services.TagService.GetTagsList(0)
+	}
 	return web.JsonData(tags)
 }

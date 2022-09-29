@@ -17,6 +17,14 @@ type Config struct {
 	ShowSql    bool   `yaml:"ShowSql"`    // 是否显示日志
 	StaticPath string `yaml:"StaticPath"` // 静态文件目录
 
+	MinIO struct {
+		Endpoint        string `yaml:"Endpoint"`
+		AccessKeyID     string `yaml:"AccessKeyID"`
+		SecretAccessKey string `yaml:"SecretAccessKey"`
+		UseSSL          bool   `yaml:"UserSSL"`
+		BucketLocation  string `yaml:"BucketLocation"`
+	} `yaml:"MinIO"`
+
 	// 数据库配置
 	DB struct {
 		Url          string `yaml:"Url"`
