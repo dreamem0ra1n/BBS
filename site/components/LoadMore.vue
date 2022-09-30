@@ -1,6 +1,6 @@
 <template>
   <div class="load-more">
-    <tag-bar></tag-bar>
+    <tag-bar :v-if="showTag"></tag-bar>
     <slot :results="results" />
     <div class="has-more">
       <button

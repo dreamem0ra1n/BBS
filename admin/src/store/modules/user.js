@@ -35,7 +35,7 @@ const actions = {
   login({ commit }) {
     return new Promise((resolve, reject) => {
       this._vm.axios
-        .post("/api/login/signin", { ref: window.location.href })
+        .form("/api/login/signin", { ref: window.location.href })
         .then((data) => {
           commit("SET_TOKEN", data.token);
           setToken(data.token);

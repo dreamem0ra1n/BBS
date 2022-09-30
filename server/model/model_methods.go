@@ -59,7 +59,13 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 	for _, role := range roles {
 		roleItems := strings.Split(role, ".")
 		roleType := roleItems[0]
-		roleArgv, err := strconv.Atoi(roleItems[1])
+		var roleArgv int
+		var err error
+		if len(roleItems) == 2 {
+			roleArgv, err = strconv.Atoi(roleItems[1])
+		} else {
+			roleArgv = -1
+		}
 		if err != nil {
 			return -1, err
 		}
@@ -79,7 +85,13 @@ func (u *User) GetRoleByArg(arg int64) (string, error) {
 	for _, role := range roles {
 		roleItems := strings.Split(role, ".")
 		roleType := roleItems[0]
-		roleArgv, err := strconv.Atoi(roleItems[1])
+		var roleArgv int
+		var err error
+		if len(roleItems) == 2 {
+			roleArgv, err = strconv.Atoi(roleItems[1])
+		} else {
+			roleArgv = -1
+		}
 		if err != nil {
 			return "", err
 		}
@@ -113,7 +125,13 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 	for _, role := range roles {
 		roleItems := strings.Split(role, ".")
 		roleType := roleItems[0]
-		roleArgv, err := strconv.Atoi(roleItems[1])
+		var roleArgv int
+		var err error
+		if len(roleItems) == 2 {
+			roleArgv, err = strconv.Atoi(roleItems[1])
+		} else {
+			roleArgv = -1
+		}
 		if err != nil {
 			logrus.Error("Error happen when split %s's roles!", u.Nickname)
 			return nil, err

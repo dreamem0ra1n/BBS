@@ -182,8 +182,8 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 
 	topic := services.TopicService.Get(topicId)
-
 	user := services.UserTokenService.GetCurrent(c.Ctx)
+
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
@@ -389,7 +389,6 @@ func UserCanAccessTopic(user *model.User, topic *model.Topic) bool {
 		logrus.Error("Error happen while getting user's auth unit")
 		return false
 	}
-
 	// 检查权限单元
 	// 如果阅读权限过低则无法访问
 	if au.ReadLv < topic.AccessLv {

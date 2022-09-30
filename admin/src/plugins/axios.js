@@ -16,6 +16,7 @@ function isFormData(data) {
 const axiosInstance = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   timeout: 5000, // request timeout,
+  withCredentials: true,
 });
 
 // 设置form请求
