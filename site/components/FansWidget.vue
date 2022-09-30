@@ -28,6 +28,7 @@
           v-slot="{ results }"
           :init-data="fansPage"
           :params="{ userId: user.id }"
+          :showTag="false"
           url="/api/fans/fans"
         >
           <user-follow-list :users="results" />
