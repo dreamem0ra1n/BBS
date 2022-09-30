@@ -4,11 +4,11 @@
       <div class="tags-selected">
         <div
           v-for="(item, index) in allTag[currentDepId]"
-          :key="item.tagId + index"
-          :class="tagClass(item.tagId)"
-          @click="selectTag(item.tagId)"
+          :key="item.id + index"
+          :class="tagClass(item.id)"
+          @click="selectTag(item.id)"
         >
-          {{ item.tagName }}
+          {{ item.name }}
         </div>
       </div>
     </div>
@@ -16,26 +16,9 @@
 </template>
 
 <script>
+import { all } from 'q'
+
 export default {
-  async asyncData({ $axios, params, store }) {
-    try {
-      const _allTag = []
-      const _deps = await $axios.get('/api/topic/nodes')
-      await Promise.all(
-        _deps.map((dep) => {
-          return $axios.get('/api/tag/tags/' + dep.nodeId).then((depTag) => {
-            _allTag[dep.id] = depTag
-          })
-        })
-      )``
-      return {
-        allTag: _allTag || [[{ tagId: 114514, tagName: '666' }]],
-        deps: _deps,
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  },
   props: {
     nodeId: {
       type: Number,
@@ -46,14 +29,26 @@ export default {
       default: (id) => {},
     },
   },
-  mounted() {},
+  async mounted() {
+    this.deps = await this.$axios.get('/api/topic/nodes')
+    await Promise.all(
+      this.deps.map((dep) => {
+        return this.$axios.get('/api/tag/list/' + dep.nodeId).then((depTag) => {
+          console.log(depTag)
+          this.allTag[dep.nodeId] = depTag
+        })
+      })
+    )
+    console.log(this.allTag)
+    this.allTag.push()
+  },
   data() {
     return {
       tags: [],
       allTag: [
-        [{ tagId: 114514, tagName: '646' }],
-        [{ tagId: 114515, tagName: '666' }],
-        [{ tagId: 1147615, tagName: '366' }],
+        [{ id: 114514, name: '646' }],
+        [{ id: 114515, name: '666' }],
+        [{ id: 1147615, name: '366' }],
       ],
       deps: [],
       maxTagCount: 1, // 最多可以选择的标签数量
@@ -87,7 +82,7 @@ export default {
       } else this.removeTag(index)
       this.$emit(
         'setTag',
-        this.tags.map((tag) => tag.tagName)
+        this.tags.map((tag) => tag.name)
       )
     },
 
@@ -98,7 +93,7 @@ export default {
     addTag(index) {
       this.selectIndex.push(index)
       this.tags = this.allTag[this.currentDepId].filter(
-        (tag) => tag.tagId === index
+        (tag) => tag.id === index
       )
 
       console.log(this.tags)
@@ -109,7 +104,7 @@ export default {
         return item !== index
       })
       this.tags = this.tags.filter((tag) => {
-        return tag.tagId !== index
+        return tag.id !== index
       })
     },
     tagClass(id) {

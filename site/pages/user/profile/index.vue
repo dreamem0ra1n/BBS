@@ -158,7 +158,7 @@
           <div class="field">
             <div class="control">
               <input
-                v-model="form.wx"
+                v-model="form.wechat"
                 class="input"
                 type="text"
                 autocomplete="off"
@@ -214,6 +214,7 @@ export default {
     } 
   }, */
   mounted() {
+    this.reload()
     this.user = this.$store.state.user.current
   },
   data() {
@@ -226,7 +227,7 @@ export default {
         major: '',
         birthday: '',
         mobile: '',
-        wx: '',
+        wechat: '',
         qq: '',
         role: '',
       },
@@ -241,7 +242,7 @@ export default {
     async submitForm() {
       try {
         await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
-        // wait this.reload()
+        await this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {
         console.error(e)
@@ -256,6 +257,7 @@ export default {
     },
     async reload() {
       this.user = await this.$axios.get('/api/user/current')
+      this.$store.commit('user/setCurrent', this.user)
       this.form = { ...this.user }
     },
   },

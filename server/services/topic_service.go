@@ -312,11 +312,11 @@ func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool) (topics [
 
 // 根据 NodeId 和 tag 指定标签下话题列表
 func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (topics []model.Topic, nextCursor int64, hasMore bool) {
+	topics = []model.Topic{}
 	limit := 20
 	topicTags := repositories.TopicTagRepository.Find(sqls.DB(), sqls.NewCnd().
 		Eq("tag_id", tagId).
 		Eq("status", constants.StatusOk).
-		Eq("node_id", nodeId).
 		Desc("last_comment_time").Limit(limit))
 	if len(topicTags) > 0 {
 		nextCursor = topicTags[len(topicTags)-1].LastCommentTime

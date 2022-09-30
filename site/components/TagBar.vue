@@ -3,34 +3,34 @@
     <div class="tags-container">
       <div
         v-for="tag in tags"
-        :class="tagClass(tag.tagId)"
-        @click="chooseTag(tag.tagId)"
-        v-bind:key="tag.tagId"
+        @click="chooseTag(tag.id)"
+        v-bind:key="tag.id + 'tag'"
       >
-        <div class="tag-item">{{ tag.tagName }}</div>
+        <div :class="tagClass(tag.id)">{{ tag.name }}</div>
       </div>
     </div>
   </div>
 </template>
 <script>
 export default {
-  async asyncData({ params, $axios }) {
-    console.log(params)
-    const result = await $axios.get('/api/tag/tags/' + params.nodeId)
-    return {
-      tags: result.data,
-      nodeId: params.nodeId || 0,
-      currTag: params.tagId || null,
-    }
+  async mounted() {
+    const result = await this.$axios.get(
+      '/api/tag/list/' + this.$store.state.env.currentNodeId
+    )
+    this.tags = result
+    this.nodeId = this.$store.state.env.currentNodeId
+    this.currTag = this.$store.state.env.currentTag
+    console.log(this.currTag)
   },
   data() {
     return {
       tags: [
         {
-          tagId: 111,
-          tagName: '111',
+          id: 111,
+          name: '111',
         },
       ],
+      nodeId: 0,
     }
   },
   methods: {
@@ -63,10 +63,11 @@ export default {
     padding: 0;
   }
 
-  .tags-selected {
+  .tags-container {
     display: flex;
 
-    .tag-item {
+    .tag-item,
+    .selected-item {
       margin: 5px;
       padding: 0 25px;
       background: #ffffff;

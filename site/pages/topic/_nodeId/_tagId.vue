@@ -17,16 +17,19 @@ export default {
   async asyncData({ $axios, params, store }) {
     const nodeId = parseInt(params.nodeId)
     const tagId = parseInt(params.tagId)
-    store.commit('env/setCurrentNodeId', nodeId) // 设置当前所在node
-    const [node, topicsPage,tag] = await Promise.all([
+    store.commit('env/setCurrentNodeId', +nodeId) // 设置当前所在node
+    store.commit('env/setCurrentTag', +tagId)
+    const [node, topicsPage, tag] = await Promise.all([
       $axios.get('/api/topic/node?nodeId=' + nodeId),
-      $axios.get('/api/topic/topicsnt', {
-        cursor: null,
-        nodeId: nodeId,
-        tag,
+      $axios.post('/api/topic/topicsnt', {
+        cursor: '',
+        nodeId,
+        tagId,
       }),
       $axios.get('/api/tag/' + tagId),
     ])
+    console.log(topicsPage)
+    console.log(node)
     return {
       node,
       tag,
@@ -35,7 +38,7 @@ export default {
   },
   head() {
     return {
-      title: this.$siteTitle(this.node.name + ' - '+this.tag.tagName),
+      title: this.$siteTitle(this.node.name + ' - ' + this.tag.name),
       meta: [
         {
           hid: 'description',
