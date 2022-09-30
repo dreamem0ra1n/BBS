@@ -297,5 +297,6 @@ type FileRecord struct {
 	Model
 	FileName   string `gorm:"not null;" json:"file_name" form:"file_name"`
 	FileUUID   string `gorm:"not null;unique" json:"file_id" form:"file_id"`
+	FileSize   int64  `gorm:"not null;" json:"file_size" form:"file_size"`
 	BucketName string `gorm:"not null;" json:"bucket_name" form:"bucket_name"`
 }

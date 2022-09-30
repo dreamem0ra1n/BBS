@@ -5,8 +5,7 @@ import (
 	"bbs-go/pkg/config"
 	"bbs-go/services"
 	"errors"
-	"io"
-	"strings"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 	"github.com/kataras/iris/v12"
@@ -18,8 +17,10 @@ import (
 
 var (
 	minioClient *minio.Client
-	bucketName  string
 )
+
+// Actually a random number is better.
+const bucketName = "qscbbsbucket"
 
 type FileController struct {
 	Ctx iris.Context
@@ -37,7 +38,7 @@ func InitMinio(conf *config.Config) {
 		conf.MinIO.UseSSL,
 	)
 	if err != nil {
-		logrus.Fatal("Fail to link to MinIO")
+		logrus.Fatal("Fail to create MinIO Client")
 		return
 	}
 	exists, err := minioClient.BucketExists(bucketName)
@@ -45,32 +46,30 @@ func InitMinio(conf *config.Config) {
 		logrus.Info("We already own a bucket called %s\n", bucketName)
 	} else {
 		if err != nil {
-			logrus.Fatal("Fail to find exist bucket", err)
+			logrus.Fatal("Fail to find exist bucket: ", err)
 			return
 		}
 		err = minioClient.MakeBucket(bucketName, conf.MinIO.BucketLocation)
 		if err != nil {
-			logrus.Fatal("Fail to create bucket", err)
+			logrus.Fatal("Fail to create bucket:", err)
 			return
 		}
 	}
 }
 
 func PostUpload(c *FileController) *web.JsonResult {
-	fileString := params.FormValueDefault(c.Ctx, "file", "")
-	fileNameOri := params.FormValueDefault(c.Ctx, "file_name", "")
+	file, info, err := c.Ctx.FormFile("uploadfile")
 
-	if fileString == "" {
-		logrus.Error("No file are received!")
-		return web.JsonError(errors.New("no file received"))
+	if err != nil {
+		logrus.Info("error happen when get multipart file: ", err)
+		return web.JsonError(err)
 	}
 
-	// to io.Reader
-	file := strings.NewReader(fileString)
-
+	fileNameOri := info.Filename
+	fileSize := info.Size
 	fileUUID := uuid.New().String()
 
-	bytes, err := minioClient.PutObject(bucketName, fileUUID, file, file.Size(), minio.PutObjectOptions{})
+	bytes, err := minioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{})
 	if err != nil {
 		logrus.Error("error happen when put object to minio: %s", err)
 		return web.JsonError(errors.New("error happen when put object to minio"))
@@ -81,6 +80,7 @@ func PostUpload(c *FileController) *web.JsonResult {
 	newFile := &model.FileRecord{
 		FileName:   fileNameOri,
 		FileUUID:   fileUUID,
+		FileSize:   fileSize,
 		BucketName: bucketName,
 	}
 
@@ -117,16 +117,19 @@ func PostDownload(c *FileController) *web.JsonResult {
 		return web.JsonError(errors.New("error happen when get object from minio"))
 	}
 
-	fileString, err := io.ReadAll(object)
 	if err != nil {
 		logrus.Error("error happen when change file reader to string: %s", err)
 		return web.JsonError(errors.New("error happen when change file reader to string"))
 	}
 
 	resp := struct {
-		File string `json:"file"`
+		File multipart.File `json:"file"`
+		Name string         `json:"name"`
+		Size int64          `json:"size"`
 	}{
-		File: string(fileString),
+		File: object,
+		Name: fileRecord.FileName,
+		Size: fileRecord.FileSize,
 	}
 
 	return web.JsonData(resp)
