@@ -5,7 +5,7 @@ import (
 	"bbs-go/pkg/config"
 	"bbs-go/services"
 	"errors"
-	"mime/multipart"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/kataras/iris/v12"
@@ -93,19 +93,21 @@ func PostUpload(c *FileController) *web.JsonResult {
 	return web.JsonData(newFile)
 }
 
-func PostDownload(c *FileController) *web.JsonResult {
+func GetDownload(c *FileController) {
 	fileId := params.FormValueInt64Default(c.Ctx, "file_id", -1)
 
 	if fileId == -1 {
 		logrus.Error("empty fileId!")
-		return web.JsonError(errors.New("empty file_id"))
+		c.Ctx.StatusCode(400)
+		return
 	}
 
 	fileRecord := services.FileService.Get(fileId)
 
 	if fileRecord == nil {
 		logrus.Error("no such file")
-		return web.JsonError(errors.New("no such file"))
+		c.Ctx.StatusCode(400)
+		return
 	}
 
 	bucket := fileRecord.BucketName
@@ -114,23 +116,16 @@ func PostDownload(c *FileController) *web.JsonResult {
 	object, err := minioClient.GetObject(bucket, fileUUID, minio.GetObjectOptions{})
 	if err != nil {
 		logrus.Error("error happen when get object from minio: %s", err)
-		return web.JsonError(errors.New("error happen when get object from minio"))
+		c.Ctx.StatusCode(400)
+		return
 	}
 
 	if err != nil {
 		logrus.Error("error happen when change file reader to string: %s", err)
-		return web.JsonError(errors.New("error happen when change file reader to string"))
+		c.Ctx.StatusCode(400)
+		return
 	}
 
-	resp := struct {
-		File multipart.File `json:"file"`
-		Name string         `json:"name"`
-		Size int64          `json:"size"`
-	}{
-		File: object,
-		Name: fileRecord.FileName,
-		Size: fileRecord.FileSize,
-	}
-
-	return web.JsonData(resp)
+	c.Ctx.ServeContent(object, fileRecord.FileName, time.Now())
+	return
 }
