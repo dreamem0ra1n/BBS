@@ -52,6 +52,9 @@ func (u *User) HasAnyRole(roles ...string) bool {
 
 // GetArgByRole 查看对应的 role 的参数
 func (u *User) GetArgByRole(reqRole string) (int, error) {
+	if len(u.Roles) == 0 {
+		return -1, nil
+	}
 	roles := strings.Split(u.Roles, ",")
 	for _, role := range roles {
 		roleItems := strings.Split(role, ".")
@@ -69,6 +72,9 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 
 // GetRoleByArg 查看对应的 Role
 func (u *User) GetRoleByArg(arg int64) (string, error) {
+	if len(u.Roles) == 0 {
+		return DefaultUser_NAME, nil
+	}
 	roles := strings.Split(u.Roles, ",")
 	for _, role := range roles {
 		roleItems := strings.Split(role, ".")
@@ -99,6 +105,9 @@ func (u *User) GetUserAuthUnitByRole(role string) (*AuthUnit, error) {
 
 // GetUserAuthUnits 获取用户权限单元列表
 func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
+	if len(u.Roles) == 0 {
+		return nil, nil
+	}
 	roles := strings.Split(u.Roles, ",")
 	retAu := []*AuthUnit{}
 	for _, role := range roles {

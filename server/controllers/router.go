@@ -50,7 +50,7 @@ func Router() {
 	})
 
 	app.Any("/", func(i iris.Context) {
-		_, _ = i.HTML("<h1>Powered by bbs-go</h1>")
+		_, _ = i.HTML("<h1>Powered by bbs-go QwQ</h1>")
 	})
 
 	// api

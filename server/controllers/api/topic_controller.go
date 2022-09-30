@@ -180,7 +180,9 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 
 // 帖子详情
 func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
+
 	topic := services.TopicService.Get(topicId)
+
 	user := services.UserTokenService.GetCurrent(c.Ctx)
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
@@ -260,7 +262,6 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 		tagId, err = params.FormValueInt64(c.Ctx, "tagId")
 		user       = services.UserTokenService.GetCurrent(c.Ctx)
 	)
-	logrus.Info(c.Ctx)
 	if err != nil {
 		return web.JsonError(err)
 	}

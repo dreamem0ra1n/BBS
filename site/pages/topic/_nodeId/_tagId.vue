@@ -29,6 +29,7 @@ export default {
       $axios.get('/api/tag/' + tagId),
     ])
     console.log(topicsPage)
+    console.log(node)
     return {
       node,
       tag,
