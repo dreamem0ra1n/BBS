@@ -11,7 +11,6 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/minio/minio-go/v6"
 	"github.com/mlogclub/simple/web"
-	"github.com/mlogclub/simple/web/params"
 	"github.com/sirupsen/logrus"
 )
 
@@ -57,7 +56,7 @@ func InitMinio(conf *config.Config) {
 	}
 }
 
-func PostUpload(c *FileController) *web.JsonResult {
+func (c *FileController) PostUpload() *web.JsonResult {
 	file, info, err := c.Ctx.FormFile("uploadfile")
 
 	if err != nil {
@@ -93,8 +92,7 @@ func PostUpload(c *FileController) *web.JsonResult {
 	return web.JsonData(newFile)
 }
 
-func GetDownload(c *FileController) {
-	fileId := params.FormValueInt64Default(c.Ctx, "file_id", -1)
+func (c *FileController) GetDownloadBy(fileId int64) {
 
 	if fileId == -1 {
 		logrus.Error("empty fileId!")

@@ -61,3 +61,25 @@ req 的 form 中需要传入：
 ```
 
 resp 同 `/api/topic/topics`
+
+
+### 上传文件
+
+`[POST]` `/api/file/upload` (multipart/form)
+
+resp:
+
+```json
+data: {
+		"file_name":   fileNameOri,
+		"file_id":   fileUUID,
+		"file_size":   fileSize,
+		"bucket_name": bucketName,
+}
+```
+
+### 下载文件
+
+`[GET]` `/api/file/download/{file_id}`
+
+resp: file
