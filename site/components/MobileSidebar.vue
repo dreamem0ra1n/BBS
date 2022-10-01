@@ -70,8 +70,7 @@ export default {
     loginUrl() {
       return (
         'https://www.qsc.zju.edu.cn/passport/v4/?success=' +
-        window?.location?.href??
-        'http://localhost:3000'
+        this.$store.state.env.currentDomain
       )
     },
   },

@@ -44,6 +44,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('env/setDomain', window.location.origin)
     this.$axios
       .post('/api/login/signin', { ref: window.location.href })
       .then((res) => {
