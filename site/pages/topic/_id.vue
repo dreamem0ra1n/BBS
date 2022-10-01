@@ -264,6 +264,7 @@ export default {
   mounted() {
     // 加载隐藏内容
     this.getHideContent()
+    this.$store.commit('env/setCurrentTag', -1919810)
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
     CommonHelper.initHighlight(this)

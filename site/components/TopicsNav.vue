@@ -1,8 +1,8 @@
 <template>
   <nav class="dock-nav">
     <ul>
-      <li :class="{ active: currentNodeId === -2 }">
-        <nuxt-link to="/topics/node/0">
+      <li :class="{ active: currentNodeId === 1 }">
+        <nuxt-link to="/topics/node/1">
           <span class="node-name">公告</span>
         </nuxt-link>
       </li>
@@ -18,7 +18,7 @@
       </li>
       <li class="dock-nav-divider"></li>
       <li
-        v-for="node in nodes"
+        v-for="node in nodes.filter((node) => node.nodeId !== 1)"
         :key="node.nodeId"
         :class="{ active: currentNodeId === node.nodeId }"
       >

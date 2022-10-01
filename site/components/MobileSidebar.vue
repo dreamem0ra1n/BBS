@@ -69,8 +69,8 @@ export default {
     },
     loginUrl() {
       return (
-        'https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=' +
-        window.location.href
+        'https://www.qsc.zju.edu.cn/passport/v4/?success=' +
+        this.$store.state.env.currentDomain
       )
     },
   },
