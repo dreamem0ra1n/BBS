@@ -75,7 +75,20 @@
             />
           </div>
         </div>
-
+        <div class="field">
+          <div class="control">
+            <no-ssr>
+              <file-pond
+                name="test"
+                ref="pond"
+                label-idle="Drop files here..."
+                v-bind:allow-multiple="true"
+                server="/api"
+                v-bind:files="myFiles"
+                v-on:init="handleFilePondInit"
+            /></no-ssr>
+          </div>
+        </div>
         <div class="field">
           <div class="control">
             <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
@@ -99,6 +112,21 @@
 </template>
 
 <script>
+import vueFilePond from 'vue-filepond'
+
+// Import FilePond styles
+import 'filepond/dist/filepond.min.css'
+
+// Import FilePond plugins
+// Please note that you need to install these plugins separately
+
+// Import image preview plugin styles
+
+// Create component
+const FilePond = vueFilePond()
+FilePond.setOptions({
+  server: '/file/upload',
+})
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, query, store }) {
@@ -129,6 +157,7 @@ export default {
   },
   data() {
     return {
+      myFiles: [],
       publishing: false, // 当前是否正处于发布中...
       captchaId: '',
       captchaUrl: '',
@@ -169,6 +198,10 @@ export default {
     this.showCaptcha()
   },
   methods: {
+    handleFilePondInit() {
+      console.log('FilePond has initialized')
+      // FilePond instance methods are available on `this.$refs.pond`
+    },
     setTag(tags) {
       this.postForm.tags = tags
     },
@@ -244,4 +277,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style></style>
