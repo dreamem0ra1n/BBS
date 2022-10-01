@@ -24,12 +24,7 @@ export default {
   },
   data() {
     return {
-      tags: [
-        {
-          id: 111,
-          name: '111',
-        },
-      ],
+      tags: [],
       nodeId: 0,
     }
   },
@@ -70,7 +65,7 @@ export default {
     .selected-item {
       margin: 5px;
       padding: 0 25px;
-      background: #ffffff;
+      background: var(--tag-back-color);
       color: var(--text-color);
       line-height: 30px;
       border-radius: 20px;
