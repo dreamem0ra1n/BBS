@@ -187,7 +187,7 @@ export default {
       console.log(this.postForm.content)
       const that = this
       this.$axios
-        .post('http://localhost:9999/api/file/upload', formData, {
+        .post('/api/file/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         .then((ret) => {
