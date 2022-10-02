@@ -129,6 +129,7 @@ import vueFilePond from 'vue-filepond'
 
 // Import FilePond styles
 import 'filepond/dist/filepond.min.css'
+import { generateFileString } from '~/utils/hideFile'
 const FilePond = vueFilePond()
 export default {
   middleware: 'authenticated',
@@ -252,7 +253,7 @@ export default {
         this.$message.warning('正在上传中...请上传完成后提交')
         return
       }
-      this.postForm.content += this.generateFileString()
+      this.postForm.content += this.generateFileString(this.FileIds)
       console.log(this.postForm)
       const me = this
       try {
@@ -302,18 +303,7 @@ export default {
       this.postForm.content = value.content
       this.postForm.imageList = value.imageList
     },
-    generateFileString() {
-      return (
-        '[File]' +
-        this.FileIds.reduce(
-          (string, id) => {
-            return string + ' ' + id.toString()
-          },
-          ['']
-        ) +
-        '[/File]'
-      )
-    },
+    generateFileString,
   },
 }
 </script>

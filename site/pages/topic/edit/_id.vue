@@ -51,7 +51,7 @@
 
         <div class="field">
           <div class="control">
-            <tag-input v-model="postForm.tags" />
+            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
 
@@ -72,6 +72,7 @@
 </template>
 
 <script>
+import hideFile, { getFileIds } from '~/utils/hideFile'
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, params }) {
@@ -82,11 +83,12 @@ export default {
     return {
       topic,
       nodes,
+      FileIds: getFileIds(topic.content),
       postForm: {
         nodeId: topic.nodeId,
         title: topic.title,
         tags: topic.tags,
-        content: topic.content,
+        content: hideFile(topic.content),
         hideContent: topic.hideContent,
       },
     }
@@ -115,8 +117,11 @@ export default {
       return this.$store.state.config.config.enableHideContent
     },
   },
-  mounted() {},
+  mounted() {
+    console.log(this.FileIds)
+  },
   methods: {
+    hideFile,
     async submitCreate() {
       const me = this
       if (me.publishing) {
@@ -146,6 +151,9 @@ export default {
         me.publishing = false
         this.$message.error('提交失败：' + (e.message || e))
       }
+    },
+    setTag(tags) {
+      this.postForm.tags = tags
     },
   },
 }
