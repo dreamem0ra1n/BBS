@@ -102,6 +102,8 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	}
 	err = json.Unmarshal([]byte(bodyStr), &resp)
 
+	logrus.Info("receive data from passport: ", resp.Data)
+
 	username := resp.Data.User.Name
 	ZjuId := resp.Data.User.ZjuId
 	_ = resp.Data.User.LoginType
