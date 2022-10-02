@@ -83,9 +83,22 @@
                 ref="pond"
                 label-idle="Drop files here..."
                 v-bind:allow-multiple="true"
-                server="/api"
                 v-bind:files="myFiles"
+                :server="{
+                  url: 'http://localhost:9999/api',
+                  process: {
+                    url: '/file/upload',
+                    method: 'POST',
+                    withCredentials: true,
+                    onload: onResponse,
+                  },
+                  revert: null,
+                }"
                 v-on:init="handleFilePondInit"
+                :onaddfilestart="uploadStart"
+                :onaddfile="uploadEnd"
+                :onerror="uploadEnd"
+                :beforeRemoveFile="removeFile"
             /></no-ssr>
           </div>
         </div>
@@ -116,17 +129,7 @@ import vueFilePond from 'vue-filepond'
 
 // Import FilePond styles
 import 'filepond/dist/filepond.min.css'
-
-// Import FilePond plugins
-// Please note that you need to install these plugins separately
-
-// Import image preview plugin styles
-
-// Create component
 const FilePond = vueFilePond()
-FilePond.setOptions({
-  server: '/file/upload',
-})
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, query, store }) {
@@ -158,7 +161,9 @@ export default {
   data() {
     return {
       myFiles: [],
+      FileIds: [],
       publishing: false, // 当前是否正处于发布中...
+      uploading: false,
       captchaId: '',
       captchaUrl: '',
       captchaCode: '',
@@ -198,19 +203,44 @@ export default {
     this.showCaptcha()
   },
   methods: {
+    onResponse(r) {
+      r = JSON.parse(r)
+      console.log(r)
+      const fileId = r.file_id
+      this.FileIds.push(fileId)
+      return fileId
+    },
     handleFilePondInit() {
       console.log('FilePond has initialized')
       // FilePond instance methods are available on `this.$refs.pond`
+    },
+    uploadStart() {
+      console.log('upload start')
+      this.uploading = true
+    },
+    uploadEnd(err, file) {
+      console.log('upload end')
+      console.log(FilePond)
+      if (err) console.log(err)
+      this.uploading = false
+    },
+    removeFile(file) {
+      console.log('remove:')
+      console.log(file)
+      console.log(file.serverId)
+      // if have the need to remove file from server, do it from here
     },
     setTag(tags) {
       this.postForm.tags = tags
     },
     async submitCreate() {
-      console.log(this.postForm)
       if (this.publishing) {
         return
       }
-
+      if (this.uploading) {
+        this.$message.error('正在上传中...请上传完成后提交')
+        return
+      }
       if (!this.postForm.nodeId && this.postForm.nodeId !== 0) {
         this.$message.error('请选择节点')
         return
@@ -222,12 +252,11 @@ export default {
         this.$message.warning('正在上传中...请上传完成后提交')
         return
       }
-
+      this.postForm.content += this.generateFileString()
+      console.log(this.postForm)
       const me = this
       try {
         const topic = await this.$axios.post('/api/topic/create', {
-          captchaId: this.captchaId,
-          captchaCode: this.captchaCode,
           type: this.postForm.type,
           nodeId: this.postForm.nodeId,
           title: this.postForm.title,
@@ -272,6 +301,18 @@ export default {
     onSimpleEditorInput(value) {
       this.postForm.content = value.content
       this.postForm.imageList = value.imageList
+    },
+    generateFileString() {
+      return (
+        '[File]' +
+        this.FileIds.reduce(
+          (string, id) => {
+            return string + ' ' + id.toString()
+          },
+          ['']
+        ) +
+        '[/File]'
+      )
     },
   },
 }
