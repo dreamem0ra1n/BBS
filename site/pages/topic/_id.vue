@@ -56,7 +56,7 @@
                   ref="topicContent"
                   v-lazy-container="{ selector: 'img' }"
                   class="topic-content-detail"
-                  v-html="hideFile(topic.content)"
+                  v-html="topic.content"
                 ></div>
                 <ul
                   v-if="topic.imageList && topic.imageList.length"
@@ -186,7 +186,6 @@
 
 <script>
 import CommonHelper from '~/common/CommonHelper'
-import hideFile from '~/utils/hideFile'
 export default {
   async asyncData({ $axios, params, error }) {
     let topic
@@ -271,7 +270,6 @@ export default {
     CommonHelper.initHighlight(this)
   },
   methods: {
-    hideFile,
     commentCreated() {
       this.getHideContent()
     },

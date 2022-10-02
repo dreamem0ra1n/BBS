@@ -31,7 +31,7 @@
               }}</nuxt-link>
             </h1>
             <nuxt-link :to="'/topic/' + topic.topicId" class="topic-summary">{{
-              hideFile(topic.summary)
+              topic.summary
             }}</nuxt-link>
           </template>
           <template v-if="topic.type === 1">
@@ -90,7 +90,6 @@
 </template>
 
 <script>
-import hideFile from '~/utils/hideFile'
 export default {
   props: {
     topics: {
@@ -110,7 +109,6 @@ export default {
     },
   },
   methods: {
-    hideFile,
     async like(topic) {
       try {
         await this.$axios.post('/api/topic/like/' + topic.topicId)

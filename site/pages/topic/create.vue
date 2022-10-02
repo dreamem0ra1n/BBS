@@ -77,29 +77,7 @@
         </div>
         <div class="field">
           <div class="control">
-            <no-ssr>
-              <file-pond
-                name="test"
-                ref="pond"
-                label-idle="Drop files here..."
-                v-bind:allow-multiple="true"
-                v-bind:files="myFiles"
-                :server="{
-                  url: 'http://localhost:9999/api',
-                  process: {
-                    url: '/file/upload',
-                    method: 'POST',
-                    withCredentials: true,
-                    onload: onResponse,
-                  },
-                  revert: null,
-                }"
-                v-on:init="handleFilePondInit"
-                :onaddfilestart="uploadStart"
-                :onaddfile="uploadEnd"
-                :onerror="uploadEnd"
-                :beforeRemoveFile="removeFile"
-            /></no-ssr>
+            <div class="button is-success" @click="upload">上传文件</div>
           </div>
         </div>
         <div class="field">
@@ -121,16 +99,11 @@
         </div>
       </div>
     </div>
+    <input ref="upload" type="file" @input="uploadFile" />
   </section>
 </template>
 
 <script>
-import vueFilePond from 'vue-filepond'
-
-// Import FilePond styles
-import 'filepond/dist/filepond.min.css'
-import { generateFileString } from '~/utils/hideFile'
-const FilePond = vueFilePond()
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, query, store }) {
@@ -161,13 +134,8 @@ export default {
   },
   data() {
     return {
-      myFiles: [],
-      FileIds: [],
       publishing: false, // 当前是否正处于发布中...
       uploading: false,
-      captchaId: '',
-      captchaUrl: '',
-      captchaCode: '',
       postForm: {
         type: 0,
         nodeId: 0,
@@ -204,32 +172,37 @@ export default {
     this.showCaptcha()
   },
   methods: {
-    onResponse(r) {
-      r = JSON.parse(r)
-      console.log(r)
-      const fileId = r.file_id
-      this.FileIds.push(fileId)
-      return fileId
+    upload() {
+      this.$refs.upload.dispatchEvent(new MouseEvent('click'))
     },
-    handleFilePondInit() {
-      console.log('FilePond has initialized')
-      // FilePond instance methods are available on `this.$refs.pond`
-    },
-    uploadStart() {
-      console.log('upload start')
+    uploadFile(e) {
       this.uploading = true
-    },
-    uploadEnd(err, file) {
-      console.log('upload end')
-      console.log(FilePond)
-      if (err) console.log(err)
-      this.uploading = false
-    },
-    removeFile(file) {
-      console.log('remove:')
-      console.log(file)
-      console.log(file.serverId)
-      // if have the need to remove file from server, do it from here
+      const files = e.target.files
+      if (files.length <= 0) {
+        return
+      }
+      const file = files[0]
+      const formData = new FormData()
+      formData.append('file', file)
+      console.log(this.postForm.content)
+      const that = this
+      this.$axios
+        .post('http://localhost:9999/api/file/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then((ret) => {
+          console.log(ret)
+          that.postForm.content =
+            that.postForm.content +
+            '[点击下载文件-' +
+            ret.file_name +
+            ']' +
+            '(' +
+            that.$store.state.env.currentDomain +
+            '/api/file/download/' +
+            ret.file_id +
+            ')'
+        })
     },
     setTag(tags) {
       this.postForm.tags = tags
@@ -253,8 +226,6 @@ export default {
         this.$message.warning('正在上传中...请上传完成后提交')
         return
       }
-      this.postForm.content += this.generateFileString(this.FileIds)
-      console.log(this.postForm)
       const me = this
       try {
         const topic = await this.$axios.post('/api/topic/create', {
@@ -303,9 +274,12 @@ export default {
       this.postForm.content = value.content
       this.postForm.imageList = value.imageList
     },
-    generateFileString,
   },
 }
 </script>
 
-<style></style>
+<style>
+input {
+  display: none;
+}
+</style>

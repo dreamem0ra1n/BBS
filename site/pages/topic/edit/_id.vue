@@ -72,7 +72,6 @@
 </template>
 
 <script>
-import hideFile, { getFileIds } from '~/utils/hideFile'
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, params }) {
@@ -83,12 +82,12 @@ export default {
     return {
       topic,
       nodes,
-      FileIds: getFileIds(topic.content),
+      FileIds: topic.content,
       postForm: {
         nodeId: topic.nodeId,
         title: topic.title,
         tags: topic.tags,
-        content: hideFile(topic.content),
+        content: topic.content,
         hideContent: topic.hideContent,
       },
     }
@@ -121,7 +120,6 @@ export default {
     console.log(this.FileIds)
   },
   methods: {
-    hideFile,
     async submitCreate() {
       const me = this
       if (me.publishing) {
