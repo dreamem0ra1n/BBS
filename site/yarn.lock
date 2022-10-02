@@ -4969,7 +4969,7 @@
     "loader-utils" "^2.0.0"
     "schema-utils" "^3.0.0"
 
-"filepond@^4.30.4", "filepond@>=4.7.4 < 5.x":
+"filepond@>=4.7.4 < 5.x":
   "integrity" "sha512-FCwsMvG9iiEs6uobdDrTaKsCgsqys0NuLgPPD8n37AYVYBiiDkrPkk9MSIU5rT2FahYcL1bScYI9huIPtlzqyA=="
   "resolved" "https://registry.npmjs.org/filepond/-/filepond-4.30.4.tgz"
   "version" "4.30.4"
