@@ -24,6 +24,9 @@ import (
 	"bbs-go/middleware"
 )
 
+// 10 MB
+const FileMaxSize = 10 << 20
+
 func Router() {
 	app := iris.New()
 	app.Logger().SetLevel("warn")
@@ -55,8 +58,12 @@ func Router() {
 
 	// api
 	mvc.Configure(app.Party("/api"), func(m *mvc.Application) {
+
+		// 限制请求大小
+		m.Router.Use(iris.LimitRequestBodySize(FileMaxSize))
+
 		m.Party("/topic").Handle(new(api.TopicController))
-		m.Party("/article").Handle(new(api.ArticleController))
+		// m.Party("/article").Handle(new(api.ArticleController))
 		m.Party("/login").Handle(new(api.LoginController))
 		m.Party("/user").Handle(new(api.UserController))
 		m.Party("/tag").Handle(new(api.TagController))
@@ -74,6 +81,7 @@ func Router() {
 		m.Party("/search").Handle(new(api.SearchController))
 		m.Party("/fans").Handle(new(api.FansController))
 		m.Party("/feed").Handle(new(api.FeedController))
+		m.Party("/file").Handle(new(api.FileController))
 	})
 
 	// admin

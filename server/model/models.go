@@ -291,3 +291,12 @@ type UserFeed struct {
 	AuthorId   int64  `gorm:"not null;index:idx_user_id" json:"authorId" form:"authorId"`                                       // 作者编号
 	CreateTime int64  `gorm:"type:bigint;not null;index:idx_search" json:"createTime" form:"createTime"`                        // 数据的创建时间
 }
+
+// 文件存储记录
+type FileRecord struct {
+	Model
+	FileName   string `gorm:"not null;" json:"file_name" form:"file_name"`
+	FileUUID   string `gorm:"not null;unique" json:"file_id" form:"file_id"`
+	FileSize   int64  `gorm:"not null;" json:"file_size" form:"file_size"`
+	BucketName string `gorm:"not null;" json:"bucket_name" form:"bucket_name"`
+}

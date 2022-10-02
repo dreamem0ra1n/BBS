@@ -45,11 +45,7 @@ export default {
   data() {
     return {
       tags: [],
-      allTag: [
-        [{ id: 114514, name: '646' }],
-        [{ id: 114515, name: '666' }],
-        [{ id: 1147615, name: '366' }],
-      ],
+      allTag: [],
       deps: [],
       maxTagCount: 1, // 最多可以选择的标签数量
       maxWordCount: 15, // 每个标签最大字数

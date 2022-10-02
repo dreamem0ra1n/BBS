@@ -75,7 +75,11 @@
             />
           </div>
         </div>
-
+        <div class="field">
+          <div class="control">
+            <div class="button is-success" @click="upload">上传文件</div>
+          </div>
+        </div>
         <div class="field">
           <div class="control">
             <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
@@ -95,6 +99,7 @@
         </div>
       </div>
     </div>
+    <input ref="upload" type="file" @input="uploadFile" />
   </section>
 </template>
 
@@ -130,9 +135,7 @@ export default {
   data() {
     return {
       publishing: false, // 当前是否正处于发布中...
-      captchaId: '',
-      captchaUrl: '',
-      captchaCode: '',
+      uploading: false,
       postForm: {
         type: 0,
         nodeId: 0,
@@ -169,15 +172,49 @@ export default {
     this.showCaptcha()
   },
   methods: {
+    upload() {
+      this.$refs.upload.dispatchEvent(new MouseEvent('click'))
+    },
+    uploadFile(e) {
+      this.uploading = true
+      const files = e.target.files
+      if (files.length <= 0) {
+        return
+      }
+      const file = files[0]
+      const formData = new FormData()
+      formData.append('file', file)
+      console.log(this.postForm.content)
+      const that = this
+      this.$axios
+        .post('/api/file/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then((ret) => {
+          console.log(ret)
+          that.postForm.content =
+            that.postForm.content +
+            '[点击下载文件-' +
+            ret.file_name +
+            ']' +
+            '(' +
+            that.$store.state.env.currentDomain +
+            '/api/file/download/' +
+            ret.file_id +
+            ')'
+        })
+    },
     setTag(tags) {
       this.postForm.tags = tags
     },
     async submitCreate() {
-      console.log(this.postForm)
       if (this.publishing) {
         return
       }
-
+      if (this.uploading) {
+        this.$message.error('正在上传中...请上传完成后提交')
+        return
+      }
       if (!this.postForm.nodeId && this.postForm.nodeId !== 0) {
         this.$message.error('请选择节点')
         return
@@ -189,12 +226,9 @@ export default {
         this.$message.warning('正在上传中...请上传完成后提交')
         return
       }
-
       const me = this
       try {
         const topic = await this.$axios.post('/api/topic/create', {
-          captchaId: this.captchaId,
-          captchaCode: this.captchaCode,
           type: this.postForm.type,
           nodeId: this.postForm.nodeId,
           title: this.postForm.title,
@@ -244,4 +278,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style>
+input {
+  display: none;
+}
+</style>

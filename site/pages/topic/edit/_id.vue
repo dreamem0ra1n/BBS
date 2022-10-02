@@ -51,7 +51,7 @@
 
         <div class="field">
           <div class="control">
-            <tag-input v-model="postForm.tags" />
+            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
 
@@ -82,6 +82,7 @@ export default {
     return {
       topic,
       nodes,
+      FileIds: topic.content,
       postForm: {
         nodeId: topic.nodeId,
         title: topic.title,
@@ -115,7 +116,9 @@ export default {
       return this.$store.state.config.config.enableHideContent
     },
   },
-  mounted() {},
+  mounted() {
+    console.log(this.FileIds)
+  },
   methods: {
     async submitCreate() {
       const me = this
@@ -146,6 +149,9 @@ export default {
         me.publishing = false
         this.$message.error('提交失败：' + (e.message || e))
       }
+    },
+    setTag(tags) {
+      this.postForm.tags = tags
     },
   },
 }

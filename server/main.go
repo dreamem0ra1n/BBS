@@ -2,6 +2,7 @@ package main
 
 import (
 	"bbs-go/controllers"
+	"bbs-go/controllers/api"
 	"bbs-go/model"
 	"bbs-go/pkg/common"
 	"bbs-go/pkg/config"
@@ -26,6 +27,9 @@ func init() {
 
 	// 初始化配置
 	conf := config.Init(*configFile)
+
+	// Minio配置
+	api.InitMinio(conf)
 
 	// gorm配置
 	gormConf := &gorm.Config{}
