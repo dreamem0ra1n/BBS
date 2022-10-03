@@ -129,7 +129,7 @@ export default {
     /**
      * 上传图片
      */
-    async uploadImage(event, insertImage, files) {
+    uploadImage(event, insertImage, files) {
       if (!files || !files.length) {
         return
       }
@@ -137,16 +137,20 @@ export default {
         const file = files[i]
         const formData = new FormData()
         formData.append('image', file, file.name)
-        this.$axios.post('/api/file/upload/img', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }).then((ret)=>{
-          insertImage({
-          url: ret.url,
-          desc: ' ',
-        })
-        }).catch((err)=>{
-          alert(err.message)
-        })
+
+        this.$axios
+          .post('/api/file/upload/img', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+          .then((ret) => {
+            insertImage({
+              url: ret.url,
+              desc: ' ',
+            })
+          })
+          .catch((err) => {
+            alert(err.message)
+          })
       }
     },
     change(value, render) {
