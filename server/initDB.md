@@ -108,6 +108,22 @@ CREATE TABLE `t_sys_config`
   DEFAULT CHARSET = utf8mb4;
 ```
 
+- 初始化文件存储表
+
+```sql
+CREATE TABLE `t_file_record`
+(
+    `id`          bigint(20)    NOT NULL AUTO_INCREMENT,
+    `file_name`   varchar(32)   NOT NULL,
+    `file_uuid`   varchar(128)   NOT NULL,
+    `file_size`   bigint(20)    NOT NULL,
+    `bucket_name` varchar(32)   NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `file_uuid` (`file_uuid`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+```
+
 - 初始化系统配置数据
 
 ```sql

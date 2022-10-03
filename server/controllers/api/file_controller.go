@@ -14,10 +14,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	minioClient *minio.Client
-)
-
 // Actually a random number is better.
 const bucketName = "qscbbsbucket"
 
@@ -25,17 +21,30 @@ type FileController struct {
 	Ctx iris.Context
 }
 
+var (
+	ConfEndpoint        string
+	ConfAccessKeyID     string
+	ConfSecretAccessKey string
+	ConfUseSSL          bool
+)
+
 // Offical Docs
 // http://docs.minio.org.cn/docs/master/golang-client-api-reference#PutObject
 
 func InitMinio(conf *config.Config) {
 	// 初使化minio client对象。
+	ConfEndpoint = conf.MinIO.Endpoint
+	ConfAccessKeyID = conf.MinIO.AccessKeyID
+	ConfSecretAccessKey = conf.MinIO.SecretAccessKey
+	ConfUseSSL = conf.MinIO.UseSSL
+
 	minioClient, err := minio.New(
-		conf.MinIO.Endpoint,
-		conf.MinIO.AccessKeyID,
-		conf.MinIO.SecretAccessKey,
-		conf.MinIO.UseSSL,
+		ConfEndpoint,
+		ConfAccessKeyID,
+		ConfSecretAccessKey,
+		ConfUseSSL,
 	)
+
 	if err != nil {
 		logrus.Fatal("Fail to create MinIO Client")
 		return
@@ -57,10 +66,23 @@ func InitMinio(conf *config.Config) {
 }
 
 func (c *FileController) PostUpload() *web.JsonResult {
-	file, info, err := c.Ctx.FormFile("uploadfile")
+	// 初使化minio client对象。
+	minioClient, err := minio.New(
+		ConfEndpoint,
+		ConfAccessKeyID,
+		ConfSecretAccessKey,
+		ConfUseSSL,
+	)
 
 	if err != nil {
-		logrus.Info("error happen when get multipart file: ", err)
+		logrus.Error("Fail to create MinIO Client")
+		return web.JsonError(err)
+	}
+
+	file, info, err := c.Ctx.FormFile("file")
+
+	if err != nil {
+		logrus.Error("error happen when get multipart file: ", err)
 		return web.JsonError(err)
 	}
 
@@ -68,7 +90,12 @@ func (c *FileController) PostUpload() *web.JsonResult {
 	fileSize := info.Size
 	fileUUID := uuid.New().String()
 
-	bytes, err := minioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{})
+	logrus.Info("====I am ok here!====")
+	logrus.Info(fileNameOri)
+	logrus.Info(fileSize)
+	logrus.Info(fileUUID)
+
+	bytes, err := minioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 	if err != nil {
 		logrus.Error("error happen when put object to minio: %s", err)
 		return web.JsonError(errors.New("error happen when put object to minio"))
@@ -108,6 +135,20 @@ func (c *FileController) GetDownloadBy(fileId int64) {
 		return
 	}
 
+	// 初使化minio client对象。
+	minioClient, err := minio.New(
+		ConfEndpoint,
+		ConfAccessKeyID,
+		ConfSecretAccessKey,
+		ConfUseSSL,
+	)
+
+	if err != nil {
+		logrus.Error("Fail to create MinIO Client")
+		c.Ctx.StatusCode(400)
+		return
+	}
+
 	bucket := fileRecord.BucketName
 	fileUUID := fileRecord.FileUUID
 
@@ -125,5 +166,4 @@ func (c *FileController) GetDownloadBy(fileId int64) {
 	}
 
 	c.Ctx.ServeContent(object, fileRecord.FileName, time.Now())
-	return
 }
