@@ -2,13 +2,12 @@ package api
 
 import (
 	"bbs-go/model/constants"
-	"bbs-go/pkg/uploader"
-	"io/ioutil"
+	"bbs-go/pkg/config"
+	"fmt"
 	"strconv"
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/web"
-	"github.com/sirupsen/logrus"
 
 	"bbs-go/services"
 )
@@ -33,17 +32,13 @@ func (c *UploadController) Post() *web.JsonResult {
 		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
 	}
 
-	contentType := header.Header.Get("Content-Type")
-	fileBytes, err := ioutil.ReadAll(file)
+	record, err := PutFile(header.Filename, file, header.Size)
 	if err != nil {
 		return web.JsonError(err)
 	}
 
-	logrus.Info("上传文件：", header.Filename, " size:", header.Size)
+	host := config.Instance.Host
+	url := fmt.Sprintf("http://%s/api/file/download/%d#", host, record.Id)
 
-	url, err := uploader.PutImage(fileBytes, contentType)
-	if err != nil {
-		return web.JsonError(err)
-	}
 	return web.NewEmptyRspBuilder().Put("url", url).JsonResult()
 }

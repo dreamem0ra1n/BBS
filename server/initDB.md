@@ -114,8 +114,8 @@ CREATE TABLE `t_sys_config`
 CREATE TABLE `t_file_record`
 (
     `id`          bigint(20)    NOT NULL AUTO_INCREMENT,
-    `file_name`   varchar(32)   NOT NULL,
-    `file_uuid`   varchar(128)   NOT NULL,
+    `file_name`   varchar(256)  NOT NULL,
+    `file_uuid`   varchar(128)  NOT NULL,
     `file_size`   bigint(20)    NOT NULL,
     `bucket_name` varchar(32)   NOT NULL,
     PRIMARY KEY (`id`),

@@ -26,18 +26,25 @@ func init() {
 	flag.Parse()
 
 	// 初始化配置
-	conf := config.Init(*configFile)
+	Conf := config.Init(*configFile)
 
 	// Minio配置
-	api.InitMinio(conf)
+	api.InitMinio(Conf)
 
 	// gorm配置
 	gormConf := &gorm.Config{}
 
 	// 初始化日志
-	if file, err := os.OpenFile(conf.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666); err == nil {
+	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		// FullTimestamp:    true,
+		ForceQuote: true,
+		// TimestampFormat:  "2006/01/02 15:04:05",
+		QuoteEmptyFields: true,
+	})
+	if file, err := os.OpenFile(Conf.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666); err == nil {
 		logrus.SetOutput(io.MultiWriter(os.Stdout, file))
-		if conf.ShowSql {
+		if Conf.ShowSql {
 			gormConf.Logger = logger.New(log.New(file, "\r\n", log.LstdFlags), logger.Config{
 				SlowThreshold: time.Second,
 				Colorful:      true,
@@ -50,7 +57,7 @@ func init() {
 	}
 
 	// 连接数据库
-	if err := sqls.Open(conf.DB.Url, gormConf, conf.DB.MaxIdleConns, conf.DB.MaxOpenConns, model.Models...); err != nil {
+	if err := sqls.Open(Conf.DB.Url, gormConf, Conf.DB.MaxIdleConns, Conf.DB.MaxOpenConns, model.Models...); err != nil {
 		logrus.Error(err)
 	}
 }

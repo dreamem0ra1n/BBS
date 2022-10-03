@@ -72,7 +72,6 @@ func Router() {
 		m.Party("/like").Handle(new(api.LikeController))
 		m.Party("/checkin").Handle(new(api.CheckinController))
 		m.Party("/config").Handle(new(api.ConfigController))
-		m.Party("/upload").Handle(new(api.UploadController))
 		m.Party("/link").Handle(new(api.LinkController))
 		m.Party("/captcha").Handle(new(api.CaptchaController))
 		// m.Party("/qq/login").Handle(new(api.QQLoginController))
@@ -81,6 +80,7 @@ func Router() {
 		m.Party("/search").Handle(new(api.SearchController))
 		m.Party("/fans").Handle(new(api.FansController))
 		m.Party("/feed").Handle(new(api.FeedController))
+		m.Party("/upload").Handle(new(api.UploadController))
 		m.Party("/file").Handle(new(api.FileController))
 	})
 
