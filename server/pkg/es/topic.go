@@ -132,7 +132,6 @@ func SearchTopic(keyword string, nodeId int64, timeRange, page, limit int) (docs
 		err = errNoConfig
 		return
 	}
-
 	paging = &sqls.Paging{Page: page, Limit: limit}
 
 	query := elastic.NewBoolQuery().
@@ -170,7 +169,9 @@ func SearchTopic(keyword string, nodeId int64, timeRange, page, limit int) (docs
 		From(paging.Offset()).Size(paging.Limit).
 		Highlight(highlight).
 		Do(context.Background())
+
 	if err != nil {
+		logrus.Error(err)
 		return
 	}
 	// logrus.Infof("Query took %d milliseconds\n", searchResult.TookInMillis)

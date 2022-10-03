@@ -26,19 +26,19 @@ var (
 
 // AdminAuth 后台权限
 func AdminAuth(ctx iris.Context) {
-	roles := getPathRoles(ctx)
-
-	// 不需要任何角色既能访问
-	if len(roles) == 0 {
-		return
-	}
 
 	user := services.UserTokenService.GetCurrent(ctx)
 	if user == nil {
 		notLogin(ctx)
 		return
 	}
-	if !user.HasAnyRole(roles...) {
+
+	if user.IsMasterUser() {
+		ctx.Next()
+		return
+	}
+
+	if !user.IsAdminUserOrHigher() {
 		noPermission(ctx)
 		return
 	}
@@ -47,15 +47,15 @@ func AdminAuth(ctx iris.Context) {
 }
 
 // getPathRoles 获取请求该路径所需的角色
-func getPathRoles(ctx iris.Context) []string {
-	p := ctx.Path()
-	for _, pathRole := range config {
-		if antPathMatcher.Match(pathRole.Pattern, p) {
-			return pathRole.Roles
-		}
-	}
-	return nil
-}
+// func getPathRoles(ctx iris.Context) []string {
+// 	p := ctx.Path()
+// 	for _, pathRole := range config {
+// 		if antPathMatcher.Match(pathRole.Pattern, p) {
+// 			return pathRole.Roles
+// 		}
+// 	}
+// 	return nil
+// }
 
 // notLogin 未登录返回
 func notLogin(ctx iris.Context) {

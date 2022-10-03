@@ -86,7 +86,7 @@ func (c *ArticleController) GetEditBy(articleId int64) *web.JsonResult {
 	}
 
 	// 非作者、且非管理员
-	if article.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
+	if article.UserId != user.Id && !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -125,7 +125,7 @@ func (c *ArticleController) PostEditBy(articleId int64) *web.JsonResult {
 	}
 
 	// 非作者、且非管理员
-	if article.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
+	if article.UserId != user.Id && !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -151,7 +151,7 @@ func (c *ArticleController) PostDeleteBy(articleId int64) *web.JsonResult {
 	}
 
 	// 非作者、且非管理员
-	if article.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
+	if article.UserId != user.Id && !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 

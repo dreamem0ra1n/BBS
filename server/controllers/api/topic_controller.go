@@ -165,7 +165,6 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-
 	// 没有管理权限
 	if !UserCanManageTopic(user, topic) {
 		return web.JsonErrorMsg("无权限")
@@ -335,7 +334,7 @@ func (c *TopicController) PostStickyBy(topicId int64) *web.JsonResult {
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-	if !user.HasAnyRole(constants.RoleOwner, constants.RoleAdmin) {
+	if !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -374,6 +373,7 @@ func (c *TopicController) GetHide_content() *web.JsonResult {
 
 func UserCanAccessTopic(user *model.User, topic *model.Topic) bool {
 	// 是站长就不需要做进一步的部门鉴权
+
 	if user.IsMasterUser() {
 		return true
 	}

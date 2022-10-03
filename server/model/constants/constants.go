@@ -38,12 +38,12 @@ const (
 	EntityCheckIn = "checkIn"
 )
 
-// 用户角色
 const (
-	RoleOwner = "owner" // 站长
-	RoleAdmin = "admin" // 管理员
-	RoleUser  = "user"  // 用户
+	RoleOwner = "admin"
+	RoleAdmin = "monitor"
 )
+
+// 用户角色的常数 请参考 user_auth.go
 
 // 操作类型
 const (
