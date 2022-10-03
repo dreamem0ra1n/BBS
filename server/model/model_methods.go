@@ -64,6 +64,9 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 		if len(roleItems) == 2 {
 			roleArgv, err = strconv.Atoi(roleItems[1])
 		} else {
+			if reqRole == AdminUser_NAME {
+				return GLOBAL_ADMIN_SECTION, nil
+			}
 			roleArgv = -1
 		}
 		if err != nil {
@@ -148,6 +151,17 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 
 func (u *User) IsMasterUser() bool {
 	if _, err := u.GetArgByRole(MasterUser_NAME); err != nil {
+		return false
+	}
+	logrus.Info("What a pity! *he is a 高管！")
+	return true
+}
+
+func (u *User) IsAdminUserOrHigher() bool {
+	if _, err := u.GetArgByRole(MasterUser_NAME); err != nil {
+		return false
+	}
+	if _, err := u.GetArgByRole(AdminUser_NAME); err != nil {
 		return false
 	}
 	return true

@@ -267,7 +267,7 @@ func (c *UserController) PostForbidden() *web.JsonResult {
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-	if !user.HasAnyRole(constants.RoleOwner, constants.RoleAdmin) {
+	if !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 	var (
@@ -278,7 +278,7 @@ func (c *UserController) PostForbidden() *web.JsonResult {
 	if userId < 0 {
 		return web.JsonErrorMsg("请传入：userId")
 	}
-	if days == -1 && !user.HasRole(constants.RoleOwner) {
+	if days == -1 && !user.IsMasterUser() {
 		return web.JsonErrorMsg("无永久禁言权限")
 	}
 	if days == 0 {

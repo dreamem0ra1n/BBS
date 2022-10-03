@@ -11,7 +11,7 @@ type AuthUnit struct {
 }
 
 // 定义板块的id
-var (
+const (
 	GLOBAL_ADMIN_SECTION   = -114514 // 高管和站长专属
 	Default_SECTION        = -1      // 默认权限对应板块id
 	Announcement_SECTION   = 0       // 公告
@@ -27,7 +27,7 @@ var (
 )
 
 // 定义权限名称
-var (
+const (
 	DefaultUser_NAME = "默认"
 	MasterUser_NAME  = "高管"
 	AdminUser_NAME   = "中管"
