@@ -3,8 +3,10 @@ package render
 import (
 	"bbs-go/model"
 	"bbs-go/model/constants"
-	"bbs-go/pkg/msg"
 	"bbs-go/pkg/bbsurls"
+	"bbs-go/pkg/msg"
+
+	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
 
@@ -18,6 +20,7 @@ func BuildMessage(msg *model.Message) *model.MessageResponse {
 		from.Nickname = "系统通知"
 	}
 	detailUrl := getMessageDetailUrl(msg)
+	logrus.Info("get URL : ", detailUrl)
 	resp := &model.MessageResponse{
 		MessageId:    msg.Id,
 		From:         from,

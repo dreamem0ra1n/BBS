@@ -80,13 +80,45 @@ func (c *FileController) PostUpload() *web.JsonResult {
 	fileNameOri := info.Filename
 	fileSize := info.Size
 
-	logrus.Info("====I am ok here!====")
-	logrus.Info(fileNameOri)
-	logrus.Info(fileSize)
+	if fileSize > constants.UploadMaxBytes {
+		return web.JsonErrorMsg("文件不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
+	}
 
-	newFile, err := PutFile(fileNameOri, file, fileSize)
+	newFile, err := putFile(fileNameOri, file, fileSize)
+
+	if err != nil {
+		logrus.Error("error happen when upload files: ", err)
+		return web.JsonError(err)
+	}
 
 	return web.JsonData(newFile)
+}
+
+func (c *FileController) PostUploadImg() *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if err := services.UserService.CheckPostStatus(user); err != nil {
+		return web.JsonError(err)
+	}
+
+	file, header, err := c.Ctx.FormFile("image")
+	if err != nil {
+		return web.JsonError(err)
+	}
+	defer file.Close()
+
+	if header.Size > constants.UploadMaxBytes {
+		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
+	}
+
+	record, err := putFile(header.Filename, file, header.Size)
+	if err != nil {
+		return web.JsonError(err)
+	}
+
+	host := config.Instance.BaseUrl
+	url := fmt.Sprintf("%s/api/file/download/%d#", host, record.Id)
+
+	return web.NewEmptyRspBuilder().Put("url", url).JsonResult()
 }
 
 func (c *FileController) GetDownloadBy(fileId int64) {
@@ -108,34 +140,7 @@ func (c *FileController) GetDownloadBy(fileId int64) {
 	c.Ctx.ServeContent(object, fileName, time.Now())
 }
 
-func (c *UploadController) PostUploadImg() *web.JsonResult {
-	user := services.UserTokenService.GetCurrent(c.Ctx)
-	if err := services.UserService.CheckPostStatus(user); err != nil {
-		return web.JsonError(err)
-	}
-
-	file, header, err := c.Ctx.FormFile("image")
-	if err != nil {
-		return web.JsonError(err)
-	}
-	defer file.Close()
-
-	if header.Size > constants.UploadMaxBytes {
-		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
-	}
-
-	record, err := PutFile(header.Filename, file, header.Size)
-	if err != nil {
-		return web.JsonError(err)
-	}
-
-	host := config.Instance.Host
-	url := fmt.Sprintf("http://%s/api/file/download/%d#", host, record.Id)
-
-	return web.NewEmptyRspBuilder().Put("url", url).JsonResult()
-}
-
-func PutFile(fileNameOri string, file io.Reader, fileSize int64) (*model.FileRecord, error) {
+func putFile(fileNameOri string, file io.Reader, fileSize int64) (*model.FileRecord, error) {
 	fileUUID := uuid.New().String()
 
 	// 初使化minio client对象。
