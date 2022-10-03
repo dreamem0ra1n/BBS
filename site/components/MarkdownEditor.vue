@@ -171,6 +171,9 @@ export default {
 </script>
 
 <style lang="scss">
+input {
+  display: none;
+}
 .bbsgoEditor {
   .v-md-editor {
     box-shadow: none !important;
