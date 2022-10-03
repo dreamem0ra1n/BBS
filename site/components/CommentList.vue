@@ -35,7 +35,7 @@
             <div
               v-if="comment.content"
               class="comment-content content"
-              v-html="comment.content"
+              v-html="comment.content.replace(/\n/gm, '<br>')"
             ></div>
             <div
               v-if="comment.imageList && comment.imageList.length"
