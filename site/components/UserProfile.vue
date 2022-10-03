@@ -82,14 +82,18 @@ export default {
         const file = files[0]
         const formData = new FormData()
         formData.append('image', file, file.name)
-        const ret = await this.$axios.post('/api/file/upload/img', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        try {
+          const ret = await this.$axios.post('/api/file/upload/img', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
 
-        // 设置头像
-        await this.$axios.post('/api/user/set/background/image', {
-          backgroundImage: ret.url,
-        })
+          // 设置头像
+          await this.$axios.post('/api/user/set/background/image', {
+            backgroundImage: ret.url,
+          })
+        } catch (e) {
+          alert(e.message)
+        }
 
         // 重新加载数据
         this.localUser = await this.$store.dispatch('user/getCurrentUser')

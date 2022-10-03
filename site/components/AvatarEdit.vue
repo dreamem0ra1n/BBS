@@ -40,14 +40,18 @@ export default {
         const file = files[0]
         const formData = new FormData()
         formData.append('image', file, file.name)
-        const ret = await this.$axios.post('/api/file/upload/img', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        try {
+          const ret = await this.$axios.post('/api/file/upload/img', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
 
-        // 设置头像
-        await this.$axios.post('/api/user/update/avatar', {
-          avatar: ret.url,
-        })
+          // 设置头像
+          await this.$axios.post('/api/user/update/avatar', {
+            avatar: ret.url,
+          })
+        } catch (err) {
+          alert(err)
+        }
 
         // 重新加载数据
         this.$emit('input', ret.url)

@@ -1,24 +1,8 @@
 <template>
   <section class="main">
     <div class="container">
-      <article v-if="isNeedEmailVerify" class="message is-warning">
-        <div class="message-header">
-          <p>请先验证邮箱</p>
-        </div>
-        <div class="message-body">
-          发表话题前，请先前往
-          <strong
-            ><nuxt-link
-              to="/user/profile/account"
-              style="color: var(--text-link-color)"
-              >个人中心 &gt; 账号设置</nuxt-link
-            ></strong
-          >
-          页面设置邮箱，并完成邮箱认证。
-        </div>
-      </article>
-      <div v-else class="topic-create-form">
-        <h1 class="title">{{ postForm.type === 0 ? '发帖子' : '发动态' }}</h1>
+      <div class="topic-create-form">
+        <h1 class="title">发帖子</h1>
 
         <div class="field">
           <div class="control">
@@ -34,7 +18,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 0" class="field">
+        <div class="field">
           <div class="control">
             <input
               v-model="postForm.title"
@@ -45,7 +29,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 0" class="field">
+        <div class="field">
           <div class="control">
             <markdown-editor
               ref="mdEditor"
@@ -55,7 +39,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 0 && isEnableHideContent" class="field">
+        <div v-if="isEnableHideContent" class="field">
           <div class="control">
             <markdown-editor
               ref="mdEditor"
@@ -66,7 +50,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 1" class="field">
+        <!--<div v-if="postForm.type === 0" class="field">
           <div class="control">
             <simple-editor
               ref="simpleEditor"
@@ -74,12 +58,7 @@
               @submit="submitCreate"
             />
           </div>
-        </div>
-        <div class="field">
-          <div class="control">
-            <div class="button is-success" @click="upload">上传文件</div>
-          </div>
-        </div>
+        </div>-->
         <div class="field">
           <div class="control">
             <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
@@ -93,13 +72,12 @@
               :disabled="publishing"
               class="button is-success"
               @click="submitCreate"
-              >{{ postForm.type === 1 ? '发表动态' : '发表帖子' }}</a
+              >{{ '发表帖子' }}</a
             >
           </div>
         </div>
       </div>
     </div>
-    <input ref="upload" type="file" @input="uploadFile" />
   </section>
 </template>
 
@@ -129,13 +107,17 @@ export default {
       postForm: {
         type,
         nodeId: currentNode ? currentNode.nodeId : 0,
+        title: '',
+        tags: [],
+        content: '',
+        hideContent: '',
+        imageList: [],
       },
     }
   },
   data() {
     return {
       publishing: false, // 当前是否正处于发布中...
-      uploading: false,
       postForm: {
         type: 0,
         nodeId: 0,
@@ -159,51 +141,15 @@ export default {
     config() {
       return this.$store.state.config.config
     },
-    // 是否需要先邮箱认证
-    isNeedEmailVerify() {
-      return this.config.createTopicEmailVerified && !this.user.emailVerified
-    },
     isEnableHideContent() {
       return this.config.enableHideContent
     },
   },
   watchQuery: ['type', 'nodeId'],
   mounted() {
-    this.showCaptcha()
+    console.log(this.postForm)
   },
   methods: {
-    upload() {
-      this.$refs.upload.dispatchEvent(new MouseEvent('click'))
-    },
-    uploadFile(e) {
-      this.uploading = true
-      const files = e.target.files
-      if (files.length <= 0) {
-        return
-      }
-      const file = files[0]
-      const formData = new FormData()
-      formData.append('file', file)
-      console.log(this.postForm.content)
-      const that = this
-      this.$axios
-        .post('/api/file/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then((ret) => {
-          console.log(ret)
-          that.postForm.content =
-            that.postForm.content +
-            '[点击下载文件-' +
-            ret.file_name +
-            ']' +
-            '(' +
-            that.$store.state.env.currentDomain +
-            '/api/file/download/' +
-            ret.file_id +
-            ')'
-        })
-    },
     setTag(tags) {
       this.postForm.tags = tags
     },
