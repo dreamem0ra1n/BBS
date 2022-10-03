@@ -101,11 +101,10 @@ export default {
       formData.append('file', file)
       const that = this
       this.$axios
-        .post('http://localhost:9999/api/file/upload', formData, {
+        .post('/api/file/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         .then((ret) => {
-          console.log(ret)
           that.editor.insert(() => {
             return {
               text:
@@ -119,6 +118,9 @@ export default {
                 ')',
             }
           })
+        })
+        .catch((err) => {
+          alert(err.message)
         })
     },
     submit() {
@@ -135,13 +137,17 @@ export default {
         const file = files[i]
         const formData = new FormData()
         formData.append('image', file, file.name)
-        const ret = await this.$axios.post('/api/upload', formData, {
+        this.$axios.post('/api/file/upload/img', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        insertImage({
+        }).then((ret)=>{
+          insertImage({
           url: ret.url,
           desc: ' ',
         })
+        }).catch((err)=>{
+          alert(err.message)
+        })
+        
       }
     },
     change(value, render) {

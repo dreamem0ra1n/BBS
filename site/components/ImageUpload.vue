@@ -175,7 +175,16 @@ export default {
       }
       const formData = new FormData()
       formData.append('image', file, file.name)
-      return this.$axios.post('/api/upload', formData, config)
+      let ret
+      this.$axios
+        .post('/api/file/upload/img', formData, config)
+        .then((res) => {
+          ret = res
+        })
+        .catch((err) => {
+          alert(err.message)
+        })
+      return ret
     },
     uploadFiles(promiseList) {
       this.$emit(`update:onUpload`, true)
