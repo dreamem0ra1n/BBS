@@ -59,11 +59,11 @@ func Router() {
 	// api
 	mvc.Configure(app.Party("/api"), func(m *mvc.Application) {
 
-		// 限制请求大小
-		m.Router.Use(iris.LimitRequestBodySize(FileMaxSize))
+		// 限制请求大小 结构好奇怪( 顺着它原来的写法把大小限制写在 handler 里了
+		// m.Router.Use(iris.LimitRequestBodySize(FileMaxSize))
 
 		m.Party("/topic").Handle(new(api.TopicController))
-		// m.Party("/article").Handle(new(api.ArticleController))
+		m.Party("/article").Handle(new(api.ArticleController))
 		m.Party("/login").Handle(new(api.LoginController))
 		m.Party("/user").Handle(new(api.UserController))
 		m.Party("/tag").Handle(new(api.TagController))
@@ -72,12 +72,8 @@ func Router() {
 		m.Party("/like").Handle(new(api.LikeController))
 		m.Party("/checkin").Handle(new(api.CheckinController))
 		m.Party("/config").Handle(new(api.ConfigController))
-		m.Party("/upload").Handle(new(api.UploadController))
 		m.Party("/link").Handle(new(api.LinkController))
 		m.Party("/captcha").Handle(new(api.CaptchaController))
-		// m.Party("/qq/login").Handle(new(api.QQLoginController))
-		// m.Party("/github/login").Handle(new(api.GithubLoginController))
-		// m.Party("/osc/login").Handle(new(api.OscLoginController))
 		m.Party("/search").Handle(new(api.SearchController))
 		m.Party("/fans").Handle(new(api.FansController))
 		m.Party("/feed").Handle(new(api.FeedController))

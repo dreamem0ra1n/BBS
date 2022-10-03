@@ -2,9 +2,13 @@ package api
 
 import (
 	"bbs-go/model"
+	"bbs-go/model/constants"
 	"bbs-go/pkg/config"
 	"bbs-go/services"
 	"errors"
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -51,7 +55,7 @@ func InitMinio(conf *config.Config) {
 	}
 	exists, err := minioClient.BucketExists(bucketName)
 	if err == nil && exists {
-		logrus.Info("We already own a bucket called %s\n", bucketName)
+		logrus.Info(fmt.Sprintf("We already own a bucket called %s\n", bucketName))
 	} else {
 		if err != nil {
 			logrus.Fatal("Fail to find exist bucket: ", err)
@@ -66,6 +70,79 @@ func InitMinio(conf *config.Config) {
 }
 
 func (c *FileController) PostUpload() *web.JsonResult {
+	file, info, err := c.Ctx.FormFile("file")
+
+	if err != nil {
+		logrus.Error("error happen when get multipart file: ", err)
+		return web.JsonError(err)
+	}
+
+	fileNameOri := info.Filename
+	fileSize := info.Size
+
+	if fileSize > constants.UploadMaxBytes {
+		return web.JsonErrorMsg("文件不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
+	}
+
+	newFile, err := putFile(fileNameOri, file, fileSize)
+
+	if err != nil {
+		logrus.Error("error happen when upload files: ", err)
+		return web.JsonError(err)
+	}
+
+	return web.JsonData(newFile)
+}
+
+func (c *FileController) PostUploadImg() *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if err := services.UserService.CheckPostStatus(user); err != nil {
+		return web.JsonError(err)
+	}
+
+	file, header, err := c.Ctx.FormFile("image")
+	if err != nil {
+		return web.JsonError(err)
+	}
+	defer file.Close()
+
+	if header.Size > constants.UploadMaxBytes {
+		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
+	}
+
+	record, err := putFile(header.Filename, file, header.Size)
+	if err != nil {
+		return web.JsonError(err)
+	}
+
+	host := config.Instance.BaseUrl
+	url := fmt.Sprintf("%s/api/file/download/%d#", host, record.Id)
+
+	return web.NewEmptyRspBuilder().Put("url", url).JsonResult()
+}
+
+func (c *FileController) GetDownloadBy(fileId int64) {
+	logrus.Info("here")
+
+	if fileId == -1 {
+		logrus.Error("empty fileId!")
+		c.Ctx.StatusCode(400)
+		return
+	}
+
+	object, fileName, err := getFile(fileId)
+
+	if err != nil {
+		c.Ctx.StatusCode(400)
+		return
+	}
+
+	c.Ctx.ServeContent(object, fileName, time.Now())
+}
+
+func putFile(fileNameOri string, file io.Reader, fileSize int64) (*model.FileRecord, error) {
+	fileUUID := uuid.New().String()
+
 	// 初使化minio client对象。
 	minioClient, err := minio.New(
 		ConfEndpoint,
@@ -76,29 +153,14 @@ func (c *FileController) PostUpload() *web.JsonResult {
 
 	if err != nil {
 		logrus.Error("Fail to create MinIO Client")
-		return web.JsonError(err)
+		return nil, err
 	}
-
-	file, info, err := c.Ctx.FormFile("file")
-
-	if err != nil {
-		logrus.Error("error happen when get multipart file: ", err)
-		return web.JsonError(err)
-	}
-
-	fileNameOri := info.Filename
-	fileSize := info.Size
-	fileUUID := uuid.New().String()
-
-	logrus.Info("====I am ok here!====")
-	logrus.Info(fileNameOri)
-	logrus.Info(fileSize)
-	logrus.Info(fileUUID)
 
 	bytes, err := minioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+
 	if err != nil {
 		logrus.Error("error happen when put object to minio: %s", err)
-		return web.JsonError(errors.New("error happen when put object to minio"))
+		return nil, err
 	}
 
 	logrus.Info("finish put object with %d bytes to minio", bytes)
@@ -113,28 +175,12 @@ func (c *FileController) PostUpload() *web.JsonResult {
 	err = services.FileService.CreateRecord(newFile)
 	if err != nil {
 		logrus.Error("error happen when recording the file: %s", err)
-		return web.JsonError(errors.New("error happen when recording the file"))
+		return nil, err
 	}
-
-	return web.JsonData(newFile)
+	return newFile, err
 }
 
-func (c *FileController) GetDownloadBy(fileId int64) {
-
-	if fileId == -1 {
-		logrus.Error("empty fileId!")
-		c.Ctx.StatusCode(400)
-		return
-	}
-
-	fileRecord := services.FileService.Get(fileId)
-
-	if fileRecord == nil {
-		logrus.Error("no such file")
-		c.Ctx.StatusCode(400)
-		return
-	}
-
+func getFile(fileId int64) (*minio.Object, string, error) {
 	// 初使化minio client对象。
 	minioClient, err := minio.New(
 		ConfEndpoint,
@@ -145,25 +191,26 @@ func (c *FileController) GetDownloadBy(fileId int64) {
 
 	if err != nil {
 		logrus.Error("Fail to create MinIO Client")
-		c.Ctx.StatusCode(400)
-		return
+		return nil, "", err
 	}
 
-	bucket := fileRecord.BucketName
-	fileUUID := fileRecord.FileUUID
+	fileRecord := services.FileService.Get(fileId)
 
-	object, err := minioClient.GetObject(bucket, fileUUID, minio.GetObjectOptions{})
+	if fileRecord == nil {
+		logrus.Error("no such file")
+		return nil, "", errors.New("no such file")
+	}
+
+	object, err := minioClient.GetObject(
+		fileRecord.BucketName,
+		fileRecord.FileUUID,
+		minio.GetObjectOptions{},
+	)
+
 	if err != nil {
-		logrus.Error("error happen when get object from minio: %s", err)
-		c.Ctx.StatusCode(400)
-		return
+		logrus.Error(fmt.Sprintf("error happen when get object from minio: %s", err))
+		return nil, "", errors.New("error happen when get object from minio")
 	}
 
-	if err != nil {
-		logrus.Error("error happen when change file reader to string: %s", err)
-		c.Ctx.StatusCode(400)
-		return
-	}
-
-	c.Ctx.ServeContent(object, fileRecord.FileName, time.Now())
+	return object, fileRecord.FileName, nil
 }

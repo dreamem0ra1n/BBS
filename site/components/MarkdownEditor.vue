@@ -137,6 +137,7 @@ export default {
         const file = files[i]
         const formData = new FormData()
         formData.append('image', file, file.name)
+
         this.$axios
           .post('/api/file/upload/img', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
