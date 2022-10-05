@@ -40,12 +40,6 @@ type Config struct {
 		Password string `yaml:"Password"`
 		SSL      bool   `yaml:"SSL"`
 	} `yaml:"Smtp"`
-
-	// es
-	Es struct {
-		Url   string `yaml:"Url"`
-		Index string `yaml:"Index"`
-	} `yaml:"Es"`
 }
 
 func Init(filename string) *Config {

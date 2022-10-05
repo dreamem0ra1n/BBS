@@ -35,13 +35,6 @@ func init() {
 	gormConf := &gorm.Config{}
 
 	// 初始化日志
-	logrus.SetReportCaller(true)
-	logrus.SetFormatter(&logrus.TextFormatter{
-		// FullTimestamp:    true,
-		ForceQuote: true,
-		// TimestampFormat:  "2006/01/02 15:04:05",
-		QuoteEmptyFields: true,
-	})
 	if file, err := os.OpenFile(Conf.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666); err == nil {
 		logrus.SetOutput(io.MultiWriter(os.Stdout, file))
 		if Conf.ShowSql {

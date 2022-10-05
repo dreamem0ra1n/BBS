@@ -52,7 +52,7 @@ func InitMinio(conf *config.Config) {
 	)
 
 	if err != nil {
-		logrus.Fatal("Fail to create MinIO Client")
+		logrus.Fatal("Fail to create MinIO Client: ", err)
 		return
 	}
 	exists, err := minioClient.BucketExists(bucketName)
