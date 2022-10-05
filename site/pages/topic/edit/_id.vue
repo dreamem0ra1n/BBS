@@ -82,7 +82,6 @@ export default {
     return {
       topic,
       nodes,
-      FileIds: topic.content,
       postForm: {
         nodeId: topic.nodeId,
         title: topic.title,
@@ -115,9 +114,6 @@ export default {
     isEnableHideContent() {
       return this.$store.state.config.config.enableHideContent
     },
-  },
-  mounted() {
-    console.log(this.FileIds)
   },
   methods: {
     async submitCreate() {

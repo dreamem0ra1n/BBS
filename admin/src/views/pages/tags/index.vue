@@ -29,6 +29,7 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="编号" />
+        <el-table-column prop="section" label="部门" />
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="description" label="描述" />
         <el-table-column prop="status" label="状态">
@@ -65,6 +66,17 @@
 
     <el-dialog :visible.sync="addFormVisible" :close-on-click-modal="false" title="新增">
       <el-form ref="addForm" :model="addForm" label-width="80px">
+        <el-form-item label="部门">
+          <el-select v-model="addForm.sectionId" placeholder="请选择">
+            <el-option
+              v-for="item in sections"
+              :key="item.id + item.name"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="名称">
           <el-input v-model="addForm.name" />
         </el-form-item>
@@ -110,6 +122,7 @@ export default {
   name: "Tags",
   data() {
     return {
+      sections: [],
       mainHeight: "300px",
       results: [],
       listLoading: false,
@@ -139,7 +152,11 @@ export default {
   },
   mounted() {
     mainHeight(this);
-    this.list();
+    const me = this;
+    this.axios.form("/api/admin/topic-node/list", { page: 1, limit: 20 }).then((data) => {
+      me.sections = data.results;
+      this.list();
+    });
   },
   methods: {
     list() {
@@ -154,6 +171,9 @@ export default {
         .then((data) => {
           me.results = data.results;
           me.page = data.page;
+          me.results.forEach((tag)=>{
+            tag.section=sections.filter((section)=>(section.id===tag.sectionId))[0]
+          })
         })
         .finally(() => {
           me.listLoading = false;

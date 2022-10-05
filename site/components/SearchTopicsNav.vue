@@ -16,17 +16,6 @@
         <a @click="setNodeId(node.nodeId)">{{ node.name }}</a>
       </li>
     </ul>
-    <div class="search-time-range">
-      <div class="select is-small">
-        <select v-model="timeRange" @change="setTimeRange">
-          <option :value="0">时间不限</option>
-          <option :value="1">一天内</option>
-          <option :value="2">一周内</option>
-          <option :value="3">一月内</option>
-          <option :value="4">一年内</option>
-        </select>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -53,9 +42,6 @@ export default {
   methods: {
     setNodeId(nodeId) {
       this.$store.dispatch('search/changeNodeId', nodeId)
-    },
-    setTimeRange() {
-      this.$store.dispatch('search/changeTimeRange', this.timeRange)
     },
   },
 }
@@ -106,8 +92,6 @@ export default {
         }
       }
     }
-  }
-  .search-time-range {
   }
 }
 </style>
