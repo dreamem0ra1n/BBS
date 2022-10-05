@@ -57,7 +57,7 @@ func (c *SearchController) PostTopic() *web.JsonResult {
 	var totResult int64
 	if nodeId == 0 {
 		searchResults = repositories.TopicRepository.FindBySql(sqls.DB(),
-			"SELECT * FROM t_topic WHERE ( title LIKE CONCAT('%',?,'%') ) LIMIT ?, ?;",
+			"SELECT * FROM t_topic WHERE ( title LIKE CONCAT('%',?,'%') ) ORDER BY create_time DESC LIMIT ?, ?;",
 			keyword,
 			offset,
 			limit,
@@ -68,7 +68,7 @@ func (c *SearchController) PostTopic() *web.JsonResult {
 		)
 	} else if nodeId == -1 {
 		searchResults = repositories.TopicRepository.FindBySql(sqls.DB(),
-			"SELECT * FROM t_topic WHERE ( title LIKE CONCAT('%',?,'%') ) AND ( recommend = 1 ) LIMIT ?, ?;",
+			"SELECT * FROM t_topic WHERE ( title LIKE CONCAT('%',?,'%') ) AND ( recommend = 1 ) ORDER BY create_time DESC LIMIT ?, ?;",
 			keyword,
 			offset,
 			limit,
@@ -79,7 +79,7 @@ func (c *SearchController) PostTopic() *web.JsonResult {
 		)
 	} else {
 		searchResults = repositories.TopicRepository.FindBySql(sqls.DB(),
-			"SELECT * FROM t_topic WHERE ( title LIKE CONCAT('%',?,'%') ) AND ( node_id = ? ) LIMIT ?, ?;",
+			"SELECT * FROM t_topic WHERE ( title LIKE CONCAT('%',?,'%') ) AND ( node_id = ? ) ORDER BY create_time DESC LIMIT ?, ?;",
 			keyword,
 			nodeId,
 			offset,

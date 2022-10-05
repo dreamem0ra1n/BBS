@@ -4,6 +4,7 @@ import (
 	"bbs-go/model"
 	"bbs-go/model/constants"
 	"bbs-go/pkg/config"
+	"bbs-go/repositories"
 	"bbs-go/services"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/kataras/iris/v12"
 	"github.com/minio/minio-go/v6"
+	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web"
 	"github.com/sirupsen/logrus"
 )
@@ -116,15 +118,14 @@ func (c *FileController) PostUploadImg() *web.JsonResult {
 	}
 
 	host := config.Instance.BaseUrl
-	url := fmt.Sprintf("%s/api/file/download/%d#", host, record.Id)
+	url := fmt.Sprintf("%s/api/file/download/%s#", host, record.FileUUID)
 
 	return web.NewEmptyRspBuilder().Put("url", url).JsonResult()
 }
 
-func (c *FileController) GetDownloadBy(fileId int64) {
-	logrus.Info("here")
+func (c *FileController) GetDownloadBy(fileId string) {
 
-	if fileId == -1 {
+	if fileId == "" {
 		logrus.Error("empty fileId!")
 		c.Ctx.StatusCode(400)
 		return
@@ -180,7 +181,7 @@ func putFile(fileNameOri string, file io.Reader, fileSize int64) (*model.FileRec
 	return newFile, err
 }
 
-func getFile(fileId int64) (*minio.Object, string, error) {
+func getFile(fileId string) (*minio.Object, string, error) {
 	// 初使化minio client对象。
 	minioClient, err := minio.New(
 		ConfEndpoint,
@@ -194,7 +195,7 @@ func getFile(fileId int64) (*minio.Object, string, error) {
 		return nil, "", err
 	}
 
-	fileRecord := services.FileService.Get(fileId)
+	fileRecord := repositories.FileRepository.GetByUUID(sqls.DB(), fileId)
 
 	if fileRecord == nil {
 		logrus.Error("no such file")

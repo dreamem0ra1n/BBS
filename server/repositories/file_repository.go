@@ -24,6 +24,14 @@ func (r *fileRepository) Get(db *gorm.DB, id int64) *model.FileRecord {
 	return ret
 }
 
+func (r *fileRepository) GetByUUID(db *gorm.DB, uuid string) *model.FileRecord {
+	ret := &model.FileRecord{}
+	if err := db.First(ret, "file_uuid = ?", uuid).Error; err != nil {
+		return nil
+	}
+	return ret
+}
+
 func (r *fileRepository) Take(db *gorm.DB, where ...interface{}) *model.FileRecord {
 	ret := &model.FileRecord{}
 	if err := db.Take(ret, where...).Error; err != nil {
