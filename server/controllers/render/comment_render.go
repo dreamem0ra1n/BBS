@@ -73,7 +73,6 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		} else {
 			ret.Content = html.EscapeString(comment.Content)
 		}
-		ret.ImageList = buildImageList(comment.ImageList)
 	} else {
 		ret.Content = "内容已删除"
 	}

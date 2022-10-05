@@ -76,14 +76,13 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	}
 	req.AddCookie(cookie)
 	HTTPresp, err := client.Do(req)
-	defer HTTPresp.Body.Close()
-
 	if err != nil {
 		logrus.Error("error happen when send request to passport", err)
 		return web.JsonError(err)
 	}
 
 	body, err := ioutil.ReadAll(HTTPresp.Body)
+	HTTPresp.Body.Close()
 	if err != nil {
 		logrus.Error("error happen when read response from passport", err)
 		return web.JsonError(err)

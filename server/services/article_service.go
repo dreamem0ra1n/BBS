@@ -3,7 +3,6 @@ package services
 import (
 	"bbs-go/model/constants"
 	"bbs-go/pkg/bbsurls"
-	"bbs-go/pkg/seo"
 	"errors"
 	"math"
 	"path"
@@ -187,9 +186,6 @@ func (s *articleService) Publish(userId int64, form model.CreateArticleForm) (ar
 		return nil
 	})
 
-	if err == nil {
-		seo.Push(bbsurls.ArticleUrl(article.Id))
-	}
 	return
 }
 

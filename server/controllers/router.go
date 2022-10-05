@@ -85,7 +85,6 @@ func Router() {
 		m.Router.Use(middleware.AdminAuth)
 		m.Party("/common").Handle(new(admin.CommonController))
 		m.Party("/user").Handle(new(admin.UserController))
-		m.Party("/third-account").Handle(new(admin.ThirdAccountController))
 		m.Party("/tag").Handle(new(admin.TagController))
 		m.Party("/article").Handle(new(admin.ArticleController))
 		m.Party("/comment").Handle(new(admin.CommentController))

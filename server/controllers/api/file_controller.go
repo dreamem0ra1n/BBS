@@ -79,14 +79,13 @@ func (c *FileController) PostUpload() *web.JsonResult {
 		return web.JsonError(err)
 	}
 
-	fileNameOri := info.Filename
 	fileSize := info.Size
 
 	if fileSize > constants.UploadMaxBytes {
 		return web.JsonErrorMsg("文件不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
 	}
 
-	newFile, err := putFile(fileNameOri, file, fileSize)
+	newFile, err := putFile(file, fileSize)
 
 	if err != nil {
 		logrus.Error("error happen when upload files: ", err)
@@ -112,7 +111,7 @@ func (c *FileController) PostUploadImg() *web.JsonResult {
 		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
 	}
 
-	record, err := putFile(header.Filename, file, header.Size)
+	record, err := putFile(file, header.Size)
 	if err != nil {
 		return web.JsonError(err)
 	}
@@ -141,7 +140,7 @@ func (c *FileController) GetDownloadBy(fileId string) {
 	c.Ctx.ServeContent(object, fileName, time.Now())
 }
 
-func putFile(fileNameOri string, file io.Reader, fileSize int64) (*model.FileRecord, error) {
+func putFile(file io.Reader, fileSize int64) (*model.FileRecord, error) {
 	fileUUID := uuid.New().String()
 
 	// 初使化minio client对象。
@@ -167,7 +166,7 @@ func putFile(fileNameOri string, file io.Reader, fileSize int64) (*model.FileRec
 	logrus.Info("finish put object with %d bytes to minio", bytes)
 
 	newFile := &model.FileRecord{
-		FileName:   fileNameOri,
+		FileName:   fileUUID,
 		FileUUID:   fileUUID,
 		FileSize:   fileSize,
 		BucketName: bucketName,

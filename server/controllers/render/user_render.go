@@ -32,7 +32,6 @@ func BuildUserInfo(user *model.User) *model.UserInfo {
 		Nickname: user.Nickname,
 
 		Avatar:       user.Avatar,
-		SmallAvatar:  HandleOssImageStyleAvatar(user.Avatar),
 		TopicCount:   user.TopicCount,
 		CommentCount: user.CommentCount,
 		FansCount:    user.FansCount,
@@ -56,13 +55,12 @@ func BuildUserDetail(user *model.User) *model.UserDetail {
 		return nil
 	}
 	ret := &model.UserDetail{
-		UserInfo:             *BuildUserInfo(user),
-		Username:             user.Username.String,
-		BackgroundImage:      user.BackgroundImage,
-		SmallBackgroundImage: HandleOssImageStyleSmall(user.BackgroundImage),
-		HomePage:             user.HomePage,
-		Forbidden:            user.IsForbidden(),
-		Status:               user.Status,
+		UserInfo:        *BuildUserInfo(user),
+		Username:        user.Username.String,
+		BackgroundImage: user.BackgroundImage,
+		HomePage:        user.HomePage,
+		Forbidden:       user.IsForbidden(),
+		Status:          user.Status,
 	}
 	if user.Status == constants.StatusDeleted {
 		ret.Username = "blacklist"
