@@ -7,7 +7,7 @@
       <el-dropdown-item v-if="hasPermission && value.type === 0" command="edit"
         >修改</el-dropdown-item
       >
-      <el-dropdown-item v-if="hasPermission" command="delete"
+      <el-dropdown-item v-if="isAdmin" command="delete"
         >删除</el-dropdown-item
       >
       <el-dropdown-item v-if="isAdmin" command="recommend">{{
@@ -43,11 +43,7 @@ export default {
   },
   computed: {
     hasPermission() {
-      return (
-        this.isTopicOwner ||
-        UserHelper.isOwner(this.user) ||
-        UserHelper.isAdmin(this.user)
-      )
+      return this.isTopicOwner || UserHelper.isAdmin(this.user)
     },
     isTopicOwner() {
       if (!this.user || !this.topic) {

@@ -61,6 +61,23 @@
         </div>-->
         <div class="field">
           <div class="control">
+            <div>
+              可见性设置
+              <select v-model="postForm.access_lv">
+                <option
+                  v-for="lv in levelArray"
+                  :key="lv.level"
+                  :value="lv.level"
+                  class="options"
+                >
+                  {{ lv.description }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
             <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
@@ -112,12 +129,31 @@ export default {
         content: '',
         hideContent: '',
         imageList: [],
+        access_lv: 1,
       },
     }
   },
   data() {
     return {
       publishing: false, // 当前是否正处于发布中...
+      levelArray: [
+        {
+          level: 1,
+          description: '全员可见',
+        },
+        {
+          level: 2,
+          description: '正式成员及以上可见',
+        },
+        {
+          level: 3,
+          description: '顾问及以上可见',
+        },
+        {
+          level: 4,
+          description: '管理层可见',
+        },
+      ],
       postForm: {
         type: 0,
         nodeId: 0,
@@ -180,6 +216,7 @@ export default {
           title: this.postForm.title,
           content: this.postForm.content,
           hideContent: this.postForm.hideContent,
+          access_lv: this.postForm.access_lv,
           imageList:
             this.postForm.imageList && this.postForm.imageList.length
               ? JSON.stringify(this.postForm.imageList)
@@ -201,21 +238,7 @@ export default {
         this.$message.error(e.message || e)
       }
     },
-    async showCaptcha() {
-      if (this.config.topicCaptcha) {
-        try {
-          const ret = await this.$axios.get('/api/captcha/request', {
-            params: {
-              captchaId: this.captchaId || '',
-            },
-          })
-          this.captchaId = ret.captchaId
-          this.captchaUrl = ret.captchaUrl
-        } catch (e) {
-          this.$message.error(e.message || e)
-        }
-      }
-    },
+
     onSimpleEditorInput(value) {
       this.postForm.content = value.content
       this.postForm.imageList = value.imageList
