@@ -3,6 +3,7 @@ package model
 import (
 	"bbs-go/model/constants"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -86,7 +87,7 @@ func (u *User) GetRoleByArg(arg int64) (string, error) {
 	}
 	roles := strings.Split(u.Roles, ",")
 	for _, role := range roles {
-		roleItems := strings.Split(role, ".")
+		roleItems := strings.Split(role, "_")
 		roleType := roleItems[0]
 		var roleArgv int
 		var err error
@@ -206,4 +207,63 @@ func (t *Topic) GetTitle() string {
 	} else {
 		return t.Title
 	}
+}
+
+func (user *User) CanAccessTopic(topic *Topic) bool {
+	// 是站长就不需要做进一步的部门鉴权
+
+	if user.IsMasterUser() {
+		return true
+	}
+
+	// 获取该部门的权限
+	role, err := user.GetRoleByArg(topic.NodeId)
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth")
+		return false
+	}
+	au, err := GetAuthUnit(role, int(topic.NodeId))
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth unit")
+		return false
+	}
+
+	// 检查权限单元
+	logrus.Info(fmt.Sprintf("Role: %s, ReadLv: %d, AccessLv: %d", role, au.ReadLv, topic.AccessLv))
+	// 如果是 0 说明可以无条件访问所有帖子
+	if au.ReadLv == 0 {
+		return true
+	}
+
+	// 如果阅读权限过低则无法访问
+	if au.ReadLv < topic.AccessLv {
+		return false
+	}
+	return true
+}
+
+func (user *User) CanManageTopic(topic *Topic) bool {
+	// 是站长就不需要做进一步的部门鉴权
+	if user.IsMasterUser() {
+		return true
+	}
+
+	// 获取该部门的权限
+	role, err := user.GetRoleByArg(topic.NodeId)
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth")
+		return false
+	}
+	au, err := GetAuthUnit(role, int(topic.NodeId))
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth unit")
+		return false
+	}
+
+	// 检查权限单元
+	// 如果有部门以上的管理权限则能够推荐
+	if au.ManageLv >= 2 {
+		return true
+	}
+	return false
 }
