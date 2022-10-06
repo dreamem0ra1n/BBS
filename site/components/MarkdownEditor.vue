@@ -97,6 +97,7 @@ export default {
         return
       }
       const file = files[0]
+      const fileName = file.name
       const formData = new FormData()
       formData.append('file', file)
       const that = this
@@ -108,14 +109,13 @@ export default {
           that.editor.insert(() => {
             return {
               text:
-                '[点击下载文件-' +
-                ret.file_name +
-                ']' +
-                '(' +
+                '<a href="' +
                 that.$store.state.env.currentDomain +
                 '/api/file/download/' +
                 ret.file_id +
-                ')',
+                '" download="' +
+                fileName +
+                '">点击下载附件</a>',
             }
           })
         })
