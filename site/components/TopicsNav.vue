@@ -16,6 +16,11 @@
           <span class="node-name">推荐</span>
         </nuxt-link>
       </li>
+      <li :class="{ active: false }">
+        <nuxt-link to="/articles">
+          <span class="node-name">文章</span>
+        </nuxt-link>
+      </li>
       <li class="dock-nav-divider"></li>
       <li
         v-for="node in nodes.filter((node) => node.nodeId !== 1)"
