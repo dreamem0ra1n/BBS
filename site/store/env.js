@@ -7,6 +7,8 @@ export const state = () => ({
   showMobileNodes: false,
   // 当前所在节点编号，0：最新、-1：recommend
   currentNodeId: 0,
+  currentTag: -1919810,
+  currentDomain: '',
 })
 
 export const mutations = {
@@ -21,6 +23,12 @@ export const mutations = {
   },
   setCurrentNodeId(state, nodeId) {
     state.currentNodeId = nodeId
+  },
+  setCurrentTag(state, tagId) {
+    state.currentTag = tagId
+  },
+  setDomain(state, path) {
+    state.currentDomain = path
   },
 }
 

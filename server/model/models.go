@@ -26,8 +26,8 @@ type User struct {
 	Birthday         string         `gorm:"size:32;" json:"birthday" form:"birthday"`
 	Department       string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
 	Mobile           string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话
-	WX               string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
-	QQ               string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
+	Wechat           string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
+	Qq               string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
 	Avatar           string         `gorm:"type:text" json:"avatar" form:"avatar"`                              // 头像
 	BackgroundImage  string         `gorm:"type:text" json:"backgroundImage" form:"backgroundImage"`            // 个人中心背景图片
 	Password         string         `gorm:"size:512" json:"password" form:"password"`                           // 密码
@@ -70,6 +70,7 @@ type ThirdAccount struct {
 type Tag struct {
 	Model
 	Name        string `gorm:"size:32;unique;not null" json:"name" form:"name"`
+	SectionId   int    `gorm:"not null" json:"section_id" form:"section_id"`
 	Description string `gorm:"size:1024" json:"description" form:"description"`
 	Status      int    `gorm:"index:idx_tag_status;not null" json:"status" form:"status"`
 	CreateTime  int64  `json:"createTime" form:"createTime"`
@@ -80,7 +81,9 @@ type Tag struct {
 type Article struct {
 	Model
 	UserId      int64  `gorm:"index:idx_article_user_id" json:"userId" form:"userId"`             // 所属用户编号
+	SectionId   int64  `gorm:"index:idx_article_section_id" json:"sectionId" form:"sectionId"`    // 所属部门编号
 	Title       string `gorm:"size:128;not null;" json:"title" form:"title"`                      // 标题
+	AccessLv    int    `gorm:"type:int(11);" json:"access_lv" form:"access_lv"`                   // 可读权限
 	Summary     string `gorm:"type:text" json:"summary" form:"summary"`                           // 摘要
 	Content     string `gorm:"type:longtext;not null;" json:"content" form:"content"`             // 内容
 	ContentType string `gorm:"type:varchar(32);not null" json:"contentType" form:"contentType"`   // 内容类型：markdown、html
@@ -144,6 +147,7 @@ type Topic struct {
 	Type              constants.TopicType `gorm:"type:int;not null:default:0" json:"type" form:"type"`                             // 类型
 	NodeId            int64               `gorm:"not null;index:idx_node_id;" json:"nodeId" form:"nodeId"`                         // 节点编号
 	UserId            int64               `gorm:"not null;index:idx_topic_user_id;" json:"userId" form:"userId"`                   // 用户
+	AccessLv          int                 `gorm:"not null;" json:"access_lv" form:"access_lv"`                                     // 阅读权限等级
 	Title             string              `gorm:"size:128" json:"title" form:"title"`                                              // 标题
 	Content           string              `gorm:"type:longtext" json:"content" form:"content"`                                     // 内容
 	ImageList         string              `gorm:"type:longtext" json:"imageList" form:"imageList"`                                 // 图片
@@ -286,4 +290,13 @@ type UserFeed struct {
 	DataType   string `gorm:"not null;uniqueIndex:idx_data;index:idx_data_id;index:idx_search" json:"dataType" form:"dataType"` // 数据类型
 	AuthorId   int64  `gorm:"not null;index:idx_user_id" json:"authorId" form:"authorId"`                                       // 作者编号
 	CreateTime int64  `gorm:"type:bigint;not null;index:idx_search" json:"createTime" form:"createTime"`                        // 数据的创建时间
+}
+
+// 文件存储记录
+type FileRecord struct {
+	Model
+	FileName   string `gorm:"not null;" json:"file_name" form:"file_name"`
+	FileUUID   string `gorm:"not null;unique" json:"file_id" form:"file_id"`
+	FileSize   int64  `gorm:"not null;" json:"file_size" form:"file_size"`
+	BucketName string `gorm:"not null;" json:"bucket_name" form:"bucket_name"`
 }

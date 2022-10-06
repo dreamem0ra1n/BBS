@@ -1,24 +1,8 @@
 <template>
   <section class="main">
     <div class="container">
-      <article v-if="isNeedEmailVerify" class="message is-warning">
-        <div class="message-header">
-          <p>请先验证邮箱</p>
-        </div>
-        <div class="message-body">
-          发表话题前，请先前往
-          <strong
-            ><nuxt-link
-              to="/user/profile/account"
-              style="color: var(--text-link-color)"
-              >个人中心 &gt; 账号设置</nuxt-link
-            ></strong
-          >
-          页面设置邮箱，并完成邮箱认证。
-        </div>
-      </article>
-      <div v-else class="topic-create-form">
-        <h1 class="title">{{ postForm.type === 0 ? '发帖子' : '发动态' }}</h1>
+      <div class="topic-create-form">
+        <h1 class="title">发帖子</h1>
 
         <div class="field">
           <div class="control">
@@ -34,7 +18,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 0" class="field">
+        <div class="field">
           <div class="control">
             <input
               v-model="postForm.title"
@@ -45,7 +29,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 0" class="field">
+        <div class="field">
           <div class="control">
             <markdown-editor
               ref="mdEditor"
@@ -55,7 +39,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 0 && isEnableHideContent" class="field">
+        <div v-if="isEnableHideContent" class="field">
           <div class="control">
             <markdown-editor
               ref="mdEditor"
@@ -66,7 +50,7 @@
           </div>
         </div>
 
-        <div v-if="postForm.type === 1" class="field">
+        <!--<div v-if="postForm.type === 0" class="field">
           <div class="control">
             <simple-editor
               ref="simpleEditor"
@@ -74,31 +58,10 @@
               @submit="submitCreate"
             />
           </div>
-        </div>
-
+        </div>-->
         <div class="field">
           <div class="control">
-            <tag-input v-model="postForm.tags" />
-          </div>
-        </div>
-
-        <div v-if="captchaUrl" class="field is-horizontal">
-          <div class="field control has-icons-left">
-            <input
-              v-model="captchaCode"
-              class="input"
-              type="text"
-              placeholder="验证码"
-              style="max-width: 150px; margin-right: 20px"
-            />
-            <span class="icon is-small is-left">
-              <i class="iconfont icon-captcha" />
-            </span>
-          </div>
-          <div class="field">
-            <a @click="showCaptcha">
-              <img :src="captchaUrl" style="height: 40px" />
-            </a>
+            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
 
@@ -109,7 +72,7 @@
               :disabled="publishing"
               class="button is-success"
               @click="submitCreate"
-              >{{ postForm.type === 1 ? '发表动态' : '发表帖子' }}</a
+              >{{ '发表帖子' }}</a
             >
           </div>
         </div>
@@ -144,15 +107,17 @@ export default {
       postForm: {
         type,
         nodeId: currentNode ? currentNode.nodeId : 0,
+        title: '',
+        tags: [],
+        content: '',
+        hideContent: '',
+        imageList: [],
       },
     }
   },
   data() {
     return {
       publishing: false, // 当前是否正处于发布中...
-      captchaId: '',
-      captchaUrl: '',
-      captchaCode: '',
       postForm: {
         type: 0,
         nodeId: 0,
@@ -176,25 +141,27 @@ export default {
     config() {
       return this.$store.state.config.config
     },
-    // 是否需要先邮箱认证
-    isNeedEmailVerify() {
-      return this.config.createTopicEmailVerified && !this.user.emailVerified
-    },
     isEnableHideContent() {
       return this.config.enableHideContent
     },
   },
   watchQuery: ['type', 'nodeId'],
   mounted() {
-    this.showCaptcha()
+    console.log(this.postForm)
   },
   methods: {
+    setTag(tags) {
+      this.postForm.tags = tags
+    },
     async submitCreate() {
       if (this.publishing) {
         return
       }
-
-      if (!this.postForm.nodeId) {
+      if (this.uploading) {
+        this.$message.error('正在上传中...请上传完成后提交')
+        return
+      }
+      if (!this.postForm.nodeId && this.postForm.nodeId !== 0) {
         this.$message.error('请选择节点')
         return
       }
@@ -205,12 +172,9 @@ export default {
         this.$message.warning('正在上传中...请上传完成后提交')
         return
       }
-
       const me = this
       try {
         const topic = await this.$axios.post('/api/topic/create', {
-          captchaId: this.captchaId,
-          captchaCode: this.captchaCode,
           type: this.postForm.type,
           nodeId: this.postForm.nodeId,
           title: this.postForm.title,
@@ -260,4 +224,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style>
+input {
+  display: none;
+}
+</style>

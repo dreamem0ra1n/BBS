@@ -32,22 +32,18 @@ const mutations = {
 
 const actions = {
   // user login
-  login({ commit }, loginForm) {
-    const { username, password, captchaId, captchaCode } = loginForm;
+  login({ commit }) {
     return new Promise((resolve, reject) => {
       this._vm.axios
-        .form("/api/login/signin", {
-          username,
-          password,
-          captchaId,
-          captchaCode,
-        })
+        .form("/api/login/signin", { ref: window.location.href })
         .then((data) => {
           commit("SET_TOKEN", data.token);
           setToken(data.token);
           resolve();
         })
         .catch((error) => {
+          // window.location =
+          //  "https://www.qsc.zju.edu.cn/passport/v4/zju/login?success=" + window.location.href;
           reject(error);
         });
     });

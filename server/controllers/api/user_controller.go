@@ -58,7 +58,7 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	major := params.FormValue(c.Ctx, "major")
 	birthday := params.FormValue(c.Ctx, "birthday")
 	mobile := params.FormValue(c.Ctx, "mobile")
-	wx := params.FormValue(c.Ctx, "wx")
+	wechat := params.FormValue(c.Ctx, "wechat")
 	qq := params.FormValue(c.Ctx, "qq")
 
 	if len(homePage) > 0 && validate.IsURL(homePage) != nil {
@@ -71,7 +71,7 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 		"major":       major,
 		"birthday":    birthday,
 		"mobile":      mobile,
-		"wx":          wx,
+		"wechat":      wechat,
 		"qq":          qq,
 	})
 	if err != nil {
@@ -267,7 +267,7 @@ func (c *UserController) PostForbidden() *web.JsonResult {
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-	if !user.HasAnyRole(constants.RoleOwner, constants.RoleAdmin) {
+	if !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 	var (
@@ -278,7 +278,7 @@ func (c *UserController) PostForbidden() *web.JsonResult {
 	if userId < 0 {
 		return web.JsonErrorMsg("请传入：userId")
 	}
-	if days == -1 && !user.HasRole(constants.RoleOwner) {
+	if days == -1 && !user.IsMasterUser() {
 		return web.JsonErrorMsg("无永久禁言权限")
 	}
 	if days == 0 {

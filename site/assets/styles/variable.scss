@@ -17,6 +17,7 @@ $navbar-box-shadow-color: var(--navbar-box-shadow-color);
 $title-color: var(--text);
 
 .light-mode {
+  --qsc-color: rgb(64, 158, 255);
   --scheme-main: $black;
   --scheme-main-bis: $black;
   --scheme-main-ter: $black;
@@ -52,6 +53,8 @@ $title-color: var(--text);
   --color-red: #fa5151;
   --color-navbar-icon: #1878f3;
 
+  --tag-back-color:#fff;
+
   .navbar-dropdown {
     background-color: #fff !important;
     border-top-color: #dbdbdb !important;
@@ -59,6 +62,7 @@ $title-color: var(--text);
 }
 
 .dark-mode {
+  --qsc-color: rgb(64, 158, 255);
   --scheme-main: $white;
   --scheme-main-bis: $white;
   --scheme-main-ter: $white;
@@ -94,6 +98,8 @@ $title-color: var(--text);
 
   --color-red: #fa5151;
   --color-navbar-icon: #e3e3e3;
+
+  --tag-back-color:#272727;
 
   .navbar-dropdown {
     background-color: #3a3a3a !important;

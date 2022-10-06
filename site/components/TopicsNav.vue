@@ -1,27 +1,29 @@
 <template>
   <nav class="dock-nav">
     <ul>
+      <li :class="{ active: currentNodeId === 1 }">
+        <nuxt-link to="/topics/node/1">
+          <span class="node-name">公告</span>
+        </nuxt-link>
+      </li>
       <li :class="{ active: currentNodeId === 0 }">
         <nuxt-link to="/topics/node/newest">
-          <img class="node-logo" src="~/assets/images/new.png" />
           <span class="node-name">最新</span>
         </nuxt-link>
       </li>
       <li :class="{ active: currentNodeId === -1 }">
         <nuxt-link to="/topics/node/recommend">
-          <img class="node-logo" src="~/assets/images/recommend2.png" />
           <span class="node-name">推荐</span>
         </nuxt-link>
       </li>
-      <li :class="{ active: currentNodeId === -2 }">
-        <nuxt-link to="/topics/node/feed">
-          <img class="node-logo" src="~/assets/images/feed.png" />
-          <span class="node-name">关注</span>
+      <li :class="{ active: false }">
+        <nuxt-link to="/articles">
+          <span class="node-name">文章</span>
         </nuxt-link>
       </li>
       <li class="dock-nav-divider"></li>
       <li
-        v-for="node in nodes"
+        v-for="node in nodes.filter((node) => node.nodeId !== 1)"
         :key="node.nodeId"
         :class="{ active: currentNodeId === node.nodeId }"
       >
@@ -90,7 +92,7 @@ export default {
       }
 
       &.active {
-        background-color: #ea6f5a;
+        background-color: var(--qsc-color);
         color: var(--text-color5);
 
         a {

@@ -19,9 +19,6 @@
         </slot>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="tweet" icon="iconfont icon-tweet2"
-          >发动态</el-dropdown-item
-        >
         <el-dropdown-item command="topic" icon="iconfont icon-topic"
           >发帖子</el-dropdown-item
         >
@@ -42,8 +39,6 @@ export default {
     handlePostCommand(cmd) {
       if (cmd === 'topic') {
         this.$linkTo('/topic/create')
-      } else if (cmd === 'tweet') {
-        this.$linkTo('/topic/create?type=1')
       } else if (cmd === 'article') {
         this.$linkTo('/article/create')
       }

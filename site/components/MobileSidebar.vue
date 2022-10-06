@@ -38,11 +38,9 @@
           </div>
         </template>
         <template v-else>
-          <nuxt-link
-            class="sidebar-login-btn button is-primary"
-            to="/user/signin"
+          <a class="sidebar-login-btn button is-primary" href="loginUrl"
             >登录
-          </nuxt-link>
+          </a>
         </template>
       </div>
     </transition>
@@ -68,6 +66,12 @@ export default {
     siteNavs() {
       const config = this.$store.state.config.config
       return config.siteNavs || []
+    },
+    loginUrl() {
+      return (
+        'https://www.qsc.zju.edu.cn/passport/v4/?success=' +
+        this.$store.state.env.currentDomain
+      )
     },
   },
   methods: {

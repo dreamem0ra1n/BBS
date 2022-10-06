@@ -3,6 +3,7 @@
     <v-md-editor
       v-model="content"
       :left-toolbar="toolbars"
+      :toolbar="myToolbar"
       :right-toolbar="rightToolbar"
       :height="height"
       :placeholder="placeholder"
@@ -13,6 +14,7 @@
       @keydown.ctrl.enter.native="submit"
       @keydown.meta.enter.native="submit"
     ></v-md-editor>
+    <input ref="upload" type="file" @input="uploadFile" />
   </div>
 </template>
 
@@ -29,7 +31,7 @@ import hljs from 'highlight.js'
 VMdEditor.use(githubTheme, {
   Hljs: hljs,
 })
-
+let _this
 Vue.use(VMdEditor)
 
 export default {
@@ -51,6 +53,18 @@ export default {
     return {
       width: '100%',
       content: this.value,
+      editor: {},
+      myToolbar: {
+        customToolBar1: {
+          title: '上传文件',
+          icon: 'v-md-icon-toc',
+          action(editor) {
+            _this.editor = editor
+            console.log(_this.editor)
+            _this.$refs.upload.dispatchEvent(new MouseEvent('click'))
+          },
+        },
+      },
     }
   },
   computed: {
@@ -59,9 +73,9 @@ export default {
     },
     toolbars() {
       if (this.isMobile) {
-        return 'h bold italic strikethrough image'
+        return 'h bold italic strikethrough image customToolBar1'
       } else {
-        return 'undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code'
+        return 'undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code | customToolBar1'
       }
     },
     rightToolbar() {
@@ -71,15 +85,51 @@ export default {
       return 'preview sync-scroll fullscreen'
     },
   },
-  mounted() {},
+  mounted() {
+    console.log(Vue)
+    console.log(this)
+    _this = this
+  },
   methods: {
+    uploadFile(e) {
+      const files = e.target.files
+      if (files.length <= 0) {
+        return
+      }
+      const file = files[0]
+      const formData = new FormData()
+      formData.append('file', file)
+      const that = this
+      this.$axios
+        .post('/api/file/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then((ret) => {
+          that.editor.insert(() => {
+            return {
+              text:
+                '[点击下载文件-' +
+                ret.file_name +
+                ']' +
+                '(' +
+                that.$store.state.env.currentDomain +
+                '/api/file/download/' +
+                ret.file_id +
+                ')',
+            }
+          })
+        })
+        .catch((err) => {
+          alert(err.message)
+        })
+    },
     submit() {
       this.$emit('submit', this.content)
     },
     /**
      * 上传图片
      */
-    async uploadImage(event, insertImage, files) {
+    uploadImage(event, insertImage, files) {
       if (!files || !files.length) {
         return
       }
@@ -87,13 +137,20 @@ export default {
         const file = files[i]
         const formData = new FormData()
         formData.append('image', file, file.name)
-        const ret = await this.$axios.post('/api/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        insertImage({
-          url: ret.url,
-          desc: ' ',
-        })
+
+        this.$axios
+          .post('/api/file/upload/img', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+          .then((ret) => {
+            insertImage({
+              url: ret.url,
+              desc: ' ',
+            })
+          })
+          .catch((err) => {
+            alert(err.message)
+          })
       }
     },
     change(value, render) {
@@ -115,6 +172,9 @@ export default {
 </script>
 
 <style lang="scss">
+input {
+  display: none;
+}
 .bbsgoEditor {
   .v-md-editor {
     box-shadow: none !important;

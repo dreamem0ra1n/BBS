@@ -30,9 +30,8 @@ func BuildUserInfo(user *model.User) *model.UserInfo {
 	ret := &model.UserInfo{
 		Id:       user.Id,
 		Nickname: user.Nickname,
-		
+
 		Avatar:       user.Avatar,
-		SmallAvatar:  HandleOssImageStyleAvatar(user.Avatar),
 		TopicCount:   user.TopicCount,
 		CommentCount: user.CommentCount,
 		FansCount:    user.FansCount,
@@ -56,13 +55,12 @@ func BuildUserDetail(user *model.User) *model.UserDetail {
 		return nil
 	}
 	ret := &model.UserDetail{
-		UserInfo:             *BuildUserInfo(user),
-		Username:             user.Username.String,
-		BackgroundImage:      user.BackgroundImage,
-		SmallBackgroundImage: HandleOssImageStyleSmall(user.BackgroundImage),
-		HomePage:             user.HomePage,
-		Forbidden:            user.IsForbidden(),
-		Status:               user.Status,
+		UserInfo:        *BuildUserInfo(user),
+		Username:        user.Username.String,
+		BackgroundImage: user.BackgroundImage,
+		HomePage:        user.HomePage,
+		Forbidden:       user.IsForbidden(),
+		Status:          user.Status,
 	}
 	if user.Status == constants.StatusDeleted {
 		ret.Username = "blacklist"
@@ -79,11 +77,19 @@ func BuildUserProfile(user *model.User) *model.UserProfile {
 	}
 	roles := strings.Split(user.Roles, ",")
 	ret := &model.UserProfile{
-		UserDetail:    *BuildUserDetail(user),
-		Roles:         roles,
-		Email:         user.Email.String,
-		EmailVerified: user.EmailVerified,
-		PasswordSet:   len(user.Password) > 0,
+		UserDetail:      *BuildUserDetail(user),
+		Roles:           roles,
+		Email:           user.Email.String,
+		EmailVerified:   user.EmailVerified,
+		PasswordSet:     len(user.Password) > 0,
+		BackgroundImage: user.BackgroundImage,
+		Realname:        user.Realname,
+		Major:           user.Major,
+		Birthday:        user.Birthday,
+		Department:      user.Department,
+		Mobile:          user.Mobile,
+		Wechat:          user.Wechat,
+		Qq:              user.Qq,
 	}
 	return ret
 }

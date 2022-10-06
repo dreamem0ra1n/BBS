@@ -32,7 +32,7 @@ export default {
   },
   computed: {
     action() {
-      return process.env.VUE_APP_BASE_API + "/api/upload";
+      return process.env.VUE_APP_BASE_API + "/api/file/upload/img";
     },
     headers() {
       const userToken = getToken();

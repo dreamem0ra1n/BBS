@@ -17,14 +17,6 @@
                     <span>话题</span>
                   </nuxt-link>
                 </li>
-                <li :class="{ 'is-active': activeTab === 'articles' }">
-                  <nuxt-link :to="'/user/' + user.id + '?tab=articles'">
-                    <span class="icon is-small">
-                      <i class="iconfont icon-article" aria-hidden="true" />
-                    </span>
-                    <span>文章</span>
-                  </nuxt-link>
-                </li>
               </ul>
             </div>
 
@@ -39,31 +31,12 @@
                   v-slot="{ results }"
                   :init-data="topicsPage"
                   :url="'/api/topic/user/topics?userId=' + user.id"
+                  :showTag="false"
                 >
                   <topic-list :topics="results" :show-avatar="false" />
                 </load-more>
               </div>
               <div v-else class="notification is-primary">暂无话题</div>
-            </div>
-
-            <div v-if="activeTab === 'articles'">
-              <div
-                v-if="
-                  articlesPage &&
-                  articlesPage.results &&
-                  articlesPage.results.length
-                "
-              >
-                <load-more
-                  v-if="articlesPage"
-                  v-slot="{ results }"
-                  :init-data="articlesPage"
-                  :url="'/api/article/user/articles?userId=' + user.id"
-                >
-                  <article-list :articles="results" />
-                </load-more>
-              </div>
-              <div v-else class="notification is-primary">暂无文章</div>
             </div>
           </div>
         </div>
@@ -90,13 +63,8 @@ export default {
 
     const activeTab = query.tab || defaultTab
     let topicsPage = null
-    let articlesPage = null
     if (activeTab === 'topics') {
       topicsPage = await $axios.get('/api/topic/user/topics', {
-        params: { userId: params.userId },
-      })
-    } else if (activeTab === 'articles') {
-      articlesPage = await $axios.get('/api/article/user/articles', {
         params: { userId: params.userId },
       })
     }
@@ -104,7 +72,6 @@ export default {
       activeTab,
       user,
       topicsPage,
-      articlesPage,
     }
   },
   data() {

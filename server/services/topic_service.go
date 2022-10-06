@@ -4,7 +4,6 @@ import (
 	"bbs-go/model/constants"
 	"bbs-go/pkg/bbsurls"
 	"bbs-go/pkg/config"
-	"bbs-go/pkg/es"
 	"bbs-go/pkg/event"
 	"errors"
 	"math"
@@ -71,9 +70,6 @@ func (s *topicService) Updates(id int64, columns map[string]interface{}) error {
 		return err
 	}
 
-	// 添加索引
-	es.UpdateTopicIndex(s.Get(id))
-
 	return nil
 }
 
@@ -81,9 +77,6 @@ func (s *topicService) UpdateColumn(id int64, name string, value interface{}) er
 	if err := repositories.TopicRepository.UpdateColumn(sqls.DB(), id, name, value); err != nil {
 		return err
 	}
-
-	// 添加索引
-	es.UpdateTopicIndex(s.Get(id))
 
 	return nil
 }
@@ -96,8 +89,6 @@ func (s *topicService) Delete(topicId, deleteUserId int64, r *http.Request) erro
 	}
 	err := repositories.TopicRepository.UpdateColumn(sqls.DB(), topicId, "status", constants.StatusDeleted)
 	if err == nil {
-		// 添加索引
-		es.UpdateTopicIndex(s.Get(topicId))
 		// 删掉标签文章
 		TopicTagService.DeleteByTopicId(topicId)
 		// 发送事件
@@ -116,8 +107,6 @@ func (s *topicService) Undelete(id int64) error {
 	if err == nil {
 		// 删掉标签文章
 		TopicTagService.UndeleteByTopicId(id)
-		// 添加索引
-		es.UpdateTopicIndex(s.Get(id))
 	}
 	return err
 }
@@ -187,8 +176,6 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 		return nil
 	})
 	if err == nil {
-		// 添加索引
-		es.UpdateTopicIndex(topic)
 		// 用户话题计数
 		UserService.IncrTopicCount(userId)
 		// 获得积分
@@ -235,9 +222,6 @@ func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content
 		return nil
 	})
 
-	// 添加索引
-	es.UpdateTopicIndex(s.Get(topicId))
-
 	return web.FromError(err)
 }
 
@@ -268,9 +252,6 @@ func (s *topicService) SetRecommend(topicId int64, recommend bool) error {
 		TopicId:   topicId,
 		Recommend: recommend,
 	})
-
-	// 添加索引
-	es.UpdateTopicIndex(s.Get(topicId))
 
 	return nil
 }
@@ -307,6 +288,37 @@ func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool) (topics [
 	} else {
 		nextCursor = cursor
 	}
+	return
+}
+
+// 根据 NodeId 和 tag 指定标签下话题列表
+func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (topics []model.Topic, nextCursor int64, hasMore bool) {
+	topics = []model.Topic{}
+	limit := 20
+	topicTags := repositories.TopicTagRepository.Find(sqls.DB(), sqls.NewCnd().
+		Eq("tag_id", tagId).
+		Eq("status", constants.StatusOk).
+		Desc("last_comment_time").Limit(limit))
+	if len(topicTags) > 0 {
+		nextCursor = topicTags[len(topicTags)-1].LastCommentTime
+
+		var topicIds []int64
+		for _, topicTag := range topicTags {
+			topicIds = append(topicIds, topicTag.TopicId)
+		}
+
+		topicsMap := s.GetTopicInIds(topicIds)
+		if topicsMap != nil {
+			for _, topicTag := range topicTags {
+				if topic, found := topicsMap[topicTag.TopicId]; found {
+					topics = append(topics, topic)
+				}
+			}
+		}
+	} else {
+		nextCursor = cursor
+	}
+	hasMore = len(topicTags) >= limit
 	return
 }
 

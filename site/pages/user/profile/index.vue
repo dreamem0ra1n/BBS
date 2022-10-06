@@ -37,18 +37,23 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <input
-                v-model="form.nickname"
-                class="input"
-                type="text"
-                autocomplete="off"
-                placeholder="请输入昵称"
-              />
+              <div>{{ form.nickname }}</div>
             </div>
           </div>
         </div>
       </div>
-
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">职位</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <div>{{ form.role }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- 个性签名 -->
       <div class="field is-horizontal">
         <div class="field-label is-normal">
@@ -89,6 +94,101 @@
       </div>
 
       <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">专业</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.major"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入专业"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">生日</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.birthday"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入生日"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">手机号</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.mobile"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入手机号"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">微信</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.wechat"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入微信"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">QQ</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              <input
+                v-model="form.qq"
+                class="input"
+                type="text"
+                autocomplete="off"
+                placeholder="请输入QQ"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
         <div class="field-label is-normal" />
         <div class="field-body">
           <div class="field">
@@ -105,20 +205,31 @@
 <script>
 export default {
   middleware: 'authenticated',
-  async asyncData({ $axios }) {
+  /* async asyncData({ $axios }) {
     const user = await $axios.get('/api/user/current')
     const form = { ...user }
     return {
       user,
       form,
-    }
+    } 
+  }, */
+  mounted() {
+    this.reload()
+    this.user = this.$store.state.user.current
   },
   data() {
     return {
+      user: {},
       form: {
         nickname: '',
         homePage: '',
         description: '',
+        major: '',
+        birthday: '',
+        mobile: '',
+        wechat: '',
+        qq: '',
+        role: '',
       },
     }
   },
@@ -130,11 +241,7 @@ export default {
   methods: {
     async submitForm() {
       try {
-        await this.$axios.post('/api/user/edit/' + this.user.id, {
-          nickname: this.form.nickname,
-          homePage: this.form.homePage,
-          description: this.form.description,
-        })
+        await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
         await this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {
@@ -150,6 +257,7 @@ export default {
     },
     async reload() {
       this.user = await this.$axios.get('/api/user/current')
+      this.$store.commit('user/setCurrent', this.user)
       this.form = { ...this.user }
     },
   },

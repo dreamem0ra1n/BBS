@@ -5,7 +5,8 @@
       v-if="topicsPage"
       v-slot="{ results }"
       :init-data="topicsPage"
-      :url="'/api/topic/tag/topics' + tag.tagId"
+      :url="'/api/topic/tag/topics' + tag.id"
+      :showTag="true"
     >
       <topic-list :topics="results" />
     </load-more>
@@ -31,7 +32,7 @@ export default {
   },
   head() {
     return {
-      title: this.$siteTitle(this.tag.tagName + ' - 话题'),
+      title: this.$siteTitle(this.tag.name + ' - 话题'),
       meta: [
         {
           hid: 'description',

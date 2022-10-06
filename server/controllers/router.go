@@ -24,6 +24,9 @@ import (
 	"bbs-go/middleware"
 )
 
+// 10 MB
+const FileMaxSize = 10 << 20
+
 func Router() {
 	app := iris.New()
 	app.Logger().SetLevel("warn")
@@ -50,11 +53,15 @@ func Router() {
 	})
 
 	app.Any("/", func(i iris.Context) {
-		_, _ = i.HTML("<h1>Powered by bbs-go</h1>")
+		_, _ = i.HTML("<h1>Powered by bbs-go QwQ</h1>")
 	})
 
 	// api
 	mvc.Configure(app.Party("/api"), func(m *mvc.Application) {
+
+		// 限制请求大小 结构好奇怪( 顺着它原来的写法把大小限制写在 handler 里了
+		// m.Router.Use(iris.LimitRequestBodySize(FileMaxSize))
+
 		m.Party("/topic").Handle(new(api.TopicController))
 		m.Party("/article").Handle(new(api.ArticleController))
 		m.Party("/login").Handle(new(api.LoginController))
@@ -65,15 +72,12 @@ func Router() {
 		m.Party("/like").Handle(new(api.LikeController))
 		m.Party("/checkin").Handle(new(api.CheckinController))
 		m.Party("/config").Handle(new(api.ConfigController))
-		m.Party("/upload").Handle(new(api.UploadController))
 		m.Party("/link").Handle(new(api.LinkController))
 		m.Party("/captcha").Handle(new(api.CaptchaController))
-		// m.Party("/qq/login").Handle(new(api.QQLoginController))
-		// m.Party("/github/login").Handle(new(api.GithubLoginController))
-		// m.Party("/osc/login").Handle(new(api.OscLoginController))
 		m.Party("/search").Handle(new(api.SearchController))
 		m.Party("/fans").Handle(new(api.FansController))
 		m.Party("/feed").Handle(new(api.FeedController))
+		m.Party("/file").Handle(new(api.FileController))
 	})
 
 	// admin
@@ -81,7 +85,6 @@ func Router() {
 		m.Router.Use(middleware.AdminAuth)
 		m.Party("/common").Handle(new(admin.CommonController))
 		m.Party("/user").Handle(new(admin.UserController))
-		m.Party("/third-account").Handle(new(admin.ThirdAccountController))
 		m.Party("/tag").Handle(new(admin.TagController))
 		m.Party("/article").Handle(new(admin.ArticleController))
 		m.Party("/comment").Handle(new(admin.CommentController))

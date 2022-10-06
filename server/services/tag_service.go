@@ -2,6 +2,7 @@ package services
 
 import (
 	"bbs-go/model/constants"
+	"strconv"
 	"strings"
 
 	"github.com/mlogclub/simple/sqls"
@@ -77,6 +78,12 @@ func (s *tagService) Autocomplete(input string) []model.Tag {
 	}
 	return repositories.TagRepository.Find(sqls.DB(), sqls.NewCnd().Where("status = ? and name like ?",
 		constants.StatusOk, "%"+input+"%").Limit(6))
+}
+
+// 按照部门 id 获取 tags
+func (s *tagService) GetTagsList(sid int) []model.Tag {
+	return repositories.TagRepository.Find(sqls.DB(), sqls.NewCnd().Where("status = ? and section_id like ?",
+		constants.StatusOk, "%"+strconv.Itoa(sid)+"%").Limit(6))
 }
 
 func (s *tagService) GetOrCreate(name string) (*model.Tag, error) {

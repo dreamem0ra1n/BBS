@@ -6,6 +6,7 @@
       v-slot="{ results }"
       :init-data="commentsPage"
       :params="{ entityType: entityType, entityId: entityId }"
+      :showTag="false"
       url="/api/comment/comments"
     >
       <div v-for="comment in results" :key="comment.commentId" class="comment">
@@ -34,7 +35,7 @@
             <div
               v-if="comment.content"
               class="comment-content content"
-              v-html="comment.content"
+              v-html="comment.content.replace(/\n/gm, '<br>')"
             ></div>
             <div
               v-if="comment.imageList && comment.imageList.length"

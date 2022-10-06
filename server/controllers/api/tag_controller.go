@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bbs-go/model"
 	"bbs-go/model/constants"
 
 	"github.com/kataras/iris/v12"
@@ -36,10 +37,21 @@ func (c *TagController) GetTags() *web.JsonResult {
 	return web.JsonPageData(render.BuildTags(tags), paging)
 }
 
-// TODO: ban this api after frontend remove the function
-// 标签自动完成
+// 标签自动补全
 func (c *TagController) PostAutocomplete() *web.JsonResult {
 	input := c.Ctx.FormValue("input")
 	tags := services.TagService.Autocomplete(input)
+	return web.JsonData(tags)
+}
+
+func (c *TagController) GetListBy(sectionId int) *web.JsonResult {
+	tags := []model.Tag{}
+	if sectionId != 0 {
+		tags0 := services.TagService.GetTagsList(0)
+		tagsn := services.TagService.GetTagsList(sectionId)
+		tags = append(tags0, tagsn...)
+	} else if sectionId == 0 {
+		tags = services.TagService.GetTagsList(0)
+	}
 	return web.JsonData(tags)
 }

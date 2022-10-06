@@ -14,6 +14,7 @@ import (
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
+	"github.com/sirupsen/logrus"
 
 	"bbs-go/cache"
 	"bbs-go/controllers/render"
@@ -72,8 +73,8 @@ func (c *TopicController) GetEditBy(topicId int64) *web.JsonResult {
 		return web.JsonErrorMsg("当前类型帖子不支持修改")
 	}
 
-	// 非拥有者、且非管理员
-	if topic.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
+	// 不是作者且没有管理权限
+	if topic.UserId != user.Id && !UserCanManageTopic(user, topic) {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -107,8 +108,8 @@ func (c *TopicController) PostEditBy(topicId int64) *web.JsonResult {
 		return web.JsonErrorMsg("话题不存在或已被删除")
 	}
 
-	// 非作者、且非管理员
-	if topic.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
+	// 不是作者且没有管理权限
+	if topic.UserId != user.Id && !UserCanManageTopic(user, topic) {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -142,8 +143,8 @@ func (c *TopicController) PostDeleteBy(topicId int64) *web.JsonResult {
 		return web.JsonSuccess()
 	}
 
-	// 非作者、且非管理员
-	if topic.UserId != user.Id && !user.HasAnyRole(constants.RoleAdmin, constants.RoleOwner) {
+	// 不是作者且没有管理权限
+	if topic.UserId != user.Id && !UserCanManageTopic(user, topic) {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -155,6 +156,7 @@ func (c *TopicController) PostDeleteBy(topicId int64) *web.JsonResult {
 
 // PostRecommendBy 设为推荐
 func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
+	topic := services.TopicService.Get(topicId)
 	recommend, err := params.FormValueBool(c.Ctx, "recommend")
 	if err != nil {
 		return web.JsonError(err)
@@ -163,7 +165,8 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-	if !user.HasAnyRole(constants.RoleOwner, constants.RoleAdmin) {
+	// 没有管理权限
+	if !UserCanManageTopic(user, topic) {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -176,10 +179,19 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 
 // 帖子详情
 func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
+
 	topic := services.TopicService.Get(topicId)
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
+
+	// 没有阅读权限并且不是主题的作者
+	if !UserCanAccessTopic(user, topic) && topic.UserId != user.Id {
+		return web.JsonErrorMsg("无权限")
+	}
+
 	services.TopicService.IncrViewCount(topicId) // 增加浏览量
 	return web.JsonData(render.BuildTopic(topic))
 }
@@ -238,6 +250,21 @@ func (c *TopicController) GetTopics() *web.JsonResult {
 		user         = services.UserTokenService.GetCurrent(c.Ctx)
 	)
 	topics, cursor, hasMore := services.TopicService.GetTopics(nodeId, cursor, recommend)
+	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
+}
+
+// 根据 nodeId 和 tag 获取帖子列表
+func (c *TopicController) PostTopicsnt() *web.JsonResult {
+	var (
+		cursor     = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+		nodeId     = params.FormValueInt64Default(c.Ctx, "nodeId", 0)
+		tagId, err = params.FormValueInt64(c.Ctx, "tagId")
+		user       = services.UserTokenService.GetCurrent(c.Ctx)
+	)
+	if err != nil {
+		return web.JsonError(err)
+	}
+	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor)
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
@@ -307,7 +334,7 @@ func (c *TopicController) PostStickyBy(topicId int64) *web.JsonResult {
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-	if !user.HasAnyRole(constants.RoleOwner, constants.RoleAdmin) {
+	if !user.IsAdminUserOrHigher() {
 		return web.JsonErrorMsg("无权限")
 	}
 
@@ -342,4 +369,56 @@ func (c *TopicController) GetHide_content() *web.JsonResult {
 		"show":    show,
 		"content": hideContent,
 	})
+}
+
+func UserCanAccessTopic(user *model.User, topic *model.Topic) bool {
+	// 是站长就不需要做进一步的部门鉴权
+
+	if user.IsMasterUser() {
+		return true
+	}
+
+	// 获取该部门的权限
+	role, err := user.GetRoleByArg(topic.NodeId)
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth")
+		return false
+	}
+	au, err := model.GetAuthUnit(role, int(topic.NodeId))
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth unit")
+		return false
+	}
+	// 检查权限单元
+	// 如果阅读权限过低则无法访问
+	if au.ReadLv < topic.AccessLv {
+		return false
+	}
+	return true
+}
+
+func UserCanManageTopic(user *model.User, topic *model.Topic) bool {
+	// 是站长就不需要做进一步的部门鉴权
+	if user.IsMasterUser() {
+		return true
+	}
+
+	// 获取该部门的权限
+	role, err := user.GetRoleByArg(topic.NodeId)
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth")
+		return false
+	}
+	au, err := model.GetAuthUnit(role, int(topic.NodeId))
+	if err != nil {
+		logrus.Error("Error happen while getting user's auth unit")
+		return false
+	}
+
+	// 检查权限单元
+	// 如果有部门以上的管理权限则能够推荐
+	if au.ManageLv >= 2 {
+		return true
+	}
+	return false
 }

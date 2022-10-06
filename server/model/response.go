@@ -15,8 +15,8 @@ type UserInfo struct {
 	Birthday     string `json:"birthday" form:"birthday"`     // 生日
 	Department   string `json:"department" form:"department"` // 部门
 	Mobile       string `json:"mobile" form:"mobile"`         // 电话
-	WX           string `json:"wechat" form:"wechat"`         // 微信号
-	QQ           string `json:"qq" form:"qq"`                 // QQ号
+	Wechat       string `json:"wechat" form:"wechat"`         // 微信号
+	Qq           string `json:"qq" form:"qq"`                 // QQ号
 	Avatar       string `json:"avatar"`                       // 头像
 	SmallAvatar  string `json:"smallAvatar"`                  // 小头像
 	TopicCount   int    `json:"topicCount"`                   // 话题数量
@@ -39,15 +39,30 @@ type UserDetail struct {
 	HomePage             string `json:"homePage"`
 	Forbidden            bool   `json:"forbidden"` // 是否禁言
 	Status               int    `json:"status"`
+	Realname             string `json:"realname"`   // 真实姓名
+	Major                string `json:"major"`      // 专业
+	Birthday             string `json:"birthday"`   // 生日
+	Department           string `json:"department"` // 部门
+	Mobile               string `json:"mobile"`     // 电话
+	Wechat               string `json:"wechat"`     // 微信号
+	Qq                   string `json:"qq"`         // QQ号
 }
 
 // UserProfile 用户个人信息
 type UserProfile struct {
 	UserDetail
-	Roles         []string `json:"roles"`
-	PasswordSet   bool     `json:"passwordSet"` // 密码已设置
-	Email         string   `json:"email"`
-	EmailVerified bool     `json:"emailVerified"`
+	Roles           []string `json:"roles"`
+	PasswordSet     bool     `json:"passwordSet"` // 密码已设置
+	BackgroundImage string   `json:"smallBackgroundImage"`
+	Email           string   `json:"email"`
+	EmailVerified   bool     `json:"emailVerified"`
+	Realname        string   `json:"realname" form:"realname"`     // 真实姓名
+	Major           string   `json:"major" form:"major"`           // 专业
+	Birthday        string   `json:"birthday" form:"birthday"`     // 生日
+	Department      string   `json:"department" form:"department"` // 部门
+	Mobile          string   `json:"mobile" form:"mobile"`         // 电话
+	Wechat          string   `json:"wechat" form:"wechat"`         // 微信号
+	Qq              string   `json:"qq" form:"qq"`                 // QQ号
 }
 
 type TagResponse struct {

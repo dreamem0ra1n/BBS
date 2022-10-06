@@ -61,6 +61,12 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	client := &http.Client{}
 	parms := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", "https://www.qsc.zju.edu.cn/passport/v4/profile", parms)
+
+	if err != nil {
+		logrus.Error("error happen when request passport!", err)
+		return web.JsonError(err)
+	}
+
 	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
 
 	cookie := &http.Cookie{
@@ -70,14 +76,13 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	}
 	req.AddCookie(cookie)
 	HTTPresp, err := client.Do(req)
-	defer HTTPresp.Body.Close()
-
 	if err != nil {
 		logrus.Error("error happen when send request to passport", err)
 		return web.JsonError(err)
 	}
 
 	body, err := ioutil.ReadAll(HTTPresp.Body)
+	HTTPresp.Body.Close()
 	if err != nil {
 		logrus.Error("error happen when read response from passport", err)
 		return web.JsonError(err)
@@ -96,12 +101,14 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	}
 	err = json.Unmarshal([]byte(bodyStr), &resp)
 
+	logrus.Info("receive data from passport: ", resp.Data)
+
 	username := resp.Data.User.Name
 	ZjuId := resp.Data.User.ZjuId
 	_ = resp.Data.User.LoginType
 
 	user, err := services.UserService.SignIn(ZjuId, ZjuId)
-	if err.Error() == "NO_SUCH_USER" {
+	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registeUser(username, ZjuId)
 	} else if err != nil {
@@ -120,10 +127,7 @@ func (c *LoginController) GetSignout() *web.JsonResult {
 }
 
 func registeUser(username string, ZJUId string) (*model.User, error) {
-	var build strings.Builder
-	build.WriteString(ZJUId)
-	build.WriteString("@zju.edu.cn")
-	email := build.String()
+	email := ZJUId + "@zju.edu.cn"
 
 	user := &model.User{
 		Username:   sqls.SqlNullString(ZJUId),

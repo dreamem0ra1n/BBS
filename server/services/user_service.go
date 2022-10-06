@@ -5,9 +5,7 @@ import (
 	"bbs-go/pkg/bbsurls"
 	"bbs-go/pkg/email"
 	"bbs-go/pkg/errs"
-	"bbs-go/pkg/uploader"
 	"bbs-go/pkg/validate"
-	"database/sql"
 	"errors"
 	"net/http"
 	"strconv"
@@ -21,7 +19,6 @@ import (
 	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
 	"github.com/sirupsen/logrus"
-	"github.com/tidwall/gjson"
 	"gorm.io/gorm"
 
 	"bbs-go/cache"
@@ -267,72 +264,6 @@ func (s *userService) SignIn(username, password string) (*model.User, error) {
 		return nil, errors.New("密码错误")
 	}
 	return user, nil
-}
-
-// SignInByThirdAccount 第三方账号登录
-func (s *userService) SignInByThirdAccount(thirdAccount *model.ThirdAccount) (*model.User, *web.CodeError) {
-	user := s.Get(thirdAccount.UserId.Int64)
-	if user != nil {
-		if user.Status != constants.StatusOk {
-			return nil, web.NewErrorMsg("用户已被禁用")
-		}
-		return user, nil
-	}
-
-	var homePage string
-	var description string
-	if thirdAccount.ThirdType == constants.ThirdAccountTypeGithub {
-		if blog := gjson.Get(thirdAccount.ExtraData, "blog"); blog.Exists() && len(blog.String()) > 0 {
-			homePage = blog.String()
-		} else if htmlUrl := gjson.Get(thirdAccount.ExtraData, "html_url"); htmlUrl.Exists() && len(htmlUrl.String()) > 0 {
-			homePage = htmlUrl.String()
-		}
-
-		description = gjson.Get(thirdAccount.ExtraData, "bio").String()
-	}
-
-	user = &model.User{
-		Username:    sql.NullString{},
-		Nickname:    thirdAccount.Nickname,
-		Status:      constants.StatusOk,
-		HomePage:    homePage,
-		Description: description,
-		CreateTime:  dates.NowTimestamp(),
-		UpdateTime:  dates.NowTimestamp(),
-	}
-	err := sqls.DB().Transaction(func(tx *gorm.DB) error {
-		if err := repositories.UserRepository.Create(tx, user); err != nil {
-			return err
-		}
-
-		if err := repositories.ThirdAccountRepository.UpdateColumn(tx, thirdAccount.Id, "user_id", user.Id); err != nil {
-			return err
-		}
-
-		avatarUrl := s.HandleThirdAvatar(thirdAccount.Avatar)
-
-		if err := repositories.UserRepository.UpdateColumn(tx, user.Id, "avatar", avatarUrl); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, web.FromError(err)
-	}
-	cache.UserCache.Invalidate(user.Id)
-	return user, nil
-}
-
-// HandleThirdAvatar 处理第三方头像
-func (s *userService) HandleThirdAvatar(thirdAvatar string) string {
-	if strs.IsBlank(thirdAvatar) {
-		return ""
-	}
-	avatar, err := uploader.CopyImage(thirdAvatar)
-	if err != nil {
-		return ""
-	}
-	return avatar
 }
 
 // isEmailExists 邮箱是否存在

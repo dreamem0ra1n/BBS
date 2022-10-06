@@ -66,9 +66,6 @@ func handleHtmlContent(htmlContent string) string {
 			// selection.SetAttr("src", src)
 		}
 
-		// 处理图片样式
-		src = HandleOssImageStyleDetail(src)
-
 		// 处理lazyload
 		selection.SetAttr("data-src", src)
 		selection.RemoveAttr("src")
@@ -84,6 +81,7 @@ func handleHtmlContent(htmlContent string) string {
 BuildLoginSuccess 处理登录成功后的返回数据
 
 Parameter:
+
 	user - login user
 	ref - 登录来源地址，需要控制登录成功之后跳转到该地址
 */
