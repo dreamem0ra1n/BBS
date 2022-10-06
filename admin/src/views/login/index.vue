@@ -55,7 +55,7 @@ export default {
           this.$store
             .dispatch("user/login")
             .then(() => {
-              //this.$router.push({ path: this.redirect || "/", query: this.otherQuery });
+              this.$router.push({ path: this.redirect || "/", query: this.otherQuery });
               this.loading = false;
             })
             .catch((e) => {
