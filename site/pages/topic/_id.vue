@@ -220,7 +220,6 @@ export default {
       }),
       $axios.get('/api/topic/recentlikes/' + params.id),
     ])
-
     return {
       topic,
       commentsPage,

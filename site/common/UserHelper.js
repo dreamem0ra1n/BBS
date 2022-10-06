@@ -29,7 +29,7 @@ class UserHelper {
   }
 
   isAdmin(user) {
-    return this.hasRole(user, 'admin')
+    return this.hasRole(user, '中管') || this.hasRole(user, '高管')
   }
 }
 

@@ -67,7 +67,7 @@
     <el-dialog :visible.sync="addFormVisible" :close-on-click-modal="false" title="新增">
       <el-form ref="addForm" :model="addForm" label-width="80px">
         <el-form-item label="部门">
-          <el-select v-model="addForm.sectionId" placeholder="请选择">
+          <el-select v-model="addForm.section_id" placeholder="请选择">
             <el-option
               v-for="item in sections"
               :key="item.id + item.name"
@@ -93,6 +93,17 @@
     <el-dialog :visible.sync="editFormVisible" :close-on-click-modal="false" title="编辑">
       <el-form ref="editForm" :model="editForm" label-width="80px">
         <el-input v-model="editForm.id" type="hidden" />
+        <el-form-item label="部门">
+          <el-select v-model="editForm.section_id" placeholder="请选择">
+            <el-option
+              v-for="item in sections"
+              :key="item.id + item.name"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="名称">
           <el-input v-model="editForm.name" />
         </el-form-item>
@@ -171,9 +182,10 @@ export default {
         .then((data) => {
           me.results = data.results;
           me.page = data.page;
-          me.results.forEach((tag)=>{
-            tag.section=sections.filter((section)=>(section.id===tag.sectionId))[0]
-          })
+          me.results.forEach((tag) => {
+            console.log(this.sections.filter((section) => section.id === tag.section_id)[0].name);
+            tag.section = this.sections.filter((section) => section.id === tag.section_id)[0].name;
+          });
         })
         .finally(() => {
           me.listLoading = false;
