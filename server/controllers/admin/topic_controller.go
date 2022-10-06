@@ -30,7 +30,7 @@ func (c *TopicController) AnyList() *web.JsonResult {
 
 	var results []map[string]interface{}
 	for _, topic := range list {
-		item := render.BuildSimpleTopic(&topic)
+		item := render.BuildSimpleTopic(services.UserTokenService.GetCurrent(c.Ctx), &topic)
 		builder := web.NewRspBuilder(item)
 		builder.Put("status", topic.Status)
 		results = append(results, builder.Build())

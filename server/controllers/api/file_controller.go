@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"time"
 
+	_ "image/png"
+
 	"github.com/google/uuid"
 	"github.com/kataras/iris/v12"
 	"github.com/minio/minio-go/v6"

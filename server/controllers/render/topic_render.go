@@ -11,13 +11,13 @@ import (
 	"github.com/mlogclub/simple/common/strs"
 )
 
-func BuildTopic(topic *model.Topic) *model.TopicResponse {
-	return _buildTopic(topic, true)
+func BuildTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
+	return _buildTopic(user, topic, true)
 }
 
-func BuildSimpleTopic(topic *model.Topic) *model.TopicResponse {
+func BuildSimpleTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
 	buildContent := topic.Type == constants.TopicTypeTweet // 动态时渲染内容
-	return _buildTopic(topic, buildContent)
+	return _buildTopic(user, topic, buildContent)
 }
 
 func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.TopicResponse {
@@ -36,14 +36,14 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 
 	var responses []model.TopicResponse
 	for _, topic := range topics {
-		item := BuildSimpleTopic(&topic)
+		item := BuildSimpleTopic(currentUser, &topic)
 		item.Liked = arrays.Contains(topic.Id, likedTopicIds)
 		responses = append(responses, *item)
 	}
 	return responses
 }
 
-func _buildTopic(topic *model.Topic, buildContent bool) *model.TopicResponse {
+func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model.TopicResponse {
 	if topic == nil {
 		return nil
 	}
@@ -65,15 +65,19 @@ func _buildTopic(topic *model.Topic, buildContent bool) *model.TopicResponse {
 	rsp.StickyTime = topic.StickyTime
 
 	// 构建内容
-	if buildContent {
-		if topic.Type == constants.TopicTypeTopic {
-			content := markdown.ToHTML(topic.Content)
-			rsp.Content = handleHtmlContent(content)
+	if user.CanAccessTopic(topic) {
+		if buildContent {
+			if topic.Type == constants.TopicTypeTopic {
+				content := markdown.ToHTML(topic.Content)
+				rsp.Content = handleHtmlContent(content)
+			} else {
+				rsp.Content = html.EscapeString(topic.Content)
+			}
 		} else {
-			rsp.Content = html.EscapeString(topic.Content)
+			rsp.Summary = markdown.GetSummary(topic.Content, 128)
 		}
 	} else {
-		rsp.Summary = markdown.GetSummary(topic.Content, 128)
+		rsp.Summary = "抱歉，您无权访问该帖子的内容！"
 	}
 
 	if topic.Type == constants.TopicTypeTweet {
