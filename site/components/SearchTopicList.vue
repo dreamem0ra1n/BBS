@@ -5,7 +5,7 @@
       :key="item.id"
       class="topic-search-item"
     >
-      <a target="_blank" :href="'/topic/' + item.topicId">
+      <a target="_blank" :href="'/topic/' + item.id">
         <h1 class="topic-search-item-title" v-html="item.title"></h1>
       </a>
       <p class="topic-search-item-summary content" v-html="item.summary"></p>
