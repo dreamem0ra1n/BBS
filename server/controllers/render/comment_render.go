@@ -5,11 +5,13 @@ import (
 	"bbs-go/model/constants"
 	"bbs-go/pkg/markdown"
 	"bbs-go/services"
+	"encoding/json"
 	"html"
 	"strconv"
 
 	"github.com/mlogclub/simple/common/arrays"
 	"github.com/mlogclub/simple/web"
+	"github.com/sirupsen/logrus"
 )
 
 func BuildComment(comment *model.Comment) *model.CommentResponse {
@@ -52,6 +54,7 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		return nil
 	}
 
+	imgList := strToImgList(comment.ImageList)
 	ret := &model.CommentResponse{
 		CommentId:    comment.Id,
 		User:         BuildUserInfoDefaultIfNull(comment.UserId),
@@ -62,6 +65,7 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		CommentCount: comment.CommentCount,
 		Status:       comment.Status,
 		CreateTime:   comment.CreateTime,
+		ImageList:    imgList,
 	}
 
 	if comment.Status == constants.StatusOk {
@@ -97,6 +101,25 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		if quote != nil {
 			ret.Quote = quote
 		}
+	}
+
+	return ret
+}
+
+func strToImgList(data string) (ret []model.ImageInfo) {
+	if data == "" {
+		return nil
+	}
+	err := json.Unmarshal([]byte(data), &ret)
+
+	if err != nil {
+		logrus.Error("error happen when unmarshall the image list: ", err)
+		return nil
+	}
+
+	// TODO: 需要实现一个真正的 preview。可以传 url 进去返回一个压缩后的 url。
+	for _, v := range ret {
+		v.Preview = v.Url
 	}
 
 	return ret
