@@ -54,17 +54,26 @@
             <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
-
-        <div class="field is-grouped">
-          <div class="control">
-            <a
-              :class="{ 'is-loading': publishing }"
-              :disabled="publishing"
-              class="button is-success"
-              @click="submitCreate"
-              >提交更改</a
-            >
-          </div>
+        <div class="control">
+          <el-select v-model="postForm.access_lv" placeholder="请选择可见性">
+            <el-option
+              v-for="lv in levelArray"
+              :key="lv.level"
+              :value="lv.level"
+              :label="lv.description"
+            ></el-option>
+          </el-select>
+        </div>
+      </div>
+      <div class="field is-grouped">
+        <div class="control">
+          <a
+            :class="{ 'is-loading': publishing }"
+            :disabled="publishing"
+            class="button is-success"
+            @click="submitCreate"
+            >提交更改</a
+          >
         </div>
       </div>
     </div>
@@ -88,6 +97,7 @@ export default {
         tags: topic.tags,
         content: topic.content,
         hideContent: topic.hideContent,
+        access_lv: topic.access_lv,
       },
     }
   },

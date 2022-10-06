@@ -59,26 +59,22 @@
             />
           </div>
         </div>-->
+
         <div class="field">
           <div class="control">
-            <div>
-              可见性设置
-              <select v-model="postForm.access_lv">
-                <option
-                  v-for="lv in levelArray"
-                  :key="lv.level"
-                  :value="lv.level"
-                  class="options"
-                >
-                  {{ lv.description }}
-                </option>
-              </select>
-            </div>
+            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
         <div class="field">
           <div class="control">
-            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
+            <el-select v-model="postForm.access_lv" placeholder="请选择可见性">
+              <el-option
+                v-for="lv in levelArray"
+                :key="lv.level"
+                :value="lv.level"
+                :label="lv.description"
+              ></el-option>
+            </el-select>
           </div>
         </div>
 
@@ -129,7 +125,7 @@ export default {
         content: '',
         hideContent: '',
         imageList: [],
-        access_lv: 1,
+        access_lv: '',
       },
     }
   },

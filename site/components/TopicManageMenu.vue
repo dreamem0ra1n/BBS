@@ -7,9 +7,7 @@
       <el-dropdown-item v-if="hasPermission && value.type === 0" command="edit"
         >修改</el-dropdown-item
       >
-      <el-dropdown-item v-if="isAdmin" command="delete"
-        >删除</el-dropdown-item
-      >
+      <el-dropdown-item v-if="isAdmin" command="delete">删除</el-dropdown-item>
       <el-dropdown-item v-if="isAdmin" command="recommend">{{
         value.recommend ? '取消推荐' : '推荐'
       }}</el-dropdown-item>
