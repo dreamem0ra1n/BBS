@@ -49,7 +49,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <div>{{ String(form.roles )}}</div>
+              <div>{{ String(form.roles) }}</div>
             </div>
           </div>
         </div>
