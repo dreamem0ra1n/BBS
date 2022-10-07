@@ -7,9 +7,9 @@
   >
     <div class="container">
       <div class="navbar-brand">
-        <my-link to="/" class="navbar-item">
+        <nuxt-link to="/" class="navbar-item">
           <img :alt="config.siteTitle" src="~/assets/images/logo.png" />
-        </my-link>
+        </nuxt-link>
         <a
           :class="{ 'is-active': navbarActive }"
           class="navbar-burger burger"
