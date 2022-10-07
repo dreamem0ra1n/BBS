@@ -3,7 +3,7 @@
     <div class="widget-header">
       <span>个人资料</span>
       <div class="slot">
-        <nuxt-link to="/user/profile">编辑资料</nuxt-link>
+        <my-link to="/user/profile">编辑资料</my-link>
       </div>
     </div>
     <div class="widget-content stable">

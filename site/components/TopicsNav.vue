@@ -2,24 +2,24 @@
   <nav class="dock-nav">
     <ul>
       <li :class="{ active: currentNodeId === 1 }">
-        <nuxt-link to="/topics/node/1">
+        <my-link to="/topics/node/1">
           <span class="node-name">公告</span>
-        </nuxt-link>
+        </my-link>
       </li>
       <li :class="{ active: currentNodeId === 0 }">
-        <nuxt-link to="/topics/node/newest">
+        <my-link to="/topics/node/newest">
           <span class="node-name">最新</span>
-        </nuxt-link>
+        </my-link>
       </li>
       <li :class="{ active: currentNodeId === -1 }">
-        <nuxt-link to="/topics/node/recommend">
+        <my-link to="/topics/node/recommend">
           <span class="node-name">推荐</span>
-        </nuxt-link>
+        </my-link>
       </li>
       <li :class="{ active: false }">
-        <nuxt-link to="/articles">
+        <my-link to="/articles">
           <span class="node-name">文章</span>
-        </nuxt-link>
+        </my-link>
       </li>
       <li class="dock-nav-divider"></li>
       <li
@@ -27,11 +27,11 @@
         :key="node.nodeId"
         :class="{ active: currentNodeId === node.nodeId }"
       >
-        <nuxt-link :to="'/topics/node/' + node.nodeId">
+        <my-link :to="'/topics/node/' + node.nodeId">
           <img v-if="node.logo" class="node-logo" :src="node.logo" />
           <img v-else class="node-logo" src="~/assets/images/node.png" />
           <span class="node-name">{{ node.name }}</span>
-        </nuxt-link>
+        </my-link>
       </li>
     </ul>
   </nav>

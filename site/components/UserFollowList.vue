@@ -5,7 +5,7 @@
         <avatar :user="item" :size="40" has-border round />
         <div class="user-follow-item-info">
           <div class="nickname">
-            <nuxt-link :to="'/user/' + item.id">{{ item.nickname }}</nuxt-link>
+            <my-link :to="'/user/' + item.id">{{ item.nickname }}</my-link>
           </div>
           <div class="description">
             {{ item.description }}{{ item.description }}{{ item.description }}
