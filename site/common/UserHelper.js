@@ -5,7 +5,7 @@ class UserHelper {
       return false
     }
     for (let i = 0; i < user.roles.length; i++) {
-      if (user.roles[i] === role) {
+      if (user.roles[i].includes(role)) {
         return true
       }
     }

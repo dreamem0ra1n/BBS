@@ -95,6 +95,8 @@
 </template>
 
 <script>
+import { throws } from 'assert'
+
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, query, store }) {
@@ -197,7 +199,14 @@ export default {
         this.$message.error('请选择节点')
         return
       }
-
+      if (!this.postForm.access_lv || this.postForm.access_lv === '') {
+        this.$message.error('请选择可见性')
+        return
+      }
+      if (!this.postForm.tags || this.postForm.tags.length === 0) {
+        this.$message.error('请选择标签')
+        return
+      }
       this.publishing = true
 
       if (this.$refs.simpleEditor && this.$refs.simpleEditor.isOnUpload()) {

@@ -13,7 +13,9 @@
         :key="index + info.attribute"
       >
         <div class="slabel">{{ info.title }}</div>
-        <div class="svalue">{{ user[info.attribute] }}</div>
+        <div class="svalue">
+          {{ String(user[info.attribute]) }}
+        </div>
       </div>
 
       <div v-if="user.homePage" class="str">
@@ -41,6 +43,7 @@ export default {
     return {
       infos: [
         { title: '昵称', attribute: 'nickname' },
+        { title: '职位', attribute: 'roles' },
         { title: '签名', attribute: 'description' },
         { title: '专业', attribute: 'major' },
         { title: '生日', attribute: 'birthday' },
