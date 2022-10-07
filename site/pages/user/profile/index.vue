@@ -49,7 +49,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <div>{{ form.role }}</div>
+              <div>{{ String(form.roles )}}</div>
             </div>
           </div>
         </div>
@@ -256,9 +256,9 @@ export default {
       this.$message.error('头像更新失败')
     },
     async reload() {
-      this.user = await this.$axios.get('/api/user/current')
-      this.$store.commit('user/setCurrent', this.user)
-      this.form = { ...this.user }
+      const _user = await this.$axios.get('/api/user/current')
+      this.$store.commit('user/setCurrent', _user)
+      this.form = { ..._user }
     },
   },
 }

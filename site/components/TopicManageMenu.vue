@@ -7,19 +7,17 @@
       <el-dropdown-item v-if="hasPermission && value.type === 0" command="edit"
         >修改</el-dropdown-item
       >
-      <el-dropdown-item v-if="hasPermission" command="delete"
-        >删除</el-dropdown-item
-      >
-      <el-dropdown-item v-if="isOwner || isAdmin" command="recommend">{{
+      <el-dropdown-item v-if="isAdmin" command="delete">删除</el-dropdown-item>
+      <el-dropdown-item v-if="isAdmin" command="recommend">{{
         value.recommend ? '取消推荐' : '推荐'
       }}</el-dropdown-item>
-      <el-dropdown-item v-if="isOwner || isAdmin" command="sticky">{{
+      <el-dropdown-item v-if="isAdmin" command="sticky">{{
         value.sticky ? '取消置顶' : '置顶'
       }}</el-dropdown-item>
-      <el-dropdown-item v-if="isOwner || isAdmin" command="forbidden7Days"
+      <el-dropdown-item v-if="isAdmin" command="forbidden7Days"
         >禁言7天</el-dropdown-item
       >
-      <el-dropdown-item v-if="isOwner" command="forbiddenForever"
+      <el-dropdown-item v-if="isAdmin" command="forbiddenForever"
         >永久禁言</el-dropdown-item
       >
     </el-dropdown-menu>
@@ -43,20 +41,13 @@ export default {
   },
   computed: {
     hasPermission() {
-      return (
-        this.isTopicOwner ||
-        UserHelper.isOwner(this.user) ||
-        UserHelper.isAdmin(this.user)
-      )
+      return this.isTopicOwner || UserHelper.isAdmin(this.user)
     },
     isTopicOwner() {
       if (!this.user || !this.topic) {
         return false
       }
       return this.user.id === this.topic.user.id
-    },
-    isOwner() {
-      return UserHelper.isOwner(this.user)
     },
     isAdmin() {
       return UserHelper.isAdmin(this.user)
