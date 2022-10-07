@@ -5,11 +5,11 @@ go 1.17
 require (
 	github.com/88250/lute v1.7.3
 	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
 	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f
 	github.com/emirpasic/gods v1.12.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goburrow/cache v0.1.4
+	github.com/gofrs/uuid v4.3.0+incompatible
 	github.com/gorilla/feeds v1.1.1
 	github.com/ikeikeikeike/go-sitemap-generator/v2 v2.0.2
 	github.com/iris-contrib/middleware/cors v0.0.0-20220301201128-27fa0f6a7d7e
@@ -17,12 +17,10 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta4
 	github.com/microcosm-cc/bluemonday v1.0.19
 	github.com/mlogclub/simple v1.2.1
-	github.com/olivere/elastic/v7 v7.0.32
 	github.com/panjf2000/ants/v2 v2.4.8
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.0
-	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/gorm v1.23.4
 )
@@ -45,7 +43,6 @@ require (
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.1.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -79,7 +76,6 @@ require (
 	github.com/nats-io/nats.go v1.16.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.6.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
@@ -97,7 +93,6 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -106,7 +101,5 @@ require (
 
 require (
 	github.com/alecthomas/chroma v0.10.0 // indirect
-	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/minio/minio-go/v6 v6.0.57
-	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b // indirect
 )
