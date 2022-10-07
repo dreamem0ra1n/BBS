@@ -13,6 +13,8 @@ import {
   MessageBox,
   Message,
   Notification,
+  Select,
+  Option,
 } from 'element-ui'
 
 Vue.use(Dialog)
@@ -22,6 +24,8 @@ Vue.use(Dropdown)
 Vue.use(DropdownMenu)
 Vue.use(DropdownItem)
 Vue.use(Progress)
+Vue.use(Select)
+Vue.use(Option)
 
 Vue.use(Loading.directive)
 
