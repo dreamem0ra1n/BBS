@@ -26,9 +26,9 @@
             </div>
             <div class="favorite-meta">
               <span class="favorite-meta-item"
-                ><my-link :to="'/user/' + favorite.user.id">{{
+                ><nuxt-link :to="'/user/' + favorite.user.id">{{
                   favorite.user.nickname
-                }}</my-link></span
+                }}</nuxt-link></span
               >
               <span class="favorite-meta-item"
                 ><time>{{ favorite.createTime | prettyDate }}</time></span

@@ -5,9 +5,9 @@
       <ul>
         <li>
           <span>积分</span><br />
-          <my-link to="/user/scores">
+          <nuxt-link to="/user/scores">
             <b>{{ user.score }}</b>
-          </my-link>
+          </nuxt-link>
         </li>
         <li>
           <span>话题</span><br />

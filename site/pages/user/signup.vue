@@ -95,9 +95,9 @@
             <div class="field">
               <div class="control">
                 <button class="button is-success" @click="signup">注册</button>
-                <my-link class="button is-text" to="/user/signin">
+                <nuxt-link class="button is-text" to="/user/signin">
                   已有账号，前往登录&gt;&gt;
-                </my-link>
+                </nuxt-link>
               </div>
             </div>
 

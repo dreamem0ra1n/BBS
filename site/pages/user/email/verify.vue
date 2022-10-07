@@ -16,10 +16,10 @@
             <div v-else>
               邮箱验证失败<span v-if="message" class="has-text-danger"
                 >&nbsp;原因：{{ message }}</span
-              >，请前往&nbsp;<my-link
+              >，请前往&nbsp;<nuxt-link
                 to="/user/profile"
                 style="font-weight: 700"
-                >个人资料 &gt; 账号设置</my-link
+                >个人资料 &gt; 账号设置</nuxt-link
               >&nbsp;页面尝试重新发送验证邮件。
             </div>
           </div>

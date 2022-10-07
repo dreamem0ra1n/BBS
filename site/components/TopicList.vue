@@ -12,9 +12,9 @@
         <div class="topic-top">
           <div class="topic-userinfo">
             <avatar class="topic-inline-avatar" :user="topic.user" size="20" />
-            <my-link :to="'/user/' + topic.user.id">{{
+            <nuxt-link :to="'/user/' + topic.user.id">{{
               topic.user.nickname
-            }}</my-link>
+            }}</nuxt-link>
             <span v-if="showSticky && topic.sticky" class="topic-sticky-icon"
               >置顶</span
             >
@@ -26,29 +26,29 @@
         <div class="topic-content" :class="{ 'topic-tweet': topic.type === 1 }">
           <template v-if="topic.type === 0">
             <h1 class="topic-title">
-              <my-link :to="'/topic/' + topic.topicId">{{
+              <nuxt-link :to="'/topic/' + topic.topicId">{{
                 topic.title
-              }}</my-link>
+              }}</nuxt-link>
             </h1>
-            <my-link :to="'/topic/' + topic.topicId" class="topic-summary">{{
+            <nuxt-link :to="'/topic/' + topic.topicId" class="topic-summary">{{
               topic.summary
-            }}</my-link>
+            }}</nuxt-link>
           </template>
           <template v-if="topic.type === 1">
-            <my-link
+            <nuxt-link
               v-if="topic.content"
               :to="'/topic/' + topic.topicId"
               class="topic-summary"
-              >{{ topic.content }}</my-link
+              >{{ topic.content }}</nuxt-link
             >
             <ul
               v-if="topic.imageList && topic.imageList.length"
               class="topic-image-list"
             >
               <li v-for="(image, index) in topic.imageList" :key="index">
-                <my-link :to="'/topic/' + topic.topicId" class="image-item">
+                <nuxt-link :to="'/topic/' + topic.topicId" class="image-item">
                   <img v-lazy="image.preview" />
-                </my-link>
+                </nuxt-link>
               </li>
             </ul>
           </template>
@@ -75,12 +75,12 @@
             </div>
           </div>
           <div class="topic-tags">
-            <my-link
+            <nuxt-link
               v-if="topic.node"
               class="topic-tag"
               :to="'/topics/node/' + topic.node.nodeId"
               :alt="topic.node.name"
-              >{{ topic.node.name }}</my-link
+              >{{ topic.node.name }}</nuxt-link
             >
           </div>
         </div>

@@ -10,12 +10,12 @@
             <div class="tabs">
               <ul>
                 <li :class="{ 'is-active': activeTab === 'topics' }">
-                  <my-link :to="'/user/' + user.id + '?tab=topics'">
+                  <nuxt-link :to="'/user/' + user.id + '?tab=topics'">
                     <span class="icon is-small">
                       <i class="iconfont icon-topic" aria-hidden="true" />
                     </span>
                     <span>话题</span>
-                  </my-link>
+                  </nuxt-link>
                 </li>
               </ul>
             </div>

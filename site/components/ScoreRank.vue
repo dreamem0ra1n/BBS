@@ -8,9 +8,9 @@
         <li v-for="user in scoreRank" :key="user.id">
           <avatar :user="user" size="35" round />
           <div class="score-user-info">
-            <my-link :to="'/user/' + user.id" class="score-nickname">{{
+            <nuxt-link :to="'/user/' + user.id" class="score-nickname">{{
               user.nickname
-            }}</my-link>
+            }}</nuxt-link>
             <p class="score-desc">
               {{ user.topicCount }} 帖子 • {{ user.commentCount }} 评论
             </p>

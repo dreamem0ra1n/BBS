@@ -105,9 +105,9 @@
               class="rank-user-avatar"
             />
             <div class="rank-user-info">
-              <my-link :to="'/user/' + rank.user.id">{{
+              <nuxt-link :to="'/user/' + rank.user.id">{{
                 rank.user.nickname
-              }}</my-link>
+              }}</nuxt-link>
               <p>@{{ rank.updateTime | formatDate }}</p>
             </div>
           </li>

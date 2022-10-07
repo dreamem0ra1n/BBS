@@ -23,12 +23,12 @@
       </div>
       <div :class="{ 'is-active': navbarActive }" class="navbar-menu">
         <div class="navbar-start">
-          <my-link
+          <nuxt-link
             v-for="(nav, index) in config.siteNavs"
             :key="index"
             :to="nav.url"
             class="navbar-item"
-            >{{ nav.title }}</my-link
+            >{{ nav.title }}</nuxt-link
           >
         </div>
 
@@ -47,20 +47,20 @@
             v-if="user"
             class="navbar-item has-dropdown is-hoverable user-menus"
           >
-            <my-link :to="'/user/' + user.id" class="navbar-link">
+            <nuxt-link :to="'/user/' + user.id" class="navbar-link">
               <no-ssr><avatar :user="user" :size="30" /></no-ssr>
               <span class="user-menus-nickname">{{ user.nickname }}</span>
-            </my-link>
+            </nuxt-link>
             <div class="navbar-dropdown">
-              <my-link class="navbar-item" :to="'/user/' + user.id">
+              <nuxt-link class="navbar-item" :to="'/user/' + user.id">
                 <i class="iconfont icon-username" />&nbsp;个人中心
-              </my-link>
-              <my-link class="navbar-item" to="/user/favorites">
+              </nuxt-link>
+              <nuxt-link class="navbar-item" to="/user/favorites">
                 <i class="iconfont icon-favorites" />&nbsp;我的收藏
-              </my-link>
-              <my-link class="navbar-item" to="/user/profile">
+              </nuxt-link>
+              <nuxt-link class="navbar-item" to="/user/profile">
                 <i class="iconfont icon-username" />&nbsp;编辑资料
-              </my-link>
+              </nuxt-link>
               <a class="navbar-item" @click="signout">
                 <i class="iconfont icon-log-out" />&nbsp;退出登录
               </a>
