@@ -100,6 +100,10 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		} `json:"Data"`
 	}
 	err = json.Unmarshal([]byte(bodyStr), &resp)
+	if err != nil {
+		logrus.Error("error happen when unmarshal the resp: ", err)
+		return web.JsonError(err)
+	}
 
 	logrus.Info("receive data from passport: ", resp.Data)
 
@@ -111,7 +115,8 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registeUser(username, ZjuId)
-	} else if err != nil {
+	}
+	if err != nil {
 		return web.JsonError(err)
 	}
 	return render.BuildLoginSuccess(user, ref)
