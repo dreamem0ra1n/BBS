@@ -9,7 +9,7 @@ require (
 	github.com/emirpasic/gods v1.12.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/goburrow/cache v0.1.4
-	github.com/gofrs/uuid v4.3.0+incompatible
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/feeds v1.1.1
 	github.com/ikeikeikeike/go-sitemap-generator/v2 v2.0.2
 	github.com/iris-contrib/middleware/cors v0.0.0-20220301201128-27fa0f6a7d7e
@@ -45,7 +45,6 @@ require (
 	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect

@@ -6,8 +6,10 @@ import (
 	"bbs-go/model/constants"
 	"bbs-go/repositories"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,6 +22,22 @@ import (
 
 	"bbs-go/services"
 )
+
+type LoginUser struct {
+	Logined bool `json:"logined"`
+	User    struct {
+		Name      string `json:"Name"`
+		ZjuId     string `json:"ZjuId"`
+		LoginType string `json:"LoginType"`
+		Qsc       struct {
+			QscId      string `jsone:"qscid"`
+			Gender     string `json:"gender"`
+			Position   string `json:"position"` // 职位
+			Department string `json:"department"`
+			Status     string `json:"status"`
+		} `json:"QscUser"`
+	} `json:"user"`
+}
 
 type LoginController struct {
 	Ctx iris.Context
@@ -74,6 +92,7 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		Value:   successCookieVal,
 		Expires: time.Now().Add(111 * time.Second),
 	}
+	logrus.Info(cookie)
 	req.AddCookie(cookie)
 	HTTPresp, err := client.Do(req)
 	if err != nil {
@@ -90,14 +109,7 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	bodyStr := string(body)
 
 	var resp struct {
-		Data struct {
-			Logined bool `json:"logined"`
-			User    struct {
-				Name      string `json:"Name"`
-				ZjuId     string `json:"ZjuId"`
-				LoginType string `json:"LoginType"`
-			} `json:"user"`
-		} `json:"Data"`
+		Data LoginUser `json:"data"`
 	}
 	err = json.Unmarshal([]byte(bodyStr), &resp)
 	if err != nil {
@@ -105,16 +117,22 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		return web.JsonError(err)
 	}
 
-	logrus.Info("receive data from passport: ", resp.Data)
+	logrus.Info("receive data from passport(string): ", bodyStr)
+	logrus.Info("receive data from passport(binding): ", resp.Data)
 
-	username := resp.Data.User.Name
+	if resp.Data.User.LoginType != "qsc" {
+		logrus.Error("actually, he/she is not a qscer!")
+		return web.JsonError(errors.New("you are not qscer"))
+	}
+
+	username := resp.Data.User.Qsc.QscId
 	ZjuId := resp.Data.User.ZjuId
 	_ = resp.Data.User.LoginType
 
-	user, err := services.UserService.SignIn(ZjuId, ZjuId)
+	user, err := services.UserService.SignIn(username, ZjuId)
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
-		user, err = registeUser(username, ZjuId)
+		user, err = registeUser(resp.Data)
 	}
 	if err != nil {
 		return web.JsonError(err)
@@ -131,14 +149,18 @@ func (c *LoginController) GetSignout() *web.JsonResult {
 	return web.JsonSuccess()
 }
 
-func registeUser(username string, ZJUId string) (*model.User, error) {
-	email := ZJUId + "@zju.edu.cn"
+// 注册
+func registeUser(u LoginUser) (*model.User, error) {
+	email := u.User.ZjuId + "@zju.edu.cn"
 
 	user := &model.User{
-		Username:   sqls.SqlNullString(ZJUId),
+		Username:   sqls.SqlNullString(u.User.Qsc.QscId),
 		Email:      sqls.SqlNullString(email),
-		Nickname:   username,
-		Password:   passwd.EncodePassword(ZJUId),
+		Nickname:   u.User.Qsc.QscId,
+		Password:   passwd.EncodePassword(u.User.ZjuId),
+		Realname:   u.User.Name,
+		Department: u.User.Qsc.Department,
+		Roles:      getRoleFromLoginUserData(u),
 		Status:     constants.StatusOk,
 		CreateTime: dates.NowTimestamp(),
 		UpdateTime: dates.NowTimestamp(),
@@ -148,4 +170,47 @@ func registeUser(username string, ZJUId string) (*model.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func getRoleFromLoginUserData(u LoginUser) string {
+	var ret string
+	switch u.User.Qsc.Position {
+	case "实习成员":
+		ret = model.InternUser_NAME
+	case "正式成员":
+		ret = model.NormalUser_NAME
+	case "顾问", "高级成员":
+		ret = model.SeniorUser_NAME
+	case "中管":
+		ret = model.AdminUser_NAME
+	case "高管":
+		ret = model.MasterUser_NAME
+	default:
+		return ""
+	}
+
+	ret += "_"
+
+	switch u.User.Qsc.Department {
+	case "产品研发中心": // 产研合并
+		return ret + strconv.Itoa(model.JiShuYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
+	case "技术研发中心":
+		return ret + strconv.Itoa(model.JiShuYanFa_SECTION)
+	case "产品运营部门":
+		return ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
+	case "推广策划中心":
+		return ret + strconv.Itoa(model.TuiGuangCeHua_SECTION)
+	case "新闻资讯中心":
+		return ret + strconv.Itoa(model.XinWenZiXun_SECTION)
+	case "设计与视觉中心":
+		return ret + strconv.Itoa(model.SheJiYuShiJue_SECTION)
+	case "人力资源部门":
+		return ret + strconv.Itoa(model.RenLiZiYuan_SECTION)
+	case "摄影部":
+		return ret + strconv.Itoa(model.SheYing_SECTION)
+	case "视频":
+		return ret + strconv.Itoa(model.ShiPin_SECTION)
+	default:
+		return ""
+	}
 }
