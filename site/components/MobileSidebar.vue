@@ -38,7 +38,7 @@
           </div>
         </template>
         <template v-else>
-          <a class="sidebar-login-btn button is-primary" href="loginUrl"
+          <a class="sidebar-login-btn button is-primary" :href="loginUrl"
             >登录
           </a>
         </template>
@@ -69,7 +69,7 @@ export default {
     },
     loginUrl() {
       return (
-        'https://www.qsc.zju.edu.cn/passport/v4/?success=' +
+        'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
         this.$store.state.env.currentDomain
       )
     },
