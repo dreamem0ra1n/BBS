@@ -1,7 +1,13 @@
 import qs from 'qs'
-
 export default function ({ $axios, app }) {
+  let prefix = ''
+  try {
+    if (window) prefix = '/bbs2'
+  } catch (e) {}
   $axios.onRequest((config) => {
+    console.log(config)
+    console.log(prefix)
+    config.url = prefix + config.url
     config.headers.common['X-Client'] = 'bbs-go-site'
     config.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
     const userToken = app.$cookies.get('userToken')

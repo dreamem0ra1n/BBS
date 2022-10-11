@@ -15,8 +15,8 @@
           <span v-else>{{ error.statusCode }} 页面异常</span>
         </div>
         <div class="report">
-          <nuxt-link to="/topic/create" target="_blank"
-            >点击这里反馈该问题>></nuxt-link
+          <my-link to="/topic/create" target="_blank"
+            >点击这里反馈该问题>></my-link
           >
         </div>
       </div>
