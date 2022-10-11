@@ -54,6 +54,7 @@ export default {
     try {
       user = await $axios.get('/api/user/' + params.userId)
     } catch (err) {
+      console.log(err)
       error({
         statusCode: 404,
         message: err.message || '系统错误',
