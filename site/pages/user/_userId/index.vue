@@ -68,7 +68,6 @@ export default {
         params: { userId: params.userId },
       })
     }
-    console.log(user)
     return {
       activeTab,
       user,

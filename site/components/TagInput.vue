@@ -34,12 +34,10 @@ export default {
     await Promise.all(
       this.deps.map((dep) => {
         return this.$axios.get('/api/tag/list/' + dep.nodeId).then((depTag) => {
-          console.log(depTag)
           this.allTag[dep.nodeId] = depTag
         })
       })
     )
-    console.log(this.allTag)
     this.allTag.push()
   },
   data() {
@@ -92,10 +90,8 @@ export default {
         (tag) => tag.id === index
       )
 
-      console.log(this.tags)
     },
     removeTag(index) {
-      console.log(index)
       this.selectIndex = this.selectIndex.filter((item) => {
         return item !== index
       })

@@ -5,8 +5,6 @@ export default function ({ $axios, app }) {
     if (window) prefix = '/bbs2'
   } catch (e) {}
   $axios.onRequest((config) => {
-    console.log(config)
-    console.log(prefix)
     config.url = prefix + config.url
     config.headers.common['X-Client'] = 'bbs-go-site'
     config.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'

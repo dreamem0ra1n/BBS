@@ -180,9 +180,7 @@ export default {
     },
   },
   watchQuery: ['type', 'nodeId'],
-  mounted() {
-    console.log(this.postForm)
-  },
+  mounted() {},
   methods: {
     setTag(tags) {
       this.postForm.tags = tags
