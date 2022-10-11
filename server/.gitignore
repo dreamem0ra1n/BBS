@@ -13,7 +13,7 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# bbs-go
+bbs-go
 
 bbs-go.yaml
 bbs-go.prod.yaml
