@@ -8,7 +8,7 @@
       autocomplete="on"
     >
       <div class="title-container">
-        <h3 class="title">登录</h3>
+        <h3 class="title">通过求是潮passport登录</h3>
       </div>
       <el-button
         :loading="loading"
