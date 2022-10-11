@@ -1,5 +1,5 @@
 <template>
-    <nuxt-link :to="'/bbs2/'+to" ><slot></slot></nuxt-link>
+    <nuxt-link :to="'/bbs2'+to" ><slot></slot></nuxt-link>
 </template>
 <script>
     export default{
