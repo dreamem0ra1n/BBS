@@ -18,9 +18,9 @@
     <div class="profile-info">
       <div class="metas">
         <h1 class="nickname">
-          <nuxt-link :to="'/user/' + localUser.id">{{
+          <my-link :to="'/user/' + localUser.id">{{
             localUser.nickname
-          }}</nuxt-link>
+          }}</my-link>
         </h1>
         <div v-if="localUser.description" class="description">
           <p>{{ localUser.description }}</p>

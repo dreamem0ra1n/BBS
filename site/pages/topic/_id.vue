@@ -15,12 +15,12 @@
                 </div>
                 <div class="topic-header-center">
                   <div class="topic-nickname" itemprop="headline">
-                    <nuxt-link
+                    <my-link
                       itemprop="author"
                       itemscope
                       itemtype="http://schema.org/Person"
                       :to="'/user/' + topic.user.id"
-                      >{{ topic.user.nickname }}</nuxt-link
+                      >{{ topic.user.nickname }}</my-link
                     >
                   </div>
                   <div class="topic-meta">
@@ -91,18 +91,18 @@
 
               <!--节点、标签-->
               <div class="topic-tags">
-                <nuxt-link
+                <my-link
                   v-if="topic.node"
                   :to="'/topics/node/' + topic.node.nodeId"
                   class="topic-tag"
-                  >{{ topic.node.name }}</nuxt-link
+                  >{{ topic.node.name }}</my-link
                 >
-                <nuxt-link
+                <my-link
                   v-for="tag in topic.tags"
                   :key="tag.tagId"
                   :to="'/topics/tag/' + tag.tagId"
                   class="topic-tag"
-                  >#{{ tag.tagName }}</nuxt-link
+                  >#{{ tag.tagName }}</my-link
                 >
               </div>
 

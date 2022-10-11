@@ -8,10 +8,10 @@
         <div class="message-body">
           发表话题前，请先前往
           <strong
-            ><nuxt-link
+            ><my-link
               to="/user/profile/account"
               style="color: var(--text-link-color)"
-              >个人中心 &gt; 账号设置</nuxt-link
+              >个人中心 &gt; 账号设置</my-link
             ></strong
           >
           页面设置邮箱，并完成邮箱认证。

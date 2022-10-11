@@ -3,7 +3,7 @@
     <div class="widget-header">
       <span>友情链接</span>
       <span class="slot"
-        ><nuxt-link to="/links">查看更多&gt;&gt;</nuxt-link></span
+        ><my-link to="/links">查看更多&gt;&gt;</my-link></span
       >
     </div>
     <div class="widget-content">

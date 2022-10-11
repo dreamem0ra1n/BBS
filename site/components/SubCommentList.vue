@@ -11,20 +11,20 @@
       <div class="comment-item-main">
         <div class="comment-meta">
           <div>
-            <nuxt-link
+            <my-link
               :to="'/user/' + comment.user.id"
               class="comment-nickname"
             >
               {{ comment.user.nickname }}
-            </nuxt-link>
+            </my-link>
             <template v-if="comment.quote">
               <span>回复</span>
-              <nuxt-link
+              <my-link
                 :to="'/user/' + comment.quote.user.id"
                 class="comment-nickname"
               >
                 {{ comment.quote.user.nickname }}
-              </nuxt-link>
+              </my-link>
             </template>
           </div>
           <time

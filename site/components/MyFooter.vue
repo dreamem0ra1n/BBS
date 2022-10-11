@@ -2,9 +2,9 @@
   <footer class="footer">
     <div class="container content">
       <div>
-        <nuxt-link to="/about">关于</nuxt-link>
-        <nuxt-link to="/tags">标签</nuxt-link>
-        <nuxt-link to="/links">友链</nuxt-link>
+        <my-link to="/about">关于</my-link>
+        <my-link to="/tags">标签</my-link>
+        <my-link to="/links">友链</my-link>
       </div>
       <div>
         © 2022 Powered by

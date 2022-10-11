@@ -9,12 +9,12 @@
             class="sidebar-nav-item"
           >
             <i class="iconfont icon-nav" />
-            <nuxt-link :to="nav.url">{{ nav.title }}</nuxt-link>
+            <my-link :to="nav.url">{{ nav.title }}</my-link>
           </div>
         </div>
         <div class="sidebar-message">
           <i class="iconfont icon-message" />
-          <nuxt-link to="/user/messages">消息</nuxt-link>
+          <my-link to="/user/messages">消息</my-link>
         </div>
         <template v-if="user">
           <div class="sidebar-userinfo">
@@ -23,16 +23,16 @@
           </div>
           <div class="sidebar-menus">
             <div class="sidebar-menu-item">
-              <nuxt-link :to="'/user/' + user.id">个人中心</nuxt-link>
+              <my-link :to="'/user/' + user.id">个人中心</my-link>
             </div>
             <div class="sidebar-menu-item">
-              <nuxt-link class="sidebar-menu-item" to="/user/favorites"
-                >我的收藏</nuxt-link
+              <my-link class="sidebar-menu-item" to="/user/favorites"
+                >我的收藏</my-link
               >
             </div>
             <div class="sidebar-menu-item">
-              <nuxt-link class="sidebar-menu-item" to="/user/profile"
-                >编辑资料</nuxt-link
+              <my-link class="sidebar-menu-item" to="/user/profile"
+                >编辑资料</my-link
               >
             </div>
           </div>

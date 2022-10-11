@@ -7,9 +7,9 @@
   >
     <div class="container">
       <div class="navbar-brand">
-        <nuxt-link to="/" class="navbar-item">
+        <my-link to="/" class="navbar-item">
           <img :alt="config.siteTitle" src="~/assets/images/logo.png" />
-        </nuxt-link>
+        </my-link>
         <a
           :class="{ 'is-active': navbarActive }"
           class="navbar-burger burger"
@@ -23,12 +23,12 @@
       </div>
       <div :class="{ 'is-active': navbarActive }" class="navbar-menu">
         <div class="navbar-start">
-          <nuxt-link
+          <my-link
             v-for="(nav, index) in config.siteNavs"
             :key="index"
             :to="nav.url"
             class="navbar-item"
-            >{{ nav.title }}</nuxt-link
+            >{{ nav.title }}</my-link
           >
         </div>
 
@@ -47,20 +47,20 @@
             v-if="user"
             class="navbar-item has-dropdown is-hoverable user-menus"
           >
-            <nuxt-link :to="'/user/' + user.id" class="navbar-link">
+            <my-link :to="'/user/' + user.id" class="navbar-link">
               <no-ssr><avatar :user="user" :size="30" /></no-ssr>
               <span class="user-menus-nickname">{{ user.nickname }}</span>
-            </nuxt-link>
+            </my-link>
             <div class="navbar-dropdown">
-              <nuxt-link class="navbar-item" :to="'/user/' + user.id">
+              <my-link class="navbar-item" :to="'/user/' + user.id">
                 <i class="iconfont icon-username" />&nbsp;个人中心
-              </nuxt-link>
-              <nuxt-link class="navbar-item" to="/user/favorites">
+              </my-link>
+              <my-link class="navbar-item" to="/user/favorites">
                 <i class="iconfont icon-favorites" />&nbsp;我的收藏
-              </nuxt-link>
-              <nuxt-link class="navbar-item" to="/user/profile">
+              </my-link>
+              <my-link class="navbar-item" to="/user/profile">
                 <i class="iconfont icon-username" />&nbsp;编辑资料
-              </nuxt-link>
+              </my-link>
               <a class="navbar-item" @click="signout">
                 <i class="iconfont icon-log-out" />&nbsp;退出登录
               </a>

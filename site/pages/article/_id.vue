@@ -15,7 +15,7 @@
               <div class="article-meta">
                 <span class="article-meta-item">
                   由
-                  <nuxt-link
+                  <my-link
                     :to="'/user/' + article.user.id"
                     class="article-author"
                     itemprop="author"
@@ -23,7 +23,7 @@
                     itemtype="http://schema.org/Person"
                     ><span itemprop="name">{{
                       article.user.nickname
-                    }}</span></nuxt-link
+                    }}</span></my-link
                   >发布于
                   <time
                     :datetime="
@@ -43,9 +43,9 @@
                     :key="tag.tagId"
                     class="article-tag tag"
                   >
-                    <nuxt-link :to="'/articles/' + tag.tagId" class>{{
+                    <my-link :to="'/articles/' + tag.tagId" class>{{
                       tag.tagName
-                    }}</nuxt-link>
+                    }}</my-link>
                   </span>
                 </span>
 
@@ -56,9 +56,9 @@
                     </a>
                   </span>
                   <span v-if="hasPermission">
-                    <nuxt-link :to="'/article/edit/' + article.articleId">
+                    <my-link :to="'/article/edit/' + article.articleId">
                       <i class="iconfont icon-edit" />&nbsp;修改
-                    </nuxt-link>
+                    </my-link>
                   </span>
                   <span>
                     <a @click="addFavorite(article.articleId)">
@@ -105,12 +105,12 @@
           <div class="widget-content article-related">
             <ul>
               <li v-for="a in relatedArticles" :key="a.articleId">
-                <nuxt-link
+                <my-link
                   :to="'/article/' + a.articleId"
                   :title="a.title"
                   class="article-related-title"
                   target="_blank"
-                  >{{ a.title }}</nuxt-link
+                  >{{ a.title }}</my-link
                 >
               </li>
             </ul>
@@ -122,12 +122,12 @@
           <div class="widget-content article-related">
             <ul>
               <li v-for="a in nearlyArticles" :key="a.articleId">
-                <nuxt-link
+                <my-link
                   :to="'/article/' + a.articleId"
                   :title="a.title"
                   class="article-related-title"
                   target="_blank"
-                  >{{ a.title }}</nuxt-link
+                  >{{ a.title }}</my-link
                 >
               </li>
             </ul>
