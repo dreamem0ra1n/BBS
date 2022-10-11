@@ -49,22 +49,20 @@ export default {
   },
   methods: {
     handleLogin() {
-      this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          this.$store
-            .dispatch("user/login")
-            .then(() => {
-              this.$router.push({ path: this.redirect || "/", query: this.otherQuery });
-              this.loading = false;
-            })
-            .catch((e) => {
-              this.loading = false;
-            });
-          return true;
-        }
-        return false;
-      });
+      this.loading = true;
+      this.$store
+        .dispatch("user/login")
+        .then((res) => {
+          console.log(res);
+          this.$router.push({ path: this.redirect || "/", query: this.otherQuery });
+          this.loading = false;
+        })
+        .catch((e) => {
+          window.location =
+            "https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=" + window.location.origin;
+          this.loading = false;
+        });
+      return true;
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
