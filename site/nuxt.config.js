@@ -61,6 +61,7 @@ export default {
    */
   router: {
     middleware: ['resetEnv'],
+    base:'/bbs2/'
   },
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules

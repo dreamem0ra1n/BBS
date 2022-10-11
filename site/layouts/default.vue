@@ -11,7 +11,7 @@
 <script>
 export default {
   mounted() {
-    this.$store.commit('env/setDomain', window.location.href)
+    this.$store.commit('env/setDomain', window.location.origin)
     if (!this.$cookies.get('userToken'))
       this.$axios
         .post('/api/login/signin', { ref: window.location.href })
