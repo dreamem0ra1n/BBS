@@ -30,7 +30,7 @@ func (u *User) IsForbidden() bool {
 // HasRole 是否有指定角色
 func (u *User) HasRole(role string) bool {
 	roles := strings.FieldsFunc(u.Roles, func(r rune) bool {
-		return r == ',' || r == '.'
+		return r == ',' || r == '_'
 	})
 	if len(roles) == 0 {
 		return false
@@ -160,9 +160,11 @@ func (u *User) IsMasterUser() bool {
 
 func (u *User) IsAdminUserOrHigher() bool {
 	if _, err := u.GetArgByRole(MasterUser_NAME); err != nil {
+		logrus.Error(err)
 		return false
 	}
 	if _, err := u.GetArgByRole(AdminUser_NAME); err != nil {
+		logrus.Error(err)
 		return false
 	}
 	return true
