@@ -59,7 +59,7 @@ export default {
         })
         .catch((e) => {
           window.location =
-            "https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=" + window.location.origin;
+            "https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=" + "https://www.qsc.zju.edu.cn/bbsadmin";
           this.loading = false;
         });
       return true;

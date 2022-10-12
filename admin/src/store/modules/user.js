@@ -42,8 +42,8 @@ const actions = {
           resolve();
         })
         .catch((error) => {
-           //window.location =
-            //"https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=" + window.location.origin;
+          // window.location =
+          // "https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=" + window.location.origin;
           reject(error);
         });
     });
