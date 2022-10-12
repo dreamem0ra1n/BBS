@@ -65,7 +65,7 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 		if len(roleItems) == 2 {
 			roleArgv, err = strconv.Atoi(roleItems[1])
 		} else {
-			if reqRole == AdminUser_NAME {
+			if reqRole == MasterUser_NAME && roleType == reqRole {
 				return GLOBAL_ADMIN_SECTION, nil
 			}
 			roleArgv = -1
