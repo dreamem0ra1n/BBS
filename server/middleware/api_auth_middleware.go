@@ -37,6 +37,7 @@ func AdminAuth(ctx iris.Context) {
 	if user.IsAdminUserOrHigher() {
 		logrus.Info("auth pass")
 		ctx.Next()
+		return
 	}
 
 	noPermission(ctx)
