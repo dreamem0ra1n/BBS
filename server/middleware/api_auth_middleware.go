@@ -8,6 +8,7 @@ import (
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/web"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -33,17 +34,12 @@ func AdminAuth(ctx iris.Context) {
 		return
 	}
 
-	if user.IsMasterUser() {
+	if user.IsAdminUserOrHigher() {
+		logrus.Info("auth pass")
 		ctx.Next()
-		return
 	}
 
-	if !user.IsAdminUserOrHigher() {
-		noPermission(ctx)
-		return
-	}
-
-	ctx.Next()
+	noPermission(ctx)
 }
 
 // getPathRoles 获取请求该路径所需的角色
