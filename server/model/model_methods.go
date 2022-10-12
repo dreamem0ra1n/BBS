@@ -159,15 +159,13 @@ func (u *User) IsMasterUser() bool {
 }
 
 func (u *User) IsAdminUserOrHigher() bool {
-	if _, err := u.GetArgByRole(MasterUser_NAME); err != nil {
-		logrus.Error(err)
-		return false
+	if _, err := u.GetArgByRole(MasterUser_NAME); err == nil {
+		return true
 	}
-	if _, err := u.GetArgByRole(AdminUser_NAME); err != nil {
-		logrus.Error(err)
-		return false
+	if _, err := u.GetArgByRole(AdminUser_NAME); err == nil {
+		return true
 	}
-	return true
+	return false
 }
 
 // GetRoles 获取角色
