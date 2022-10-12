@@ -15,12 +15,12 @@
         </div>
         <div class="comment-item-main">
           <div class="comment-meta">
-            <my-link
+            <nuxt-link
               :to="'/user/' + comment.user.id"
               class="comment-nickname"
             >
               {{ comment.user.nickname }}
-            </my-link>
+            </nuxt-link>
             <time
               class="comment-time"
               :datetime="comment.createTime | formatDate('yyyy-MM-ddTHH:mm:ss')"

@@ -4,16 +4,16 @@
       <div class="left-container">
         <div class="profile-edit-tabs-pc">
           <div class="profile-edit-tab-item">
-            <my-link to="/user/profile">
+            <nuxt-link to="/user/profile">
               <i class="iconfont icon-username" />
               <span>个人资料</span>
-            </my-link>
+            </nuxt-link>
           </div>
           <!--<div class="profile-edit-tab-item">
-            <my-link to="/user/profile/account">
+            <nuxt-link to="/user/profile/account">
               <i class="iconfont icon-username" />
               <span>账号设置</span>
-            </my-link>
+            </nuxt-link>
           </div>-->
         </div>
       </div>
@@ -21,10 +21,10 @@
         <div class="profile-edit-tabs-mobile tabs">
           <ul>
             <li :class="{ 'is-active': active === 'profile' }">
-              <my-link to="/user/profile">个人资料</my-link>
+              <nuxt-link to="/user/profile">个人资料</nuxt-link>
             </li>
             <!--<li :class="{ 'is-active': active === 'account' }">
-              <my-link to="/user/profile/account">账号设置</my-link>
+              <nuxt-link to="/user/profile/account">账号设置</nuxt-link>
             </li>-->
           </ul>
         </div>
@@ -62,7 +62,7 @@ export default {
 
       &:hover,
       &.active,
-      &.my-link-exact-active {
+      &.nuxt-link-exact-active {
         background: var(--bg-color5);
         color: var(--text-link-color);
       }

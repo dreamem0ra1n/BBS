@@ -6,10 +6,10 @@
           <i class="iconfont icon-setting" />
           <span>编辑资料</span>
         </div>
-        <my-link :to="'/user/' + user.id" style="font-size: 13px">
+        <nuxt-link :to="'/user/' + user.id" style="font-size: 13px">
           <i class="iconfont icon-return" />
           <span>返回个人主页</span>
-        </my-link>
+        </nuxt-link>
       </div>
       <div class="widget-content">
         <!-- <div class="my-field">

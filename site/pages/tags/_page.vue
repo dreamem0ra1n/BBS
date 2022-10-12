@@ -15,11 +15,11 @@
                     :key="tag.tagId"
                     class="tag is-normal"
                   >
-                    <my-link
+                    <nuxt-link
                       :to="'/articles/' + tag.tagId"
                       :title="tag.tagName"
                       target="_blank"
-                      >{{ tag.tagName }}</my-link
+                      >{{ tag.tagName }}</nuxt-link
                     >
                   </span>
                 </div>

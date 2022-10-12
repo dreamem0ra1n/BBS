@@ -3,20 +3,20 @@
     <transition name="fadeDown">
       <div v-show="show" class="nodes">
         <div class="nodes-row first">
-          <my-link to="/topics/node/newest">
+          <nuxt-link to="/topics/node/newest">
             <div class="node-item" :class="{ active: currentNodeId === 0 }">
               <span>最新</span>
             </div>
-          </my-link>
-          <my-link to="/topics/node/recommend">
+          </nuxt-link>
+          <nuxt-link to="/topics/node/recommend">
             <div class="node-item" :class="{ active: currentNodeId === -1 }">
               <span>推荐</span>
             </div>
-          </my-link>
+          </nuxt-link>
         </div>
         <div v-for="(row, index) in rows" :key="index" class="nodes-row">
           <div v-if="row && row.length" class="nodes-row">
-            <my-link
+            <nuxt-link
               v-for="node in row"
               :key="node.nodeId"
               :to="'/topics/node/' + node.nodeId"
@@ -27,7 +27,7 @@
               >
                 <span>{{ node.name }}</span>
               </div>
-            </my-link>
+            </nuxt-link>
           </div>
         </div>
       </div>

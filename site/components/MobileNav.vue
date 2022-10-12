@@ -8,7 +8,7 @@
       </div>
       <div class="nav-center">
         <div class="menu-item">
-          <my-link to="/">首页</my-link>
+          <nuxt-link to="/">首页</nuxt-link>
         </div>
         <div
           class="menu-item"

@@ -20,9 +20,9 @@
           <div class="message-item-right">
             <div class="message-item-meta">
               <span v-if="message.from.id > 0" class="msg-nickname">
-                <my-link :to="'/user/' + message.from.id" target="_blank">{{
+                <nuxt-link :to="'/user/' + message.from.id" target="_blank">{{
                   message.from.nickname
-                }}</my-link>
+                }}</nuxt-link>
               </span>
               <span v-else class="msg-nickname">
                 <a href="javascript:void(0)" target="_blank">{{

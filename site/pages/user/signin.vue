@@ -41,9 +41,9 @@
                 <button class="button is-success" @click="submitLogin">
                   登录
                 </button>
-                <my-link class="button is-text" to="/user/signup">
+                <nuxt-link class="button is-text" to="/user/signup">
                   没有账号？点击这里去注册&gt;&gt;
-                </my-link>
+                </nuxt-link>
               </div>
             </template>
 
