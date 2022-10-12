@@ -127,7 +127,7 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 	roles := strings.Split(u.Roles, ",")
 	retAu := []*AuthUnit{}
 	for _, role := range roles {
-		roleItems := strings.Split(role, ".")
+		roleItems := strings.Split(role, "_")
 		roleType := roleItems[0]
 		var roleArgv int
 		var err error
