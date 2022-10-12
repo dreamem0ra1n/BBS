@@ -8,7 +8,7 @@ export const state = () => ({
   // 当前所在节点编号，0：最新、-1：recommend
   currentNodeId: 0,
   currentTag: -1919810,
-  currentDomain: 'www.qsc.zju.edu.cn/bbs2/',
+  currentURL: 'https://www.qsc.zju.edu.cn/bbs2/',
 })
 
 export const mutations = {
@@ -28,7 +28,7 @@ export const mutations = {
     state.currentTag = tagId
   },
   setDomain(state, path) {
-    state.currentDomain = path
+    state.currentURL = path
   },
 }
 

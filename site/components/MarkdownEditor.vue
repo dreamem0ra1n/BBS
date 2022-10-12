@@ -107,7 +107,7 @@ export default {
             return {
               text:
                 '<a href="' +
-                that.$store.state.env.currentDomain +
+                that.$store.state.env.currentURL +
                 '/api/file/download/' +
                 ret.file_id +
                 '" download="' +
