@@ -60,7 +60,6 @@ export default {
           icon: 'v-md-icon-toc',
           action(editor) {
             _this.editor = editor
-            console.log(_this.editor)
             _this.$refs.upload.dispatchEvent(new MouseEvent('click'))
           },
         },
@@ -86,8 +85,6 @@ export default {
     },
   },
   mounted() {
-    console.log(Vue)
-    console.log(this)
     _this = this
   },
   methods: {
@@ -110,7 +107,7 @@ export default {
             return {
               text:
                 '<a href="' +
-                that.$store.state.env.currentDomain +
+                that.$store.state.env.currentURL +
                 '/api/file/download/' +
                 ret.file_id +
                 '" download="' +

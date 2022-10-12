@@ -1,5 +1,4 @@
 import UserHelper from '~/common/UserHelper'
-import axios from '~/plugins/axios'
 
 export default function (context) {
   const user = context.store.state.user.current

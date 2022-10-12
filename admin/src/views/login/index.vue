@@ -8,7 +8,7 @@
       autocomplete="on"
     >
       <div class="title-container">
-        <h3 class="title">登录</h3>
+        <h3 class="title">通过求是潮passport登录</h3>
       </div>
       <el-button
         :loading="loading"
@@ -49,22 +49,20 @@ export default {
   },
   methods: {
     handleLogin() {
-      this.$refs.loginForm.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          this.$store
-            .dispatch("user/login")
-            .then(() => {
-              this.$router.push({ path: this.redirect || "/", query: this.otherQuery });
-              this.loading = false;
-            })
-            .catch((e) => {
-              this.loading = false;
-            });
-          return true;
-        }
-        return false;
-      });
+      this.loading = true;
+      this.$store
+        .dispatch("user/login")
+        .then((res) => {
+          console.log(res);
+          this.$router.push({ path: this.redirect || "/", query: this.otherQuery });
+          this.loading = false;
+        })
+        .catch((e) => {
+          window.location =
+            "https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=" + "https://www.qsc.zju.edu.cn/bbsadmin";
+          this.loading = false;
+        });
+      return true;
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {

@@ -30,17 +30,21 @@ export default {
     },
   },
   async mounted() {
-    this.deps = await this.$axios.get('/api/topic/nodes')
-    await Promise.all(
-      this.deps.map((dep) => {
-        return this.$axios.get('/api/tag/list/' + dep.nodeId).then((depTag) => {
-          console.log(depTag)
-          this.allTag[dep.nodeId] = depTag
+    try {
+      this.deps = await this.$axios.get('/api/topic/nodes')
+      await Promise.all(
+        this.deps.map((dep) => {
+          return this.$axios
+            .get('/api/tag/list/' + dep.nodeId)
+            .then((depTag) => {
+              this.allTag[dep.nodeId] = depTag
+            })
         })
-      })
-    )
-    console.log(this.allTag)
-    this.allTag.push()
+      )
+      this.allTag.push()
+    } catch (e) {
+      console.log(e)
+    }
   },
   data() {
     return {
@@ -91,11 +95,8 @@ export default {
       this.tags = this.allTag[this.currentDepId].filter(
         (tag) => tag.id === index
       )
-
-      console.log(this.tags)
     },
     removeTag(index) {
-      console.log(index)
       this.selectIndex = this.selectIndex.filter((item) => {
         return item !== index
       })

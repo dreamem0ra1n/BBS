@@ -6,11 +6,7 @@
 </template>
 
 <script>
-export default {
-  mounted() {
-    this.$store.commit('env/setDomain', window.location.origin) // 生产环境可进行配置而删掉
-  },
-}
+export default {}
 </script>
 
 <style lang="scss">

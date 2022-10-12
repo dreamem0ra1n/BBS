@@ -51,10 +51,14 @@ export default {
   },
   methods: {
     async getMsgcount() {
-      if (this.user) {
-        const ret = await this.$axios.get('/api/user/msgrecent')
-        this.msgcount = ret.count
-        this.messages = ret.messages
+      try {
+        if (this.user) {
+          const ret = await this.$axios.get('/api/user/msgrecent')
+          this.msgcount = ret.count
+          this.messages = ret.messages
+        }
+      } catch (e) {
+        console.log(e)
       }
     },
   },
