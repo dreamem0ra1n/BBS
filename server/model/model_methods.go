@@ -58,7 +58,7 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 	}
 	roles := strings.Split(u.Roles, ",")
 	for _, role := range roles {
-		roleItems := strings.Split(role, ".")
+		roleItems := strings.Split(role, "_")
 		roleType := roleItems[0]
 		var roleArgv int
 		var err error
