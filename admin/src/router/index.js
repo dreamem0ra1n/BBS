@@ -95,6 +95,7 @@ export const asyncRoutes = [
 const createRouter = () =>
   new Router({
     mode: 'hash', // require service support
+    base:'/bbsadmin/',
     scrollBehavior: () => ({ y: 0 }),
     routes: constantRoutes,
   });
