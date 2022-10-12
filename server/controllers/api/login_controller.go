@@ -184,7 +184,7 @@ func getRoleFromLoginUserData(u LoginUser) string {
 	case "中管":
 		ret = model.AdminUser_NAME
 	case "高管":
-		ret = model.MasterUser_NAME
+		return model.MasterUser_NAME
 	default:
 		return ""
 	}
