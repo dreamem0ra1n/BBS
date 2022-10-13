@@ -351,8 +351,8 @@ WHERE NOT EXISTS(SELECT * FROM `t_sys_config` WHERE `key` = 'siteNavs');
 INSERT INTO t_sys_config (`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'defaultNodeId',
        '1',
-       '默认节点',
-       '默认节点',
+       '公告',
+       '公告',
        (UNIX_TIMESTAMP(now()) * 1000),
        (UNIX_TIMESTAMP(now()) * 1000)
 FROM DUAL
