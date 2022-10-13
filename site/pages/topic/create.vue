@@ -197,6 +197,10 @@ export default {
         this.$message.error('请选择节点')
         return
       }
+      if (!this.postForm.content) {
+        this.$message.error('请输入帖子内容')
+        return
+      }
       if (!this.postForm.access_lv || this.postForm.access_lv === '') {
         this.$message.error('请选择可见性')
         return
@@ -236,7 +240,6 @@ export default {
           },
         })
       } catch (e) {
-        await this.showCaptcha()
         this.publishing = false
         this.$message.error(e.message || e)
       }
