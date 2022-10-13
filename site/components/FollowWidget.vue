@@ -29,7 +29,6 @@
           :init-data="followPage"
           :params="{ userId: user.id }"
           url="/api/fans/follows"
-          :showTag="false"
         >
           <user-follow-list :users="results" />
         </load-more>

@@ -1,6 +1,5 @@
 <template>
   <div class="load-more">
-    <tag-bar v-if="showTag"></tag-bar>
     <slot :results="results" />
     <div class="has-more">
       <button
@@ -41,12 +40,6 @@ export default {
           results: [],
           cursor: '',
         }
-      },
-    },
-    showTag: {
-      type: Boolean,
-      default() {
-        return true
       },
     },
   },
@@ -105,7 +98,6 @@ export default {
       }
     },
   },
-  components: { TagBar },
 }
 </script>
 

@@ -5,6 +5,7 @@
         <div class="main-content no-padding no-bg topics-wrapper">
           <div class="topics-nav"><topics-nav :nodes="nodes" /></div>
           <div class="topics-main">
+            <tag-bar></tag-bar>
             <sticky-topics :node-id="node.nodeId" />
             <load-more
               v-if="topicsPage"
@@ -57,7 +58,7 @@ export default {
   },
   head() {
     return {
-      title: this.$siteTitle(this.node.name + ' - ' + this.tag.name),
+      title: this.$siteTitle(this.node.name + ' - ' + this.tag.tagName),
       meta: [
         {
           hid: 'description',

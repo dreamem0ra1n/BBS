@@ -31,7 +31,6 @@
                   v-slot="{ results }"
                   :init-data="topicsPage"
                   :url="'/api/topic/user/topics?userId=' + user.id"
-                  :showTag="false"
                 >
                   <topic-list :topics="results" :show-avatar="false" />
                 </load-more>

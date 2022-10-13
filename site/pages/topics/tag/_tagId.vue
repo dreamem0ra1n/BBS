@@ -6,7 +6,6 @@
       v-slot="{ results }"
       :init-data="topicsPage"
       :url="'/api/topic/tag/topics' + tag.id"
-      :showTag="true"
     >
       <topic-list :topics="results" />
     </load-more>
