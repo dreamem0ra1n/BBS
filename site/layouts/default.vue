@@ -15,7 +15,14 @@ export default {
     if (!this.$cookies.get('userToken'))
       this.$axios
         .post('/api/login/signin', { ref: null })
-        .then((res) => {
+        .then(async (res) => {
+          const pattern = res.user.roles[0].split('_')
+          const role = pattern[0]
+          const node = await this.$axios.get(
+            '/api/topic/node?nodeId=' + pattern[1]
+          )
+          const session = node.name
+          res.user.position = session + '-' + role
           this.$store.commit('user/setCurrent', res.user)
           this.$store.commit('user/setUserToken', res.token)
           const config = this.$store.state.config.config

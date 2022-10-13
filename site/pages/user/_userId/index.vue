@@ -52,6 +52,11 @@ export default {
     let user
     try {
       user = await $axios.get('/api/user/' + params.userId)
+      const pattern = user.roles[0].split('_')
+      const role = pattern[0]
+      const node = await $axios.get('/api/topic/node?nodeId=' + pattern[1])
+      const session = node.name
+      user.position = session + '-' + role
     } catch (err) {
       console.log(err)
       error({

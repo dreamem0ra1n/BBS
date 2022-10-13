@@ -42,8 +42,8 @@ export default {
   data() {
     return {
       infos: [
-        { title: '昵称', attribute: 'nickname' },
-        { title: '职位', attribute: 'roles' },
+        { title: 'id', attribute: 'nickname' },
+        { title: '职位', attribute: 'position' },
         { title: '签名', attribute: 'description' },
         { title: '专业', attribute: 'major' },
         { title: '生日', attribute: 'birthday' },

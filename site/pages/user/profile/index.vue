@@ -49,7 +49,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <div>{{ String(form.roles) }}</div>
+              <div>{{ form.position }}</div>
             </div>
           </div>
         </div>
@@ -257,7 +257,13 @@ export default {
     },
     async reload() {
       const _user = await this.$axios.get('/api/user/current')
+      const pattern = _user.roles[0].split('_')
+      const role = pattern[0]
+      const node = await this.$axios.get('/api/topic/node?nodeId=' + pattern[1])
+      const session = node.name
+      _user.position = session + '-' + role
       this.$store.commit('user/setCurrent', _user)
+
       this.form = { ..._user }
     },
   },
