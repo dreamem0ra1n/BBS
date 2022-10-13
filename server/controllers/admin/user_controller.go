@@ -8,7 +8,6 @@ import (
 	"bbs-go/model"
 
 	"github.com/kataras/iris/v12"
-	"github.com/mlogclub/simple/common/passwd"
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
@@ -44,18 +43,18 @@ func (c *UserController) AnyList() *web.JsonResult {
 	return web.JsonData(&web.PageResult{Results: itemList, Page: paging})
 }
 
-func (c *UserController) PostCreate() *web.JsonResult {
-	username := params.FormValue(c.Ctx, "username")
-	email := params.FormValue(c.Ctx, "email")
-	nickname := params.FormValue(c.Ctx, "nickname")
-	password := params.FormValue(c.Ctx, "password")
+// func (c *UserController) PostCreate() *web.JsonResult {
+// 	username := params.FormValue(c.Ctx, "username")
+// 	email := params.FormValue(c.Ctx, "email")
+// 	nickname := params.FormValue(c.Ctx, "nickname")
+// 	password := params.FormValue(c.Ctx, "password")
 
-	user, err := services.UserService.SignUp(username, email, nickname, password, password)
-	if err != nil {
-		return web.JsonError(err)
-	}
-	return web.JsonData(c.buildUserItem(user))
-}
+// 	user, err := services.UserService.SignUp(username, email, nickname, password, password)
+// 	if err != nil {
+// 		return web.JsonError(err)
+// 	}
+// 	return web.JsonData(c.buildUserItem(user))
+// }
 
 func (c *UserController) PostUpdate() *web.JsonResult {
 	id, err := params.FormValueInt64(c.Ctx, "id")
@@ -67,22 +66,23 @@ func (c *UserController) PostUpdate() *web.JsonResult {
 		return web.JsonErrorMsg("entity not found")
 	}
 
-	username := params.FormValue(c.Ctx, "username")
-	password := params.FormValue(c.Ctx, "password")
-	nickname := params.FormValue(c.Ctx, "nickname")
+	// They are not allowed to edit.
+	// username := params.FormValue(c.Ctx, "username")
+	// password := params.FormValue(c.Ctx, "password")
+	// nickname := params.FormValue(c.Ctx, "nickname")
 	email := params.FormValue(c.Ctx, "email")
 	roles := params.FormValueStringArray(c.Ctx, "roles")
 	status := params.FormValueIntDefault(c.Ctx, "status", -1)
 
-	user.Username = sqls.SqlNullString(username)
-	user.Nickname = nickname
+	// user.Username = sqls.SqlNullString(username)
+	// user.Nickname = nickname
 	user.Email = sqls.SqlNullString(email)
 	user.Roles = strings.Join(roles, ",")
 	user.Status = status
 
-	if len(password) > 0 {
-		user.Password = passwd.EncodePassword(password)
-	}
+	// if len(password) > 0 {
+	// 	user.Password = passwd.EncodePassword(password)
+	// }
 
 	err = services.UserService.Update(user)
 	if err != nil {

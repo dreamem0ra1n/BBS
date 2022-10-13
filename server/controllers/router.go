@@ -59,11 +59,8 @@ func Router() {
 	// api
 	mvc.Configure(app.Party("/api"), func(m *mvc.Application) {
 
-		// 限制请求大小 结构好奇怪( 顺着它原来的写法把大小限制写在 handler 里了
-		// m.Router.Use(iris.LimitRequestBodySize(FileMaxSize))
-
 		m.Party("/topic").Handle(new(api.TopicController))
-		m.Party("/article").Handle(new(api.ArticleController))
+		// m.Party("/article").Handle(new(api.ArticleController))
 		m.Party("/login").Handle(new(api.LoginController))
 		m.Party("/user").Handle(new(api.UserController))
 		m.Party("/tag").Handle(new(api.TagController))

@@ -132,7 +132,7 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	user, err := services.UserService.SignIn(username, ZjuId)
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
-		user, err = registeUser(resp.Data)
+		user, err = registerUser(resp.Data)
 	}
 	if err != nil {
 		return web.JsonError(err)
@@ -150,7 +150,7 @@ func (c *LoginController) GetSignout() *web.JsonResult {
 }
 
 // 注册
-func registeUser(u LoginUser) (*model.User, error) {
+func registerUser(u LoginUser) (*model.User, error) {
 	email := u.User.ZjuId + "@zju.edu.cn"
 
 	user := &model.User{
@@ -182,9 +182,9 @@ func getRoleFromLoginUserData(u LoginUser) string {
 	case "顾问", "高级成员":
 		ret = model.SeniorUser_NAME
 	case "中管":
-		ret = model.AdminUser_NAME
+		ret = "中管_1" + model.AdminUser_NAME // 添加公告权限
 	case "高管":
-		return model.MasterUser_NAME
+		return "中管_1" + model.MasterUser_NAME // 添加公告权限
 	default:
 		return ""
 	}
