@@ -24,7 +24,6 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 	if len(topics) == 0 {
 		return nil
 	}
-
 	var likedTopicIds []int64
 	if currentUser != nil {
 		var topicIds []int64
@@ -47,7 +46,6 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	if topic == nil {
 		return nil
 	}
-
 	rsp := &model.TopicResponse{}
 
 	rsp.TopicId = topic.Id
@@ -77,7 +75,11 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 			rsp.Summary = markdown.GetSummary(topic.Content, 128)
 		}
 	} else {
-		rsp.Summary = "抱歉，您无权访问该帖子的内容！"
+		if buildContent {
+			rsp.Content = "抱歉，您无权访问该帖子的内容！"
+		} else {
+			rsp.Summary = "抱歉，您无权访问该帖子的内容！"
+		}
 	}
 
 	if topic.Type == constants.TopicTypeTweet {
