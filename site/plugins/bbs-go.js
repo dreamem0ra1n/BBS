@@ -41,9 +41,11 @@ Vue.use({
     Vue.prototype.$toSignin = function (ref) {
       if (!ref && process.client) {
         // 如果没配置refUrl，那么取当前地址
-        ref = window.location.pathname
+        ref = window.location.href
       }
-      this.$linkTo('/user/signin?ref=' + encodeURIComponent(ref))
+      console.log(ref)
+      window.location.href =
+        'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' + ref
     }
 
     /**

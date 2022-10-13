@@ -111,9 +111,6 @@ export default {
         window.location.href = url
       } catch (e) {}
     },
-    signIn() {
-      window.location.href = '/user/signin'
-    },
     async signout() {
       try {
         await this.$store.dispatch('user/signout')
