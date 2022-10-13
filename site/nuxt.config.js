@@ -89,6 +89,12 @@ export default {
 
   proxy: {
     '/api/': 'http://127.0.0.1:8082',
+    '/bbs2/api':{
+      target:'http://127.0.0.1:8082',
+      pathRewrite:{
+        '^/bbs2/api':'/api'
+      }
+    }
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
