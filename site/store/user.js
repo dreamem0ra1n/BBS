@@ -66,7 +66,10 @@ export const actions = {
         userToken,
       },
     })
-    await this.$axios.get('https://www.qsc.zju.edu.cn/passport/v4/logout')
+    await fetch('https://www.qsc.zju.edu.cn/passport/v4/logout', {
+      method: 'GET',
+      credentials: 'include',
+    })
     context.commit('setUserToken', null)
     context.commit('setCurrent', null)
     this.$cookies.remove('userToken')
