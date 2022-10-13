@@ -69,8 +69,10 @@ export const actions = {
         userToken,
       },
     })
+    await this.$axios.get('https://www.qsc.zju.edu.cn/passport/v4/logout')
     context.commit('setUserToken', null)
     context.commit('setCurrent', null)
     this.$cookies.remove('userToken')
+    this.$cookies.remove('SESSION_TOKEN')
   },
 }

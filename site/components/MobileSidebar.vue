@@ -38,9 +38,9 @@
           </div>
         </template>
         <template v-else>
-          <a class="sidebar-login-btn button is-primary" :href="loginUrl"
-            >登录
-          </a>
+          <div class="sidebar-login-btn button is-primary" @click="loginUrl">
+            登录
+          </div>
         </template>
       </div>
     </transition>
@@ -67,14 +67,18 @@ export default {
       const config = this.$store.state.config.config
       return config.siteNavs || []
     },
-    loginUrl() {
-      return (
-        'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
-        this.$store.state.env.currentURL
-      )
-    },
   },
   methods: {
+    loginUrl() {
+      try {
+        const url = window.location.href
+          ? 'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+            window.location.href
+          : 'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+            this.$store.state.env.currentURL
+        window.location.href = url
+      } catch (e) {}
+    },
     async signout() {
       try {
         await this.$store.dispatch('user/signout')

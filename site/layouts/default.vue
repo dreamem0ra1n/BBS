@@ -11,10 +11,10 @@
 <script>
 export default {
   mounted() {
-    // this.$store.commit('env/setDomain', window.location.origin)
+    console.log(this.$route)
     if (!this.$cookies.get('userToken'))
       this.$axios
-        .post('/api/login/signin', { ref: window.location.href })
+        .post('/api/login/signin', { ref: null })
         .then((res) => {
           this.$store.commit('user/setCurrent', res.user)
           this.$store.commit('user/setUserToken', res.token)
@@ -23,7 +23,6 @@ export default {
             maxAge: 86400 * config.tokenExpireDays,
             path: '/',
           })
-          window.location = '/'
         })
         .catch((e) => {
           console.log(e)
