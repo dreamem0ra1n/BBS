@@ -32,6 +32,7 @@ export const actions = {
   // 登录
 
   signin(context) {
+    console.log(context)
     this.$axios
       .post('/api/login/signin', { ref: null })
       .then(async (res) => {
@@ -46,7 +47,7 @@ export const actions = {
         } else res.user.position = res.user.roles[0]
         context.commit('setCurrent', res.user)
         context.commit('setUserToken', res.token)
-        const config = this.$store.state.config.config
+        const config = context.rootState.config.config
         this.$cookies.set('userToken', res.token, {
           maxAge: 86400 * config.tokenExpireDays,
           path: '/',

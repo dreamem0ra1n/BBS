@@ -135,7 +135,16 @@
         <el-form-item label="昵称" prop="nickname">
           <el-input v-model="addForm.nickname" />
         </el-form-item>
-
+        <el-form-item label="角色" prop="roles">
+          <el-select v-model="addForm.roles" placeholder="用户角色" style="width: 100%">
+            <el-option v-for="item in allRoles" :key="item" :label="item" :value="item" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="部门" prop="section">
+          <el-select v-model="addForm.sectionId" placeholder="用户部门" style="width: 100%">
+            <el-option v-for="item in section" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="addForm.email" />
         </el-form-item>
@@ -163,16 +172,8 @@
           <el-input v-model="editForm.email" />
         </el-form-item>
         <el-form-item label="角色" prop="roles">
-          <el-select
-            v-model="editForm.roles"
-            multiple
-            filterable
-            allow-create
-            default-first-option
-            placeholder="用户角色"
-            style="width: 100%"
-          >
-            <el-option v-for="item in editForm.roles" :key="item" :label="item" :value="item" />
+          <el-select v-model="editForm.roles" placeholder="用户角色" style="width: 100%">
+            <el-option v-for="item in allRoles" :key="item" :label="item" :value="item" />
           </el-select>
         </el-form-item>
 
@@ -240,6 +241,8 @@ export default {
   components: { ScoreLog, Avatar },
   data() {
     return {
+      section: [],
+      allRoles: ["高管", "中管", "顾问", "高级成员", "实习成员"],
       mainHeight: "300px",
       results: [],
       listLoading: false,
@@ -254,7 +257,7 @@ export default {
         nickname: "",
         avatar: "",
         email: "",
-        roles: [],
+        roles: "",
         password: "",
         status: "",
       },
@@ -268,7 +271,7 @@ export default {
         nickname: "",
         avatar: "",
         email: "",
-        roles: [],
+        roles: "",
         password: "",
         status: "",
       },
@@ -287,7 +290,11 @@ export default {
   },
   mounted() {
     mainHeight(this);
-    this.list();
+    const me = this;
+    this.axios.form("/api/admin/topic-node/list", params).then((data) => {
+      me.section = data.results;
+      me.list();
+    });
   },
   methods: {
     list() {
@@ -301,6 +308,14 @@ export default {
         .form("/api/admin/user/list", params)
         .then((data) => {
           me.results = data.results;
+          me.results.forEach((user) => {
+            if (user.roles === "高管") user.section = null;
+            else {
+              user.sectionId = user.roles.slice(-1);
+              user.section = me.section.filter((item) => item.id === user.sectionId)[0];
+              user.roles = user.roles.slice(0, 2);
+            }
+          });
           me.page = data.page;
         })
         .finally(() => {
@@ -324,6 +339,7 @@ export default {
     },
     addSubmit() {
       const me = this;
+
       this.axios
         .form("/api/admin/user/create", this.addForm)
         .then((data) => {
