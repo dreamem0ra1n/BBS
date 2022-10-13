@@ -38,13 +38,7 @@ export const actions = {
       .then(async (res) => {
         const pattern = res.user.roles[0].split('_')
         const role = pattern[0]
-        const node = await this.$axios.get(
-          '/api/topic/node?nodeId=' + pattern[1]
-        )
-        if (node) {
-          const session = node.name
-          res.user.position = session + '-' + role
-        } else res.user.position = res.user.roles[0]
+        res.user.position = res.user.department + '-' + role
         context.commit('setCurrent', res.user)
         context.commit('setUserToken', res.token)
         const config = context.rootState.config.config
