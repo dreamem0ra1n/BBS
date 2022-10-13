@@ -30,35 +30,31 @@ export const actions = {
   },
 
   // 登录
-  async signin(context, { username, password }) {
-    /*  await this.$axios.post(
-      'https://www.qsc.zju.edu.cn/passport/v4/qsc/login',
-      {
-        username,
-        password,
-      }
-    ) */
-    const ret = await this.$axios.post('/api/login/signin', {
-      // ref:window.location.href,
-      username,
-      password,
-    })
-    context.dispatch('loginSuccess', ret)
-    return ret.user
-  },
 
-  // github登录
-
-  async signup(context, { nickname, username, email, password, rePassword }) {
-    const ret = await this.$axios.post('/api/login/signup', {
-      nickname,
-      username,
-      email,
-      password,
-      rePassword,
-    })
-    context.dispatch('loginSuccess', ret)
-    return ret.user
+  signin(context) {
+    this.$axios
+      .post('/api/login/signin', { ref: null })
+      .then(async (res) => {
+        const pattern = res.user.roles[0].split('_')
+        const role = pattern[0]
+        const node = await this.$axios.get(
+          '/api/topic/node?nodeId=' + pattern[1]
+        )
+        if (node) {
+          const session = node.name
+          res.user.position = session + '-' + role
+        } else res.user.position = res.user.roles[0]
+        context.commit('setCurrent', res.user)
+        context.commit('setUserToken', res.token)
+        const config = this.$store.state.config.config
+        this.$cookies.set('userToken', res.token, {
+          maxAge: 86400 * config.tokenExpireDays,
+          path: '/',
+        })
+      })
+      .catch((e) => {
+        console.log(e)
+      })
   },
 
   // 退出登录
@@ -74,5 +70,6 @@ export const actions = {
     context.commit('setCurrent', null)
     this.$cookies.remove('userToken')
     this.$cookies.remove('SESSION_TOKEN')
+    this.$forceUpdate()
   },
 }

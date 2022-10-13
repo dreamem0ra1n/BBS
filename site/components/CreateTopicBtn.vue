@@ -36,8 +36,6 @@ export default {
     handlePostCommand(cmd) {
       if (cmd === 'topic') {
         this.$linkTo('/topic/create')
-      } else if (cmd === 'article') {
-        this.$linkTo('/article/create')
       }
     },
   },
