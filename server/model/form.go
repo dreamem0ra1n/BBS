@@ -20,6 +20,7 @@ type CreateTopicForm struct {
 	Title       string
 	Content     string
 	HideContent string
+	AccessLv    int
 	Tags        []string
 	ImageList   []ImageDTO
 	UserAgent   string
@@ -65,6 +66,7 @@ func GetCreateTopicForm(ctx iris.Context) CreateTopicForm {
 		Content:     strings.TrimSpace(params.FormValue(ctx, "content")),
 		HideContent: strings.TrimSpace(params.FormValue(ctx, "hideContent")),
 		Tags:        params.FormValueStringArray(ctx, "tags"),
+		AccessLv:    params.FormValueIntDefault(ctx, "access_lv", 1),
 		ImageList:   GetImageList(ctx, "imageList"),
 		UserAgent:   common.GetUserAgent(ctx.Request()),
 		Ip:          common.GetRequestIP(ctx.Request()),

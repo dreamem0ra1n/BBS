@@ -147,6 +147,7 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 		Type:            form.Type,
 		UserId:          userId,
 		NodeId:          form.NodeId,
+		AccessLv:        form.AccessLv,
 		Title:           form.Title,
 		Content:         form.Content,
 		HideContent:     form.HideContent,

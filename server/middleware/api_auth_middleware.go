@@ -1,28 +1,12 @@
 package middleware
 
 import (
-	"bbs-go/model/constants"
 	"bbs-go/pkg/errs"
-	"bbs-go/pkg/urls"
 	"bbs-go/services"
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/web"
 	"github.com/sirupsen/logrus"
-)
-
-var (
-	config = []PathRole{
-		{Pattern: "/api/admin/sys-config/**", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/user/create", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/user/update", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/topic-node/create", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/topic-node/update", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/tag/create", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/tag/update", Roles: []string{constants.RoleOwner}},
-		{Pattern: "/api/admin/**", Roles: []string{constants.RoleOwner, constants.RoleAdmin}},
-	}
-	antPathMatcher = urls.NewAntPathMatcher()
 )
 
 // AdminAuth 后台权限
