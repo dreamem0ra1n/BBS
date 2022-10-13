@@ -260,10 +260,11 @@ export default {
       const pattern = _user.roles[0].split('_')
       const role = pattern[0]
       const node = await this.$axios.get('/api/topic/node?nodeId=' + pattern[1])
-      const session = node.name
-      _user.position = session + '-' + role
+      if (node) {
+        const session = node.name
+        _user.position = session + '-' + role
+      } else _user.position = _user.roles[0]
       this.$store.commit('user/setCurrent', _user)
-
       this.form = { ..._user }
     },
   },

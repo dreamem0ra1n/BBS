@@ -55,8 +55,10 @@ export default {
       const pattern = user.roles[0].split('_')
       const role = pattern[0]
       const node = await $axios.get('/api/topic/node?nodeId=' + pattern[1])
-      const session = node.name
-      user.position = session + '-' + role
+      if (node) {
+        const session = node.name
+        user.position = session + '-' + role
+      } else user.position = user.role[0]
     } catch (err) {
       console.log(err)
       error({

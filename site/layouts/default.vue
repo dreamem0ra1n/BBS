@@ -21,8 +21,10 @@ export default {
           const node = await this.$axios.get(
             '/api/topic/node?nodeId=' + pattern[1]
           )
-          const session = node.name
-          res.user.position = session + '-' + role
+          if (node) {
+            const session = node.name
+            res.user.position = session + '-' + role
+          } else res.user.position = res.user.roles[0]
           this.$store.commit('user/setCurrent', res.user)
           this.$store.commit('user/setUserToken', res.token)
           const config = this.$store.state.config.config
