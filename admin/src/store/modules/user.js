@@ -78,7 +78,7 @@ const actions = {
   // user logout
   async logout({ commit, state, dispatch }) {
     await this._vm.axios.get("/api/login/signout");
-    await this._vm.axios.get("https://www.qsc.zju.edu.cn/passport/v4/logout")
+    await fetch("https://www.qsc.zju.edu.cn/passport/v4/logout");
     commit("SET_TOKEN", "");
     commit("SET_ROLES", []);
     removeToken();
