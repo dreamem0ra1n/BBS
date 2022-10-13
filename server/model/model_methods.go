@@ -230,11 +230,12 @@ func (user *User) CanAccessTopic(topic *Topic) bool {
 
 	// 检查权限单元
 	logrus.Info(fmt.Sprintf("Role: %s, ReadLv: %d, AccessLv: %d", role, au.ReadLv, topic.AccessLv))
-	// 如果是 0 说明可以无条件访问所有帖子
-	if au.ReadLv == 0 {
-		return true
-	}
 
+	if au.ReadLv == 0 { // 如果是 0 说明可以无条件访问所有帖子
+		return true
+	} else if topic.AccessLv == 0 { // 如果是 0 说明只有上面那种人才能访问
+		return false
+	}
 	// 如果阅读权限过低则无法访问
 	if au.ReadLv < topic.AccessLv {
 		return false
