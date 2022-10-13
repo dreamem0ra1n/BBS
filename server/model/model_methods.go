@@ -53,7 +53,8 @@ func (u *User) HasAnyRole(roles ...string) bool {
 
 // GetArgByRole 查看对应的 role 的参数
 func (u *User) GetArgByRole(reqRole string) (int, error) {
-	if len(u.Roles) == 0 {
+
+	if u == nil || len(u.Roles) == 0 {
 		return -1, nil
 	}
 	roles := strings.Split(u.Roles, ",")
@@ -211,7 +212,6 @@ func (t *Topic) GetTitle() string {
 
 func (user *User) CanAccessTopic(topic *Topic) bool {
 	// 是站长就不需要做进一步的部门鉴权
-
 	if user.IsMasterUser() {
 		return true
 	}
