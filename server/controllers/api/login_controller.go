@@ -182,9 +182,9 @@ func getRoleFromLoginUserData(u LoginUser) string {
 	case "顾问", "高级成员":
 		ret = model.SeniorUser_NAME
 	case "中管":
-		ret = "中管_1," + model.AdminUser_NAME // 添加公告权限
+		ret = "中管_1,中管_11," + model.AdminUser_NAME // 添加公告权限
 	case "高管":
-		return "中管_1," + model.MasterUser_NAME // 添加公告权限
+		return model.MasterUser_NAME // 添加公告权限
 	default:
 		return ""
 	}
