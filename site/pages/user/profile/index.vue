@@ -259,11 +259,7 @@ export default {
       const _user = await this.$axios.get('/api/user/current')
       const pattern = _user.roles[0].split('_')
       const role = pattern[0]
-      const node = await this.$axios.get('/api/topic/node?nodeId=' + pattern[1])
-      if (node) {
-        const session = node.name
-        _user.position = session + '-' + role
-      } else _user.position = _user.roles[0]
+      _user.position = _user.department + '-' + role
       this.$store.commit('user/setCurrent', _user)
       this.form = { ..._user }
     },

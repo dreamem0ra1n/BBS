@@ -57,7 +57,7 @@ export default {
   position: sticky;
   top: 10px;
 
-  width: 150px;
+  width: 200px;
   border-radius: 2px;
   background-color: var(--bg-color);
   transition: all 0.2s linear;
@@ -71,7 +71,7 @@ export default {
     li:not(.dock-nav-divider) {
       position: relative;
       cursor: pointer;
-      height: 30px;
+      height: fit-content;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -81,6 +81,7 @@ export default {
       border-radius: 3px;
       transition: background-color 0.2s, color 0.2s;
       font-weight: 500;
+      height: 40px;
 
       &:not(:first-child) {
         margin-top: 10px;
