@@ -166,6 +166,7 @@ export default {
     const me = this;
     this.axios.form("/api/admin/topic-node/list", { page: 1, limit: 20 }).then((data) => {
       me.sections = data.results;
+      me.sections.push({ name: "通用", id: 0 });
       this.list();
     });
   },
@@ -183,7 +184,6 @@ export default {
           me.results = data.results;
           me.page = data.page;
           me.results.forEach((tag) => {
-            console.log(this.sections.filter((section) => section.id === tag.section_id)[0].name);
             tag.section = this.sections.filter((section) => section.id === tag.section_id)[0].name;
           });
         })

@@ -28,6 +28,7 @@ export default {
           title: '我要BG',
           content: '我要BG',
           access_lv: 1,
+          tags: [7],
           imageList: '',
         })
         this.$msg({
@@ -63,11 +64,11 @@ export default {
   .go-bg {
     transition: all 0.3s;
     cursor: pointer;
-    opacity: 0%;
+    opacity: 0;
     color: #eb5424;
   }
   .go-bg:hover {
-    opacity: 100%;
+    opacity: 1;
   }
 }
 </style>
