@@ -105,7 +105,9 @@ export default {
 
     // 发帖标签
     const config = store.state.config.config || {}
-    const nodeId = query.nodeId || config.defaultNodeId
+    const nodeId =
+      (store.state.currentNodeId !== 0 ? store.state.currentNodeId : null) ??
+      config.defaultNodeId
     let currentNode = null
     if (nodeId) {
       try {
@@ -121,7 +123,7 @@ export default {
       nodes,
       postForm: {
         type,
-        nodeId: currentNode ? currentNode.nodeId : 0,
+        nodeId,
         title: '',
         tags: [],
         content: '',
@@ -152,15 +154,6 @@ export default {
           description: '管理层可见',
         },
       ],
-      postForm: {
-        type: 0,
-        nodeId: 0,
-        title: '',
-        tags: [],
-        content: '',
-        hideContent: '',
-        imageList: [],
-      },
     }
   },
   head() {
@@ -180,7 +173,9 @@ export default {
     },
   },
   watchQuery: ['type', 'nodeId'],
-  mounted() {},
+  mounted() {
+    this.postForm.nodeId = this.$store.state.env.currentNodeId
+  },
   methods: {
     setTag(tags) {
       this.postForm.tags = tags

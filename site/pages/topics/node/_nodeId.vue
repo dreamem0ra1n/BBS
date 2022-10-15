@@ -27,6 +27,9 @@ export default {
       topicsPage,
     }
   },
+  mounted() {
+    this.$store.commit('env/setCurrentNodeId', this.node.nodeId)
+  },
   head() {
     return {
       title: this.$siteTitle(this.node.name + ' - 话题'),
