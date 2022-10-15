@@ -88,7 +88,7 @@ const actions = {
     window.location.href="https://www.qsc.zju.edu.cn/passport/v4/logout?success="+window.location.href
   },
 
-  // remove token
+  // remove token22
   resetToken({ commit }) {
     return new Promise((resolve) => {
       commit("SET_TOKEN", "");

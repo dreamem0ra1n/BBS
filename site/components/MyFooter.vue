@@ -2,7 +2,6 @@
   <footer class="footer">
     <div class="container content">
       <div>
-        <nuxt-link to="/about">关于</nuxt-link>
         <nuxt-link to="/tags">标签</nuxt-link>
         <nuxt-link to="/links">友链</nuxt-link>
         <span @click="BG" class="go-bg">一键BG</span>
