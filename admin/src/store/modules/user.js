@@ -78,7 +78,6 @@ const actions = {
   // user logout
   async logout({ commit, state, dispatch }) {
     await this._vm.axios.get("/api/login/signout");
-    await fetch("https://www.qsc.zju.edu.cn/passport/v4/logout");
     commit("SET_TOKEN", "");
     commit("SET_ROLES", []);
     removeToken();
@@ -86,6 +85,7 @@ const actions = {
     // reset visited views and cached views
     // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
     dispatch("tagsView/delAllViews", null, { root: true });
+    window.location.href="https://www.qsc.zju.edu.cn/passport/v4/logout?success="+window.location.href
   },
 
   // remove token

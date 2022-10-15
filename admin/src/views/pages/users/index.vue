@@ -14,9 +14,9 @@
         <el-form-item>
           <el-button type="primary" @click="list"> 查询 </el-button>
         </el-form-item>
-        <el-form-item>
+        <!--<el-form-item>
           <el-button type="primary" @click="handleAdd"> 新增 </el-button>
-        </el-form-item>
+        </el-form-item>-->
       </el-form>
     </div>
 
@@ -135,16 +135,6 @@
         <el-form-item label="昵称" prop="nickname">
           <el-input v-model="addForm.nickname" />
         </el-form-item>
-        <el-form-item label="角色" prop="roles">
-          <el-select v-model="addForm.roles" placeholder="用户角色" style="width: 100%">
-            <el-option v-for="item in allRoles" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="部门" prop="section">
-          <el-select v-model="addForm.sectionId" placeholder="用户部门" style="width: 100%">
-            <el-option v-for="item in section" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="addForm.email" />
         </el-form-item>
@@ -171,14 +161,27 @@
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="editForm.email" />
         </el-form-item>
-        <el-form-item label="角色" prop="roles">
-          <el-select v-model="editForm.roles" placeholder="用户角色" style="width: 100%">
-            <el-option v-for="item in allRoles" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="editForm.password" placeholder="不填写表示不更改密码" />
+        <el-form-item label="职位" prop="roles">
+          <el-tag
+            v-for="role in editForm.roles"
+            :key="role"
+            closable
+            @close="() => cancelRole(editForm, role)"
+            size="mini"
+            style="margin-right: 3px"
+          >
+            {{ role }}
+          </el-tag>
+          <el-button @click="() => showAddRole()">+</el-button>
+          <div v-if="addRole">
+            <el-cascader
+              v-model="newRole"
+              :options="roleOptions"
+              @change="setNewRole"
+            ></el-cascader>
+            <el-button @click="() => addNewRole()">确认</el-button>
+            <el-button @click="() => stopAddRole()">取消</el-button>
+          </div>
         </el-form-item>
 
         <el-form-item label="状态" prop="status">
@@ -242,7 +245,30 @@ export default {
   data() {
     return {
       section: [],
-      allRoles: ["高管", "中管", "顾问", "高级成员", "实习成员"],
+      _section: [],
+      roleOptions: [
+        {
+          value: "高管",
+          label: "高管",
+        },
+        {
+          value: "中管",
+          label: "中管",
+        },
+        {
+          value: "顾问",
+          label: "顾问",
+        },
+        {
+          value: "正式成员",
+          label: "正式成员",
+        },
+        {
+          value: "实习成员",
+          label: "实习成员",
+        },
+      ],
+      newRole: {},
       mainHeight: "300px",
       results: [],
       listLoading: false,
@@ -250,6 +276,7 @@ export default {
       filters: {
         id: "",
       },
+      addRole: false,
       selectedRows: [],
 
       addForm: {
@@ -291,8 +318,23 @@ export default {
   mounted() {
     mainHeight(this);
     const me = this;
-    this.axios.form("/api/admin/topic-node/list", params).then((data) => {
+    this.axios.form("/api/admin/topic-node/list").then((data) => {
       me.section = data.results;
+      console.log(data.results);
+      me._section = data.results
+        .filter(
+          (dep) => dep.name !== "通用" && dep.name !== "水版" && dep.id !== 0 && dep.id !== 11
+        )
+        .map((dep) => {
+          return {
+            value: dep.id,
+            label: dep.name,
+          };
+        });
+      me.roleOptions.forEach((option) => {
+        if (option.value === "高管") return;
+        option.children = me._section;
+      });
       me.list();
     });
   },
@@ -311,12 +353,15 @@ export default {
           me.results.forEach((user) => {
             if (user.roles === "高管") user.section = null;
             else {
-              user.sectionId = user.roles.slice(-1);
+              user.sectionId = parseInt(user.roles[0].slice(-1));
+              console.log(me.section);
               user.section = me.section.filter((item) => item.id === user.sectionId)[0];
+              if (user.section) user.section = user.section.name;
               user.roles = user.roles.slice(0, 2);
             }
           });
           me.page = data.page;
+          console.log(me.results);
         })
         .finally(() => {
           me.listLoading = false;
@@ -366,6 +411,9 @@ export default {
     },
     editSubmit() {
       const params = { ...this.editForm };
+      if (!params.roles || params.roles.length < 1) {
+        this.$notify.error({ title: "错误", message: "用户至少需要一种身份" });
+      }
       if (params.roles && params.roles.length) {
         params.roles = params.roles.join(",");
       } else {
@@ -432,6 +480,30 @@ export default {
       } else if (cmd.cmd === "scoreLog") {
         this.showScoreLog(cmd.row);
       }
+    },
+    showAddRole() {
+      this.addRole = true;
+    },
+    cancelRole(editForm, role) {
+      editForm.roles = editForm.roles.filter((item) => item !== role);
+    },
+    setNewRole(value) {
+      console.log(value);
+    },
+    addNewRole() {
+      if (this.newRole[0] !== "高管" && this.newRole.length < 2) {
+        this.$notify.error({ title: "错误", message: "角色不完整" });
+        return;
+      }
+      let role = this.newRole[0];
+      if (this.newRole.length == 2) role = role + "_" + this.newRole[1].toString();
+      this.editForm.roles.push(role);
+      this.editForm.roles = Array.from(new Set(this.editForm.roles)); // 去重
+      this.stopAddRole();
+    },
+    stopAddRole() {
+      this.newRole = [];
+      this.addRole = false;
     },
   },
 };
