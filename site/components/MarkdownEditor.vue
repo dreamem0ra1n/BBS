@@ -24,9 +24,9 @@ import VMdEditor from '@kangc/v-md-editor'
 import '@kangc/v-md-editor/lib/style/base-editor.css'
 import githubTheme from '@kangc/v-md-editor/lib/theme/github.js'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
-
 // highlightjs
 import hljs from 'highlight.js'
+import compression from '../utils/compress'
 
 VMdEditor.use(githubTheme, {
   Hljs: hljs,
@@ -133,6 +133,7 @@ export default {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const formData = new FormData()
+
         formData.append('image', file, file.name)
 
         this.$axios

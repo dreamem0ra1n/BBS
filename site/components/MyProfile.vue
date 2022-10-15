@@ -2,7 +2,7 @@
   <div class="widget">
     <div class="widget-header">
       <span>个人资料</span>
-      <div class="slot" v-if="isCurrentUser">
+      <div class="slot">
         <nuxt-link to="/user/profile">编辑资料</nuxt-link>
       </div>
     </div>
