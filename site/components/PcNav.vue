@@ -64,6 +64,9 @@
               <a class="navbar-item" @click="signout">
                 <i class="iconfont icon-log-out" />&nbsp;退出登录
               </a>
+              <a class="navbar-item" @click="changePassword">
+                <i class="iconfont icon-log-out" />&nbsp;修改密码
+              </a>
             </div>
           </div>
           <div v-else class="navbar-item">
@@ -121,6 +124,10 @@ export default {
     },
     toggleNav() {
       this.navbarActive = !this.navbarActive
+    },
+    changePassword() {
+      window.location.href =
+        'https://www.qsc.zju.edu.cn/passport/v4/qsc/set_password'
     },
   },
 }
