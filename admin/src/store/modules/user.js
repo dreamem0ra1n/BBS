@@ -80,12 +80,15 @@ const actions = {
     await this._vm.axios.get("/api/login/signout");
     commit("SET_TOKEN", "");
     commit("SET_ROLES", []);
+    await fetch("https://www.qsc.zju.edu.cn/passport/v4/logout", {
+      method: "GET",
+      credentials: "include",
+    });
     removeToken();
     resetRouter();
     // reset visited views and cached views
     // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
     dispatch("tagsView/delAllViews", null, { root: true });
-    window.location.href="https://www.qsc.zju.edu.cn/passport/v4/logout?success="+window.location.href
   },
 
   // remove token22

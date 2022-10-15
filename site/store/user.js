@@ -69,9 +69,10 @@ export const actions = {
     context.commit('setCurrent', null)
     this.$cookies.remove('userToken')
     this.$cookies.remove('SESSION_TOKEN')
-    window.location.href =
-      'https://www.qsc.zju.edu.cn/passport/v4/logout?success=' +
-      window.location.href
+    await fetch('https://www.qsc.zju.edu.cn/passport/v4/logout', {
+      method: 'GET',
+      credentials: 'include',
+    })
     this.$forceUpdate()
   },
 }
