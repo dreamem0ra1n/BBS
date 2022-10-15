@@ -24,6 +24,7 @@ const (
 	RenLiZiYuan_SECTION    = 8  // 人力资源部门
 	SheYing_SECTION        = 9  // 摄影
 	ShiPin_SECTION         = 10 // 视频
+	Water_SECTIOIN         = 11 // 全潮水板
 )
 
 // 定义权限名称
