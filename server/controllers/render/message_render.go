@@ -85,6 +85,7 @@ func getMessageDetailUrl(t *model.Message) string {
 func getFatherMsg(t *model.Message) *model.Message {
 	ftype := gjson.Get(t.ExtraData, "entityType").String()
 	fid := gjson.Get(t.ExtraData, "entityId").Int()
+	logrus.Info(ftype, fid)
 	messagesResults := repositories.MessageRepository.FindBySql(sqls.DB(),
 		"SELECT * FROM t_message WHERE id = ?",
 		fid,
