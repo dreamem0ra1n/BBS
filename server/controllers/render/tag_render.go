@@ -6,7 +6,7 @@ func BuildTag(tag *model.Tag) *model.TagResponse {
 	if tag == nil {
 		return nil
 	}
-	return &model.TagResponse{TagId: tag.Id, TagName: tag.Name}
+	return &model.TagResponse{NodeId: tag.SectionId, TagId: tag.Id, TagName: tag.Name}
 }
 
 func BuildTags(tags []model.Tag) *[]model.TagResponse {
