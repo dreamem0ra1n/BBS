@@ -3,7 +3,6 @@ package model
 import (
 	"bbs-go/model/constants"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -228,7 +227,7 @@ func UserCanAccessTopic(user *User, topic *Topic) bool {
 	}
 
 	// 检查权限单元
-	logrus.Info(fmt.Sprintf("Role: %s, ReadLv: %d, AccessLv: %d", role, au.ReadLv, topic.AccessLv))
+	// logrus.Info(fmt.Sprintf("Role: %s, ReadLv: %d, AccessLv: %d", role, au.ReadLv, topic.AccessLv))
 
 	if au.ReadLv == 0 { // 如果是 0 说明可以无条件访问所有帖子
 		return true
