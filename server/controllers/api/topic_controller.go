@@ -181,7 +181,9 @@ func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 
 	topic := services.TopicService.Get(topicId)
 	user := services.UserTokenService.GetCurrent(c.Ctx)
-
+	if user == nil {
+		return web.JsonErrorMsg("无权限")
+	}
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
