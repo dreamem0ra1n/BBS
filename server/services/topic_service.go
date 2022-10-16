@@ -298,7 +298,6 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 	limit := 20
 	topicTags := repositories.TopicTagRepository.Find(sqls.DB(), sqls.NewCnd().
 		Eq("tag_id", tagId).
-		Eq("node_id", nodeId).
 		Eq("status", constants.StatusOk).
 		Desc("last_comment_time").Limit(limit))
 	if len(topicTags) > 0 {
@@ -313,7 +312,9 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 		if topicsMap != nil {
 			for _, topicTag := range topicTags {
 				if topic, found := topicsMap[topicTag.TopicId]; found {
-					topics = append(topics, topic)
+					if topic.NodeId == nodeId {
+						topics = append(topics, topic)
+					}
 				}
 			}
 		}
