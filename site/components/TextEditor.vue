@@ -98,6 +98,7 @@ export default {
         })
         .then((ret) => {
           that.post.content =
+            that.post.content +
             '<a href="' +
             that.$store.state.env.currentURL +
             '/api/file/download/' +
