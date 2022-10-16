@@ -16,10 +16,10 @@
         </div>
         <div v-for="(row, index) in rows" :key="index" class="nodes-row">
           <div v-if="row && row.length" class="nodes-row">
-            <nuxt-link
+            <div
               v-for="node in row"
               :key="node.nodeId"
-              :to="'/topics/node/' + node.nodeId"
+              @click="goToTag(node.nodeId)"
             >
               <div
                 class="node-item"
@@ -27,7 +27,7 @@
               >
                 <span>{{ node.name }}</span>
               </div>
-            </nuxt-link>
+            </div>
           </div>
         </div>
       </div>
@@ -72,6 +72,10 @@ export default {
   methods: {
     async fetch() {
       this.nodes = await this.$axios.get('/api/topic/nodes')
+    },
+    goToTag(id) {
+      this.$store.commit('env/setCurrentTag', -1919810)
+      this.$linkTo('/topics/node/' + id)
     },
   },
 }

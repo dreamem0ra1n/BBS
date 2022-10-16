@@ -20,7 +20,6 @@ export default {
     this.tags = result
     this.nodeId = this.$store.state.env.currentNodeId
     this.currTag = this.$store.state.env.currentTag
-    console.log(this.currTag)
   },
   data() {
     return {

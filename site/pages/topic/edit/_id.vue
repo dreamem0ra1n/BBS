@@ -54,7 +54,7 @@
             <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
-        <div class="control">
+        <!--<div class="control">
           <el-select v-model="postForm.access_lv" placeholder="请选择可见性">
             <el-option
               v-for="lv in levelArray"
@@ -63,7 +63,7 @@
               :label="lv.description"
             ></el-option>
           </el-select>
-        </div>
+        </div>-->
       </div>
       <div class="field is-grouped">
         <div class="control">
@@ -110,6 +110,24 @@ export default {
         tags: [],
         content: '',
       },
+      levelArray: [
+        {
+          level: 1,
+          description: '全员可见',
+        },
+        {
+          level: 2,
+          description: '正式成员及以上可见',
+        },
+        {
+          level: 3,
+          description: '顾问及以上可见',
+        },
+        {
+          level: 4,
+          description: '管理层可见',
+        },
+      ],
     }
   },
   head() {

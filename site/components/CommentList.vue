@@ -72,7 +72,7 @@
             v-if="reply.commentId === comment.commentId"
             class="comment-reply-form"
           >
-            <text-editor
+            <markdown-editor
               :ref="`editor${comment.commentId}`"
               v-model="reply.value"
               :height="100"

@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import compression from '../utils/compress'
 export default {
   props: {
     value: {
@@ -37,9 +38,11 @@ export default {
       }
       try {
         // 上传头像
-        const file = files[0]
+        const preFile = files[0]
         const formData = new FormData()
-        formData.append('image', file, file.name)
+        const res = await compression(preFile)
+        const { file } = res
+        formData.append('image', file, preFile.name)
         let ret
         try {
           ret = await this.$axios.post('/api/file/upload/img', formData, {

@@ -53,6 +53,11 @@ export default {
       ],
     }
   },
+  computed: {
+    isCurrentUser() {
+      return this.user.id === this.$store.state.user.id
+    },
+  },
 }
 </script>
 

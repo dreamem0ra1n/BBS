@@ -5,9 +5,9 @@
       :key="item.id"
       class="topic-search-item"
     >
-      <a target="_blank" :href="'/topic/' + item.id">
+      <nuxt-link :to="'/topic/' + item.id">
         <h1 class="topic-search-item-title" v-html="item.title"></h1>
-      </a>
+      </nuxt-link>
       <p class="topic-search-item-summary content" v-html="item.summary"></p>
       <div class="topic-mates">
         <span v-html="item.nickname"></span>

@@ -21,6 +21,9 @@
           v-model="value"
           @submit="create"
         />
+        <button class="button is-success is-small new-create" @click="create">
+          发布
+        </button>
       </div>
     </div>
   </div>
@@ -68,7 +71,7 @@ export default {
       // }
       // return this.mode
       // 强制text模式
-      return 'text'
+      return 'markdown'
     },
     contentType() {
       return this.inputMode === 'markdown' ? 'markdown' : 'text'
@@ -166,7 +169,6 @@ export default {
 
     .comment-input-wrapper {
       margin-bottom: 8px;
-
       .text-input {
         outline: none;
         width: 100%;
@@ -201,5 +203,10 @@ export default {
       }
     }
   }
+}
+.new-create {
+  width: 70px;
+  margin-left: calc(50% - 35px);
+  margin-top: 10px;
 }
 </style>

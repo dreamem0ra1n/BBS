@@ -43,7 +43,6 @@ Vue.use({
         // 如果没配置refUrl，那么取当前地址
         ref = window.location.href
       }
-      console.log(ref)
       window.location.href =
         'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' + ref
     }

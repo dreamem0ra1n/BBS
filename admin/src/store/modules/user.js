@@ -78,9 +78,12 @@ const actions = {
   // user logout
   async logout({ commit, state, dispatch }) {
     await this._vm.axios.get("/api/login/signout");
-    await fetch("https://www.qsc.zju.edu.cn/passport/v4/logout");
     commit("SET_TOKEN", "");
     commit("SET_ROLES", []);
+    await fetch("https://www.qsc.zju.edu.cn/passport/v4/logout", {
+      method: "GET",
+      credentials: "include",
+    });
     removeToken();
     resetRouter();
     // reset visited views and cached views
@@ -88,7 +91,7 @@ const actions = {
     dispatch("tagsView/delAllViews", null, { root: true });
   },
 
-  // remove token
+  // remove token22
   resetToken({ commit }) {
     return new Promise((resolve) => {
       commit("SET_TOKEN", "");

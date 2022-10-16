@@ -36,9 +36,14 @@ export const actions = {
     this.$axios
       .post('/api/login/signin', { ref: null })
       .then(async (res) => {
-        const pattern = res.user.roles[0].split('_')
-        const role = pattern[0]
-        res.user.position = res.user.department + '-' + role
+        const info = await fetch('https://qsc.zju.edu.cn/passport/v4/profile', {
+          mode: 'cors',
+          credentials: 'include',
+        })
+        res.user.position =
+          info.data.user.QscUser.department +
+          '-' +
+          info.data.user.QscUser.position
         context.commit('setCurrent', res.user)
         context.commit('setUserToken', res.token)
         const config = context.rootState.config.config
@@ -60,14 +65,14 @@ export const actions = {
         userToken,
       },
     })
-    await fetch('https://www.qsc.zju.edu.cn/passport/v4/logout', {
-      method: 'GET',
-      credentials: 'include',
-    })
     context.commit('setUserToken', null)
     context.commit('setCurrent', null)
     this.$cookies.remove('userToken')
     this.$cookies.remove('SESSION_TOKEN')
+    await fetch('https://www.qsc.zju.edu.cn/passport/v4/logout', {
+      method: 'GET',
+      credentials: 'include',
+    })
     this.$forceUpdate()
   },
 }

@@ -1,58 +1,118 @@
-export default compression = function(file, size = 20, device = 4) {
-    if (file[0]) {
-      return Promise.all(Array.from(file).map(e => Vue.prototype.$compression(e, size))) // 如果是 file 数组返回 Promise 数组
-    } else {
-      return new Promise((resolve) => {
+function compression(file, quality = 0.9) {
+  let qualitys = 0.52
+  let maxWidth = 1600
+  let maxHeight = 1600
+  console.log(parseInt((file.size / 1024).toFixed(2)))
+  if (quality) {
+    qualitys = quality
+  }
+  if (file[0]) {
+    return Promise.all(
+      Array.from(file).map((e) => this.compressImg(e, qualitys))
+    ) // 如果是 file 数组返回 Promise 数组
+  } else {
+    return new Promise((resolve) => {
+      console.log(file)
+      if ((file.size / 1024).toFixed(2) < 300) {
+        resolve({
+          file,
+        })
+      } else {
         const reader = new FileReader() // 创建 FileReader
-        reader.onload = ({ target: { result: src }}) => {
-          const fileSize = Number((file.size / 1024).toFixed(2))
-          if (fileSize <= size) {
-            resolve({ file: file, origin: file, beforeSrc: src, afterSrc: src, beforeKB: fileSize + 'KB', afterKB: fileSize + 'KB', detail: [], quality: null })
-          } else {
-            const image = new Image() // 创建 img 元素
-            image.onload = async() => {
-              const canvas = document.createElement('canvas') // 创建 canvas 元素
-              canvas.width = image.width
-              canvas.height = image.height
-              canvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height) // 绘制 canvas
-              let canvasURL, miniFile
-              let L = true
-              let quality = 0
-              const detail = []
-              let start = Date.now()
-              for (let i = 1; i <= device; i++) {
-                canvasURL = canvas.toDataURL('image/jpeg', L ? (quality += 1 / (2 ** i)) : (quality -= 1 / (2 ** i)))
-                const buffer = atob(canvasURL.split(',')[1])
-                let length = buffer.length
-                const bufferArray = new Uint8Array(new ArrayBuffer(length))
-                while (length--) {
-                  bufferArray[length] = buffer.charCodeAt(length)
+        reader.onload = ({ target: { result: src } }) => {
+          const image = new Image() // 创建 img 元素
+          image.onload = () => {
+            const canvas = document.createElement('canvas') // 创建 canvas 元素
+            const context = canvas.getContext('2d')
+            let targetWidth = image.width
+            let targetHeight = image.height
+            const originWidth = image.width
+            const originHeight = image.height
+            if (
+              1 * 1024 <= parseInt((file.size / 1024).toFixed(2)) &&
+              parseInt((file.size / 1024).toFixed(2)) <= 10 * 1024
+            ) {
+              maxWidth = 1600
+              maxHeight = 1600
+              targetWidth = originWidth
+              targetHeight = originHeight
+              // 图片尺寸超过的限制
+              if (originWidth > maxWidth || originHeight > maxHeight) {
+                if (originWidth / originHeight > maxWidth / maxHeight) {
+                  // 更宽，按照宽度限定尺寸
+                  targetWidth = maxWidth
+                  targetHeight = Math.round(
+                    maxWidth * (originHeight / originWidth)
+                  )
+                } else {
+                  targetHeight = maxHeight
+                  targetWidth = Math.round(
+                    maxHeight * (originWidth / originHeight)
+                  )
                 }
-                miniFile = new File([bufferArray], file.name, { type: 'image/jpeg' });
-                (miniFile.size / 1024) > size ? L = false : L = true
-                detail.push({
-                  quality,
-                  size: miniFile.size,
-                  kb: Number((miniFile.size / 1024).toFixed(2)),
-                  time: Date.now() - start
-                })
-                start = Date.now()
               }
-              resolve({
-                detail,
-                quality,
-                file: miniFile,
-                origin: file,
-                beforeSrc: src,
-                afterSrc: canvasURL,
-                beforeKB: Number((file.size / 1024).toFixed(2)),
-                afterKB: Number((miniFile.size / 1024).toFixed(2))
-              })
             }
-            image.src = src
+            if (
+              10 * 1024 <= parseInt((file.size / 1024).toFixed(2)) &&
+              parseInt((file.size / 1024).toFixed(2)) <= 20 * 1024
+            ) {
+              maxWidth = 1400
+              maxHeight = 1400
+              targetWidth = originWidth
+              targetHeight = originHeight
+              // 图片尺寸超过的限制
+              if (originWidth > maxWidth || originHeight > maxHeight) {
+                if (originWidth / originHeight > maxWidth / maxHeight) {
+                  // 更宽，按照宽度限定尺寸
+                  targetWidth = maxWidth
+                  targetHeight = Math.round(
+                    maxWidth * (originHeight / originWidth)
+                  )
+                } else {
+                  targetHeight = maxHeight
+                  targetWidth = Math.round(
+                    maxHeight * (originWidth / originHeight)
+                  )
+                }
+              }
+            }
+            canvas.width = targetWidth
+            canvas.height = targetHeight
+            context.clearRect(0, 0, targetWidth, targetHeight)
+            context.drawImage(image, 0, 0, targetWidth, targetHeight) // 绘制 canvas
+            const canvasURL = canvas.toDataURL('image/jpeg', qualitys)
+            const buffer = atob(canvasURL.split(',')[1])
+            let length = buffer.length
+            const bufferArray = new Uint8Array(new ArrayBuffer(length))
+            while (length--) {
+              bufferArray[length] = buffer.charCodeAt(length)
+            }
+            const miniFile = new File([bufferArray], file.name, {
+              type: 'image/jpeg',
+            })
+            console.log({
+              file: miniFile,
+              origin: file,
+              beforeSrc: src,
+              afterSrc: canvasURL,
+              beforeKB: Number((file.size / 1024).toFixed(2)),
+              afterKB: Number((miniFile.size / 1024).toFixed(2)),
+              qualitys,
+            })
+            resolve({
+              file: miniFile,
+              origin: file,
+              beforeSrc: src,
+              afterSrc: canvasURL,
+              beforeKB: Number((file.size / 1024).toFixed(2)),
+              afterKB: Number((miniFile.size / 1024).toFixed(2)),
+            })
           }
+          image.src = src
         }
         reader.readAsDataURL(file)
-      })
-    }
+      }
+    })
   }
+}
+export default compression

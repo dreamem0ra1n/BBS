@@ -22,11 +22,11 @@
         :key="node.nodeId"
         :class="{ active: currentNodeId === node.nodeId }"
       >
-        <nuxt-link :to="'/topics/node/' + node.nodeId">
+        <div @click="goToTag(node.nodeId)">
           <img v-if="node.logo" class="node-logo" :src="node.logo" />
           <img v-else class="node-logo" src="~/assets/images/node.png" />
           <span class="node-name">{{ node.name }}</span>
-        </nuxt-link>
+        </div>
       </li>
     </ul>
   </nav>
@@ -45,6 +45,12 @@ export default {
   computed: {
     currentNodeId() {
       return this.$store.state.env.currentNodeId
+    },
+  },
+  methods: {
+    goToTag(id) {
+      this.$store.commit('env/setCurrentTag', -1919810)
+      this.$linkTo('/topics/node/' + id)
     },
   },
 }
@@ -100,7 +106,7 @@ export default {
         background-color: hsla(0, 0%, 94.9%, 0.6);
       }
 
-      a {
+      div {
         text-decoration: none;
         cursor: pointer;
         color: var(--text-color3);

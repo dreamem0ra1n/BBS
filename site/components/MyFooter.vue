@@ -2,9 +2,9 @@
   <footer class="footer">
     <div class="container content">
       <div>
-        <nuxt-link to="/about">关于</nuxt-link>
         <nuxt-link to="/tags">标签</nuxt-link>
         <nuxt-link to="/links">友链</nuxt-link>
+        <span @click="BG" class="go-bg">一键BG</span>
       </div>
       <div>
         © 2022 Powered by
@@ -17,7 +17,32 @@
 </template>
 
 <script>
-export default {}
+export default {
+  methods: {
+    async BG() {
+      const me = this
+      try {
+        const topic = await this.$axios.post('/api/topic/create', {
+          type: 0,
+          nodeId: 11,
+          title: '我要BG',
+          content: '我要BG',
+          access_lv: 1,
+          tags: '7',
+          imageList: '',
+        })
+        this.$msg({
+          message: '提交成功',
+          onClose() {
+            me.$linkTo('/topic/' + topic.topicId)
+          },
+        })
+      } catch (e) {
+        this.$message.error(e.message || e)
+      }
+    },
+  },
+}
 </script>
 
 <style lang="scss" scoped>
@@ -35,6 +60,15 @@ export default {}
   .light {
     color: #eb5424; // TODO
     font-weight: bold;
+  }
+  .go-bg {
+    transition: all 0.3s;
+    cursor: pointer;
+    opacity: 0;
+    color: #eb5424;
+  }
+  .go-bg:hover {
+    opacity: 1;
   }
 }
 </style>

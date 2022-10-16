@@ -38,18 +38,6 @@
               />
             </el-form-item>
 
-            <el-form-item label="推荐标签">
-              <el-select
-                v-model="config.recommendTags"
-                style="width: 100%"
-                multiple
-                filterable
-                allow-create
-                default-first-option
-                placeholder="推荐标签"
-              />
-            </el-form-item>
-
             <el-form-item label="默认节点">
               <el-select
                 v-model="config.defaultNodeId"
