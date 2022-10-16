@@ -52,12 +52,16 @@ func BuildMessages(messages []model.Message) []model.MessageResponse {
 // getMessageDetailUrl 查看消息详情链接地址
 func getMessageDetailUrl(t *model.Message) string {
 	msgType := msg.Type(t.Type)
+	logrus.Info("debug: ", msgType)
 	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply {
 		entityType := gjson.Get(t.ExtraData, "entityType")
 		entityId := gjson.Get(t.ExtraData, "entityId")
+		logrus.Info("debug: ", entityId, entityType.String())
 		if entityType.String() == constants.EntityArticle {
 			return bbsurls.ArticleUrl(entityId.Int())
 		} else if entityType.String() == constants.EntityTopic {
+			return bbsurls.TopicUrl(entityId.Int())
+		} else if entityType.String() == constants.EntityComment {
 			return bbsurls.TopicUrl(entityId.Int())
 		}
 	} else if msgType == msg.TypeTopicLike ||
