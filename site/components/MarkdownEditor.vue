@@ -26,7 +26,6 @@ import githubTheme from '@kangc/v-md-editor/lib/theme/github.js'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
 // highlightjs
 import hljs from 'highlight.js'
-import compression from '../utils/compress'
 
 VMdEditor.use(githubTheme, {
   Hljs: hljs,

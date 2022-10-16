@@ -29,6 +29,14 @@
           <i class="iconfont icon-image" />
           <span>图片</span>
         </div>
+        <div
+          class="text-editor-action-item"
+          :class="{ active: false }"
+          @click="fileUpload"
+        >
+          <i class="iconfont icon-upload" />
+          <span>文件上传</span>
+        </div>
       </div>
       <div class="text-editor-btn">
         <span>Ctrl/⌘ + Enter</span>
@@ -37,6 +45,12 @@
         </button>
       </div>
     </div>
+    <input
+      ref="upload"
+      type="file"
+      @input="uploadFile"
+      :styles="{ display: 'none' }"
+    />
   </div>
 </template>
 
@@ -65,6 +79,37 @@ export default {
     }
   },
   methods: {
+    fileUpload() {
+      this.$refs.upload.dispatchEvent(new MouseEvent('click'))
+    },
+    uploadFile(e) {
+      const files = e.target.files
+      if (files.length <= 0) {
+        return
+      }
+      const file = files[0]
+      const fileName = file.name
+      const formData = new FormData()
+      formData.append('file', file)
+      const that = this
+      this.$axios
+        .post('/api/file/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then((ret) => {
+          that.post.content =
+            '<a href="' +
+            that.$store.state.env.currentURL +
+            '/api/file/download/' +
+            ret.fileId +
+            '" download="' +
+            fileName +
+            '">点击下载附件</a>'
+        })
+        .catch((err) => {
+          alert(err.message)
+        })
+    },
     doSubmit() {
       this.$emit('submit')
     },
@@ -167,6 +212,7 @@ export default {
     justify-content: space-between;
 
     .text-editor-actions {
+      display: flex;
       .text-editor-action-item {
         cursor: pointer;
         color: var(--text-color3);

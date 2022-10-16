@@ -39,7 +39,9 @@
           class="comment-content-wrapper"
         >
           <div v-if="comment.content" class="comment-content content">
-            <div v-html="comment.content.replace(/\n/gm, '<br>')"></div>
+            <div
+              v-html="HTMLDecode(comment.content.replace(/\n/gm, '<br>'))"
+            ></div>
           </div>
           <div
             v-if="comment.imageList && comment.imageList.length"
@@ -110,6 +112,7 @@
 </template>
 
 <script>
+import HTMLDecode from '../utils/HTMLDecode'
 export default {
   props: {
     commentId: {
@@ -140,6 +143,20 @@ export default {
     },
   },
   methods: {
+    HTMLDecode,
+    commentProcess(comment) {
+      comment = comment.replace(/\n/gm, '<br>')
+      let fileLink, fileId, fileName
+      console.log(comment)
+      fileLink = comment.match(/&lt;a&gt;(.+)&lt;a&gt;/)
+      if (fileLink) {
+        console.log(fileLink)
+        ;[fileId, fileName] = fileLink[1].split(',')
+        fileLink = comment = comment.replace(/<a>.+<a>/, fileLink)
+        console.log(comment)
+      }
+      return comment
+    },
     async loadMore() {
       const ret = await this.$axios.get('/api/comment/replies', {
         params: {

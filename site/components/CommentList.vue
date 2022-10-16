@@ -34,7 +34,7 @@
             <div
               v-if="comment.content"
               class="comment-content content"
-              v-html="comment.content.replace(/\n/gm, '<br>')"
+              v-html="HTMLDecode(comment.content.replace(/\n/gm, '<br>'))"
             ></div>
             <div
               v-if="comment.imageList && comment.imageList.length"
@@ -72,7 +72,7 @@
             v-if="reply.commentId === comment.commentId"
             class="comment-reply-form"
           >
-            <markdown-editor
+            <text-editor
               :ref="`editor${comment.commentId}`"
               v-model="reply.value"
               :height="100"
@@ -96,6 +96,7 @@
 </template>
 
 <script>
+import HTMLDecode from '../utils/HTMLDecode'
 import SubCommentList from './SubCommentList.vue'
 export default {
   components: { SubCommentList },
@@ -138,6 +139,7 @@ export default {
     },
   },
   methods: {
+    HTMLDecode,
     append(data) {
       if (data) {
         this.$refs.commentsLoadMore.unshiftResults(data)

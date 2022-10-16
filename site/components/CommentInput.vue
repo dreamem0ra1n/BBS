@@ -71,7 +71,7 @@ export default {
       // }
       // return this.mode
       // 强制text模式
-      return 'markdown'
+      return 'text'
     },
     contentType() {
       return this.inputMode === 'markdown' ? 'markdown' : 'text'
