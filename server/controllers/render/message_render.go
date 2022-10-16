@@ -61,6 +61,10 @@ func getMessageDetailUrl(t *model.Message) string {
 			return bbsurls.ArticleUrl(entityId.Int())
 		} else if entityType.String() == constants.EntityTopic {
 			return bbsurls.TopicUrl(entityId.Int())
+		} else if entityType.String() == constants.EntityComment {
+			topicId := gjson.Get(t.ExtraData, "topicId")
+			logrus.Info(t.ExtraData)
+			return bbsurls.TopicUrl(topicId.Int())
 		}
 	} else if msgType == msg.TypeTopicLike ||
 		msgType == msg.TypeTopicFavorite ||
