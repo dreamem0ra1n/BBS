@@ -131,7 +131,7 @@ export default {
     .selected-item {
       margin: 5px;
       padding: 0 25px;
-      background: #ffffff;
+      background: var(--bg-color);
       color: var(--text-color);
       line-height: 30px;
       border-radius: 20px;

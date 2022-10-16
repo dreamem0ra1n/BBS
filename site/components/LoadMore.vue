@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import TagBar from './TagBar.vue'
 export default {
   props: {
     // 请求URL
@@ -42,6 +41,12 @@ export default {
         }
       },
     },
+    method: {
+      type: String,
+      default() {
+        return 'GET'
+      },
+    },
   },
   data() {
     return {
@@ -60,13 +65,20 @@ export default {
   methods: {
     async loadMore() {
       this.loading = true
+      let ret
       try {
         const _params = Object.assign(this.params || {}, {
           cursor: this.cursor,
         })
-        const ret = await this.$axios.get(this.url, {
-          params: _params,
-        })
+        if (this.method === 'POST') {
+          ret = await this.$axios.post(this.url, {
+            params: _params,
+          })
+        } else {
+          ret = await this.$axios.get(this.url, {
+            params: _params,
+          })
+        }
         this.cursor = ret.cursor
         this.hasMore = ret.hasMore
         if (ret.results && ret.results.length) {

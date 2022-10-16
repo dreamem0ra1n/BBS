@@ -5,13 +5,15 @@
         <div class="main-content no-padding no-bg topics-wrapper">
           <div class="topics-nav"><topics-nav :nodes="nodes" /></div>
           <div class="topics-main">
-            <tag-bar></tag-bar>
+            <tag-bar :node-id="node.nodeId" />
             <sticky-topics :node-id="node.nodeId" />
             <load-more
               v-if="topicsPage"
               v-slot="{ results }"
               :init-data="topicsPage"
-              :url="'/api/topic/topics?nodeId=' + node.nodeId"
+              :url="'/api/topic/topicsnt'"
+              :params="{ nodeId: node.nodeId, tagId: tag.tagId }"
+              :method="'POST'"
             >
               <topic-list :topics="results" />
             </load-more>

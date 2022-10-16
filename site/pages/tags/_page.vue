@@ -16,9 +16,8 @@
                     class="tag is-normal"
                   >
                     <nuxt-link
-                      :to="'/articles/' + tag.tagId"
+                      :to="'/topic/' + tag.nodeId + '/' + tag.tagId"
                       :title="tag.tagName"
-                      target="_blank"
                       >{{ tag.tagName }}</nuxt-link
                     >
                   </span>

@@ -13,18 +13,20 @@
 </template>
 <script>
 export default {
+  props: {
+    nodeId: {
+      type: Number,
+      required: true,
+    },
+  },
   async mounted() {
-    const result = await this.$axios.get(
-      '/api/tag/list/' + this.$store.state.env.currentNodeId
-    )
+    const result = await this.$axios.get('/api/tag/list/' + this.nodeId)
     this.tags = result
-    this.nodeId = this.$store.state.env.currentNodeId
     this.currTag = this.$store.state.env.currentTag
   },
   data() {
     return {
       tags: [],
-      nodeId: 0,
     }
   },
   methods: {
