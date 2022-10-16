@@ -5,7 +5,6 @@ import (
 	"bbs-go/pkg/errs"
 	"bbs-go/pkg/markdown"
 	"bbs-go/spam"
-	"errors"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -323,9 +322,6 @@ func (c *TopicController) GetNewest() *web.JsonResult {
 
 func (c *TopicController) GetSticky_topics() *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)
-	if user == nil {
-		return web.JsonError(errors.New("no user logined"))
-	}
 	nodeId := params.FormValueInt64Default(c.Ctx, "nodeId", 0)
 	topics := services.TopicService.GetStickyTopics(nodeId, 3)
 	return web.JsonData(render.BuildSimpleTopics(topics, user))
