@@ -46,6 +46,11 @@ func (r *commentRepository) FindOne(db *gorm.DB, cnd *sqls.Cnd) *model.Comment {
 	return ret
 }
 
+func (r *commentRepository) FindBySql(db *gorm.DB, sqlStr string, paramArr ...interface{}) (list []model.Comment) {
+	db.Raw(sqlStr, paramArr...).Scan(&list)
+	return
+}
+
 func (r *commentRepository) FindPageByParams(db *gorm.DB, params *params.QueryParams) (list []model.Comment, paging *sqls.Paging) {
 	return r.FindPageByCnd(db, &params.Cnd)
 }

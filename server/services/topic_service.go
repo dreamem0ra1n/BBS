@@ -312,7 +312,9 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 		if topicsMap != nil {
 			for _, topicTag := range topicTags {
 				if topic, found := topicsMap[topicTag.TopicId]; found {
-					topics = append(topics, topic)
+					if topic.NodeId == nodeId {
+						topics = append(topics, topic)
+					}
 				}
 			}
 		}

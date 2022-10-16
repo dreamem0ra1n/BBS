@@ -5,7 +5,9 @@ import (
 	"bbs-go/model/constants"
 	"bbs-go/pkg/bbsurls"
 	"bbs-go/pkg/msg"
+	"bbs-go/repositories"
 
+	"github.com/mlogclub/simple/sqls"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
@@ -62,7 +64,15 @@ func getMessageDetailUrl(t *model.Message) string {
 		} else if entityType.String() == constants.EntityTopic {
 			return bbsurls.TopicUrl(entityId.Int())
 		} else if entityType.String() == constants.EntityComment {
-			return bbsurls.TopicUrl(entityId.Int())
+			commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
+				"SELECT * FROM t_comment WHERE id = ?",
+				entityId.Int(),
+			)
+			if commentResults == nil {
+				return bbsurls.AbsUrl("/user/messages")
+			} else {
+				return bbsurls.TopicUrl(commentResults[0].EntityId)
+			}
 		}
 	} else if msgType == msg.TypeTopicLike ||
 		msgType == msg.TypeTopicFavorite ||
@@ -74,3 +84,16 @@ func getMessageDetailUrl(t *model.Message) string {
 	}
 	return bbsurls.AbsUrl("/user/messages")
 }
+
+// func getFatherMsg(t *model.Comment) *model.Comment {
+// commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
+// 	"SELECT * FROM t_comment WHERE id = ?",
+// 	t.EntityId,
+// )
+// 	message := messagesResults[0]
+// 	if ftype == constants.EntityTopic {
+// 		return &message
+// 	} else {
+// 		return getFatherMsg(&message)
+// 	}
+// }

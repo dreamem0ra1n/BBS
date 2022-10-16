@@ -46,6 +46,11 @@ func (r *messageRepository) FindOne(db *gorm.DB, cnd *sqls.Cnd) *model.Message {
 	return ret
 }
 
+func (r *messageRepository) FindBySql(db *gorm.DB, sqlStr string, paramArr ...interface{}) (list []model.Message) {
+	db.Raw(sqlStr, paramArr...).Scan(&list)
+	return
+}
+
 func (r *messageRepository) FindPageByParams(db *gorm.DB, params *params.QueryParams) (list []model.Message, paging *sqls.Paging) {
 	return r.FindPageByCnd(db, &params.Cnd)
 }
