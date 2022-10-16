@@ -66,6 +66,7 @@ type UserProfile struct {
 }
 
 type TagResponse struct {
+	NodeId  int    `json:"nodeId"`
 	TagId   int64  `json:"tagId"`
 	TagName string `json:"tagName"`
 }

@@ -187,7 +187,7 @@ func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 	}
 
 	// 没有阅读权限并且不是主题的作者
-	if !user.CanAccessTopic(topic) && topic.UserId != user.Id {
+	if !model.UserCanAccessTopic(user, topic) && (user != nil && topic.UserId != user.Id) {
 		return web.JsonErrorMsg("无权限")
 	}
 

@@ -40,7 +40,7 @@ func (u *User) HasRole(role string) bool {
 
 // HasAnyRole 是否有指定的任意角色
 func (u *User) HasAnyRole(roles ...string) bool {
-	if len(roles) == 0 {
+	if u == nil || len(roles) == 0 {
 		return false
 	}
 	for _, role := range roles {
@@ -83,7 +83,7 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 
 // GetRoleByArg 查看对应的 Role
 func (u *User) GetRoleByArg(arg int64) (string, error) {
-	if len(u.Roles) == 0 {
+	if u == nil || len(u.Roles) == 0 {
 		return DefaultUser_NAME, nil
 	}
 	roles := strings.Split(u.Roles, ",")
@@ -122,7 +122,7 @@ func (u *User) GetUserAuthUnitByRole(role string) (*AuthUnit, error) {
 
 // GetUserAuthUnits 获取用户权限单元列表
 func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
-	if len(u.Roles) == 0 {
+	if u == nil || len(u.Roles) == 0 {
 		return nil, nil
 	}
 	roles := strings.Split(u.Roles, ",")
@@ -152,7 +152,10 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 }
 
 func (u *User) IsMasterUser() bool {
-	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil && val != -1 {
+	if u == nil {
+		return false
+	}
+	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil || val != -1 {
 		return false
 	}
 	logrus.Info("What a pity! *he is a 高管！")
@@ -210,9 +213,9 @@ func (t *Topic) GetTitle() string {
 	}
 }
 
-func (user *User) CanAccessTopic(topic *Topic) bool {
+func UserCanAccessTopic(user *User, topic *Topic) bool {
 	// 是站长就不需要做进一步的部门鉴权
-	if user.IsMasterUser() {
+	if user != nil && user.IsMasterUser() {
 		return true
 	}
 
