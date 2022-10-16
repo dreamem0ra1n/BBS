@@ -193,11 +193,11 @@ func getRoleFromLoginUserData(u LoginUser) string {
 
 	switch u.User.Qsc.Department {
 	case "产品研发中心": // 产研合并
-		return ret + strconv.Itoa(model.JiShuYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
+		return ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.JiShuYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
 	case "技术研发中心":
-		return ret + strconv.Itoa(model.JiShuYanFa_SECTION)
+		return ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.JiShuYanFa_SECTION)
 	case "产品运营部门":
-		return ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
+		return ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
 	case "推广策划中心":
 		return ret + strconv.Itoa(model.TuiGuangCeHua_SECTION)
 	case "新闻资讯中心":

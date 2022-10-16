@@ -55,7 +55,7 @@ func (u *User) HasAnyRole(roles ...string) bool {
 func (u *User) GetArgByRole(reqRole string) (int, error) {
 
 	if u == nil || len(u.Roles) == 0 {
-		return -1, nil
+		return -1, nil // -1
 	}
 	roles := strings.Split(u.Roles, ",")
 	for _, role := range roles {
@@ -152,7 +152,7 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 }
 
 func (u *User) IsMasterUser() bool {
-	if _, err := u.GetArgByRole(MasterUser_NAME); err != nil {
+	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil && val != -1 {
 		return false
 	}
 	logrus.Info("What a pity! *he is a 高管！")
