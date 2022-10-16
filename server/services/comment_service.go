@@ -101,6 +101,8 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 		CreateTime:  dates.NowTimestamp(),
 	}
 
+	logrus.Info("创建了这样一个评论：", comment)
+
 	if len(form.ImageList) > 0 {
 		imageListStr, err := jsons.ToStr(form.ImageList)
 		if err == nil {
