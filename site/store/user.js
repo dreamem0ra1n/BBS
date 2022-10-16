@@ -38,7 +38,7 @@ export const actions = {
       .then(async (res) => {
         try {
           const info = await fetch(
-            'https://qsc.zju.edu.cn/passport/v4/profile',
+            'https://www.qsc.zju.edu.cn/passport/v4/profile',
             {
               mode: 'cors',
               credentials: 'include',

@@ -127,7 +127,7 @@ export default {
     },
     changePassword() {
       window.location.href =
-        'https://www.qsc.zju.edu.cn/passport/v4/qsc/set_password'
+        'https://www.qsc.zju.edu.cn/passport/v4/qsc/set_password?success='+window.location.href 
     },
   },
 }
