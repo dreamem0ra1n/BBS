@@ -155,11 +155,7 @@ func (u *User) IsMasterUser() bool {
 	if u == nil {
 		return false
 	}
-	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil || val != -1 {
-		return false
-	}
-	logrus.Info("What a pity! *he is a 高管！")
-	return true
+	return u.HasAnyRole(MasterUser_NAME)
 }
 
 func (u *User) IsAdminUserOrHigher() bool {
