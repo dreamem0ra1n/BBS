@@ -101,7 +101,7 @@ export default {
             '<a href="' +
             that.$store.state.env.currentURL +
             '/api/file/download/' +
-            ret.fileId +
+            ret.file_id +
             '" download="' +
             fileName +
             '">点击下载附件</a>'
