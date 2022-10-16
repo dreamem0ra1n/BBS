@@ -28,7 +28,7 @@ export default {
           title: '我要BG',
           content: '我要BG',
           access_lv: 1,
-          tags: '7',
+          tags: '机惨现场',
           imageList: '',
         })
         this.$msg({
