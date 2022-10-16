@@ -64,11 +64,14 @@ func getMessageDetailUrl(t *model.Message) string {
 		} else if entityType.String() == constants.EntityTopic {
 			return bbsurls.TopicUrl(entityId.Int())
 		} else if entityType.String() == constants.EntityComment {
-			fa := getFatherMsg(t)
-			if fa == nil {
+			commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
+				"SELECT * FROM t_comment WHERE id = ?",
+				entityId,
+			)
+			if commentResults == nil {
 				return bbsurls.AbsUrl("/user/messages")
 			} else {
-				return getMessageDetailUrl(fa)
+				return bbsurls.TopicUrl(commentResults[0].EntityId)
 			}
 		}
 	} else if msgType == msg.TypeTopicLike ||
@@ -82,18 +85,15 @@ func getMessageDetailUrl(t *model.Message) string {
 	return bbsurls.AbsUrl("/user/messages")
 }
 
-func getFatherMsg(t *model.Message) *model.Message {
-	ftype := gjson.Get(t.ExtraData, "entityType").String()
-	fid := gjson.Get(t.ExtraData, "entityId").Int()
-	logrus.Info(ftype, fid)
-	messagesResults := repositories.MessageRepository.FindBySql(sqls.DB(),
-		"SELECT * FROM t_message WHERE id = ?",
-		fid,
-	)
-	message := messagesResults[0]
-	if ftype == constants.EntityTopic {
-		return &message
-	} else {
-		return getFatherMsg(&message)
-	}
-}
+// func getFatherMsg(t *model.Comment) *model.Comment {
+// commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
+// 	"SELECT * FROM t_comment WHERE id = ?",
+// 	t.EntityId,
+// )
+// 	message := messagesResults[0]
+// 	if ftype == constants.EntityTopic {
+// 		return &message
+// 	} else {
+// 		return getFatherMsg(&message)
+// 	}
+// }
