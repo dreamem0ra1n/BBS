@@ -213,7 +213,7 @@ func (t *Topic) GetTitle() string {
 	}
 }
 
-func (user *User) CanAccessTopic(topic *Topic) bool {
+func UserCanAccessTopic(user *User, topic *Topic) bool {
 	// 是站长就不需要做进一步的部门鉴权
 	if user != nil && user.IsMasterUser() {
 		return true

@@ -181,15 +181,13 @@ func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 
 	topic := services.TopicService.Get(topicId)
 	user := services.UserTokenService.GetCurrent(c.Ctx)
-	if user == nil {
-		return web.JsonErrorMsg("无权限")
-	}
+
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
 
 	// 没有阅读权限并且不是主题的作者
-	if !user.CanAccessTopic(topic) && topic.UserId != user.Id {
+	if !model.UserCanAccessTopic(user, topic) && topic.UserId != user.Id {
 		return web.JsonErrorMsg("无权限")
 	}
 

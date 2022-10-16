@@ -63,7 +63,7 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.StickyTime = topic.StickyTime
 
 	// 构建内容
-	if user.CanAccessTopic(topic) {
+	if model.UserCanAccessTopic(user, topic) {
 		if buildContent {
 			if topic.Type == constants.TopicTypeTopic {
 				content := markdown.ToHTML(topic.Content)
