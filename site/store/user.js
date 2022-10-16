@@ -36,21 +36,29 @@ export const actions = {
     this.$axios
       .post('/api/login/signin', { ref: null })
       .then(async (res) => {
-        const info = await fetch('https://qsc.zju.edu.cn/passport/v4/profile', {
-          mode: 'cors',
-          credentials: 'include',
-        })
-        res.user.position =
-          info.data.user.QscUser.department +
-          '-' +
-          info.data.user.QscUser.position
-        context.commit('setCurrent', res.user)
-        context.commit('setUserToken', res.token)
-        const config = context.rootState.config.config
-        this.$cookies.set('userToken', res.token, {
-          maxAge: 86400 * config.tokenExpireDays,
-          path: '/',
-        })
+        try {
+          const info = await fetch(
+            'https://www.qsc.zju.edu.cn/passport/v4/profile',
+            {
+              mode: 'cors',
+              credentials: 'include',
+            }
+          )
+          res.user.position =
+            info.data.user.QscUser.department +
+            '-' +
+            info.data.user.QscUser.position
+        } catch (e) {
+          console.log(e)
+        } finally {
+          context.commit('setCurrent', res.user)
+          context.commit('setUserToken', res.token)
+          const config = context.rootState.config.config
+          this.$cookies.set('userToken', res.token, {
+            maxAge: 86400 * config.tokenExpireDays,
+            path: '/',
+          })
+        }
       })
       .catch((e) => {
         console.log(e)
