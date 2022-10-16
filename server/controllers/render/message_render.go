@@ -66,7 +66,7 @@ func getMessageDetailUrl(t *model.Message) string {
 		} else if entityType.String() == constants.EntityComment {
 			commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
 				"SELECT * FROM t_comment WHERE id = ?",
-				entityId,
+				entityId.Int(),
 			)
 			if commentResults == nil {
 				return bbsurls.AbsUrl("/user/messages")
