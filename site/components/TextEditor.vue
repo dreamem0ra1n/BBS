@@ -46,7 +46,7 @@
       </div>
     </div>
     <input
-      ref="upload"
+      ref="upload2"
       type="file"
       @input="uploadFile"
       :styles="{ display: 'none' }"
@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     fileUpload() {
-      this.$refs.upload.dispatchEvent(new MouseEvent('click'))
+      this.$refs.upload2.dispatchEvent(new MouseEvent('click'))
     },
     uploadFile(e) {
       const files = e.target.files
