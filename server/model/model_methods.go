@@ -83,7 +83,7 @@ func (u *User) GetArgByRole(reqRole string) (int, error) {
 
 // GetRoleByArg 查看对应的 Role
 func (u *User) GetRoleByArg(arg int64) (string, error) {
-	if len(u.Roles) == 0 {
+	if u == nil || len(u.Roles) == 0 {
 		return DefaultUser_NAME, nil
 	}
 	roles := strings.Split(u.Roles, ",")
@@ -122,7 +122,7 @@ func (u *User) GetUserAuthUnitByRole(role string) (*AuthUnit, error) {
 
 // GetUserAuthUnits 获取用户权限单元列表
 func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
-	if len(u.Roles) == 0 {
+	if u == nil || len(u.Roles) == 0 {
 		return nil, nil
 	}
 	roles := strings.Split(u.Roles, ",")
@@ -152,10 +152,12 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 }
 
 func (u *User) IsMasterUser() bool {
+	if u == nil {
+		return false
+	}
 	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil || val != -1 {
 		return false
 	}
-	logrus.Info(u.Roles)
 	logrus.Info("What a pity! *he is a 高管！")
 	return true
 }
