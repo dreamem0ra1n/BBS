@@ -59,13 +59,13 @@
                 <i class="iconfont icon-favorites" />&nbsp;我的收藏
               </nuxt-link>
               <nuxt-link class="navbar-item" to="/user/profile">
-                <i class="iconfont icon-username" />&nbsp;编辑资料
+                <i class="iconfont icon-edit" />&nbsp;编辑资料
               </nuxt-link>
               <a class="navbar-item" @click="signout">
                 <i class="iconfont icon-log-out" />&nbsp;退出登录
               </a>
               <a class="navbar-item" @click="changePassword">
-                <i class="iconfont icon-log-out" />&nbsp;修改密码
+                <i class="iconfont icon-password" />&nbsp;修改密码
               </a>
             </div>
           </div>
@@ -127,7 +127,8 @@ export default {
     },
     changePassword() {
       window.location.href =
-        'https://www.qsc.zju.edu.cn/passport/v4/qsc/set_password?success='+window.location.href 
+        'https://www.qsc.zju.edu.cn/passport/v4/qsc/set_password?success=' +
+        window.location.href
     },
   },
 }
