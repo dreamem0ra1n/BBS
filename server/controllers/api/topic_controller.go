@@ -255,13 +255,16 @@ func (c *TopicController) GetTopics() *web.JsonResult {
 // 根据 nodeId 和 tag 获取帖子列表
 func (c *TopicController) PostTopicsnt() *web.JsonResult {
 	var (
-		cursor     = params.FormValueInt64Default(c.Ctx, "cursor", 0)
-		nodeId     = params.FormValueInt64Default(c.Ctx, "nodeId", 0)
-		tagId, err = params.FormValueInt64(c.Ctx, "tagId")
-		user       = services.UserTokenService.GetCurrent(c.Ctx)
+		cursor       = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+		nodeId, err1 = params.FormValueInt64(c.Ctx, "nodeId")
+		tagId, err2  = params.FormValueInt64(c.Ctx, "tagId")
+		user         = services.UserTokenService.GetCurrent(c.Ctx)
 	)
-	if err != nil {
-		return web.JsonError(err)
+	if err1 != nil {
+		return web.JsonError(err1)
+	}
+	if err2 != nil {
+		return web.JsonError(err2)
 	}
 	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor)
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)

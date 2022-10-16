@@ -298,6 +298,7 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 	limit := 20
 	topicTags := repositories.TopicTagRepository.Find(sqls.DB(), sqls.NewCnd().
 		Eq("tag_id", tagId).
+		Eq("node_id", nodeId).
 		Eq("status", constants.StatusOk).
 		Desc("last_comment_time").Limit(limit))
 	if len(topicTags) > 0 {
