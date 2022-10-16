@@ -21,9 +21,6 @@
           v-model="value"
           @submit="create"
         />
-        <button class="button is-success is-small new-create" @click="create">
-          发布
-        </button>
       </div>
     </div>
   </div>
@@ -203,10 +200,5 @@ export default {
       }
     }
   }
-}
-.new-create {
-  width: 70px;
-  margin-left: calc(50% - 35px);
-  margin-top: 10px;
 }
 </style>
