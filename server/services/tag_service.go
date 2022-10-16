@@ -82,7 +82,7 @@ func (s *tagService) Autocomplete(input string) []model.Tag {
 
 // 按照部门 id 获取 tags
 func (s *tagService) GetTagsList(sid int) []model.Tag {
-	return repositories.TagRepository.Find(sqls.DB(), sqls.NewCnd().Where("status = ? and section_id like ?",
+	return repositories.TagRepository.Find(sqls.DB(), sqls.NewCnd().Where("status = ? and section_id = ?",
 		constants.StatusOk, "%"+strconv.Itoa(sid)+"%").Limit(6))
 }
 
