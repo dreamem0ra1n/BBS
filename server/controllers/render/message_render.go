@@ -8,7 +8,6 @@ import (
 	"bbs-go/repositories"
 
 	"github.com/mlogclub/simple/sqls"
-	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
 
@@ -22,7 +21,7 @@ func BuildMessage(msg *model.Message) *model.MessageResponse {
 		from.Nickname = "系统通知"
 	}
 	detailUrl := getMessageDetailUrl(msg)
-	logrus.Info("get URL : ", detailUrl)
+	// logrus.Info("get URL : ", detailUrl)
 	resp := &model.MessageResponse{
 		MessageId:    msg.Id,
 		From:         from,
@@ -54,11 +53,11 @@ func BuildMessages(messages []model.Message) []model.MessageResponse {
 // getMessageDetailUrl 查看消息详情链接地址
 func getMessageDetailUrl(t *model.Message) string {
 	msgType := msg.Type(t.Type)
-	logrus.Info("debug: ", msgType)
+	// logrus.Info("debug: ", msgType)
 	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply {
 		entityType := gjson.Get(t.ExtraData, "entityType")
 		entityId := gjson.Get(t.ExtraData, "entityId")
-		logrus.Info("debug: ", entityId, entityType.String())
+		// logrus.Info("debug: ", entityId, entityType.String())
 		if entityType.String() == constants.EntityArticle {
 			return bbsurls.ArticleUrl(entityId.Int())
 		} else if entityType.String() == constants.EntityTopic {

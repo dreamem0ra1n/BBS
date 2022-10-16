@@ -43,33 +43,6 @@ type LoginController struct {
 	Ctx iris.Context
 }
 
-// No need to use
-// 注册
-// func (c *LoginController) PostSignup() *web.JsonResult {
-// 	var (
-// 		captchaId   = c.Ctx.PostValueTrim("captchaId")
-// 		captchaCode = c.Ctx.PostValueTrim("captchaCode")
-// 		email       = c.Ctx.PostValueTrim("email")
-// 		username    = c.Ctx.PostValueTrim("username")
-// 		password    = c.Ctx.PostValueTrim("password")
-// 		rePassword  = c.Ctx.PostValueTrim("rePassword")
-// 		nickname    = c.Ctx.PostValueTrim("nickname")
-// 		ref         = c.Ctx.FormValue("ref")
-// 	)
-// 	loginMethod := services.SysConfigService.GetLoginMethod()
-// 	if !loginMethod.Password {
-// 		return web.JsonErrorMsg("账号密码登录/注册已禁用")
-// 	}
-// 	if !captcha.VerifyString(captchaId, captchaCode) {
-// 		return web.JsonError(errs.CaptchaError)
-// 	}
-// 	user, err := services.UserService.SignUp(username, email, nickname, password, rePassword)
-// 	if err != nil {
-// 		return web.JsonError(err)
-// 	}
-// 	return render.BuildLoginSuccess(user, ref)
-// }
-
 // 用户名密码登录
 func (c *LoginController) PostSignin() *web.JsonResult {
 	successCookieVal := c.Ctx.GetCookie("SESSION_TOKEN")
@@ -117,7 +90,7 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		return web.JsonError(err)
 	}
 
-	logrus.Info("receive data from passport(string): ", bodyStr)
+	// logrus.Info("receive data from passport(string): ", bodyStr)
 	logrus.Info("receive data from passport(binding): ", resp.Data)
 
 	if resp.Data.User.LoginType != "qsc" {
