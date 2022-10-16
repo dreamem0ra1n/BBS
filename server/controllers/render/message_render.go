@@ -56,7 +56,7 @@ func getMessageDetailUrl(t *model.Message) string {
 	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply {
 		entityType := gjson.Get(t.ExtraData, "entityType")
 		entityId := gjson.Get(t.ExtraData, "entityId")
-		logrus.Info("debug: ", entityId)
+		logrus.Info("debug: ", entityId, entityType.String())
 		if entityType.String() == constants.EntityArticle {
 			return bbsurls.ArticleUrl(entityId.Int())
 		} else if entityType.String() == constants.EntityTopic {
