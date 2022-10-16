@@ -2,7 +2,7 @@
   <a
     v-if="user"
     class="avatar-a"
-    :href="(site+'/user/' + user.id) | siteUrl"
+    :href="('/user/' + user.id) | siteUrl"
     target="_blank"
     :class="[sizeClass]"
     :style="extraStyle"
@@ -54,7 +54,7 @@ export default {
   },
   data() {
     return {
-      site:"https://www.qsc.zju.edu.cn/bbs2",
+      // site:"https://www.qsc.zju.edu.cn/bbs2",
       loadError: false,
       sizes: {
         150: "font-size: 60px;line-height: 150px;border-radius: 2px",

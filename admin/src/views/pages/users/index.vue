@@ -39,6 +39,7 @@
             <div v-if="scope.row.roles && scope.row.roles.length">
               <div>
                 <span>角色：</span>
+                <p>{{ scope.row }}</p>
                 <el-tag
                   v-for="role in scope.row.roles"
                   :key="role"
@@ -176,8 +177,6 @@
           <div v-if="addRole">
             <el-cascader
               v-model="newRole"
-              :options="roleOptions"
-              @change="setNewRole"
             ></el-cascader>
             <el-button @click="() => addNewRole()">确认</el-button>
             <el-button @click="() => stopAddRole()">取消</el-button>
@@ -192,7 +191,16 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click.native="editFormVisible = false"> 取消 </el-button>
+        <el-button
+          @click.native="
+            () => {
+              stopAddRole();
+              editFormVisible = false;
+            }
+          "
+        >
+          取消
+        </el-button>
         <el-button :loading="editLoading" type="primary" @click.native="editSubmit">
           提交
         </el-button>
@@ -244,7 +252,6 @@ export default {
   components: { ScoreLog, Avatar },
   data() {
     return {
-      section: [],
       _section: [],
       roleOptions: [
         {
@@ -319,8 +326,6 @@ export default {
     mainHeight(this);
     const me = this;
     this.axios.form("/api/admin/topic-node/list").then((data) => {
-      me.section = data.results;
-      console.log(data.results);
       me._section = data.results
         .filter(
           (dep) => dep.name !== "通用" && dep.name !== "水版" && dep.id !== 0 && dep.id !== 11
@@ -350,18 +355,7 @@ export default {
         .form("/api/admin/user/list", params)
         .then((data) => {
           me.results = data.results;
-          me.results.forEach((user) => {
-            if (user.roles === "高管") user.section = null;
-            else {
-              user.sectionId = parseInt(user.roles[0].slice(-1));
-              console.log(me.section);
-              user.section = me.section.filter((item) => item.id === user.sectionId)[0];
-              if (user.section) user.section = user.section.name;
-              user.roles = user.roles.slice(0, 2);
-            }
-          });
           me.page = data.page;
-          console.log(me.results);
         })
         .finally(() => {
           me.listLoading = false;
@@ -486,9 +480,6 @@ export default {
     },
     cancelRole(editForm, role) {
       editForm.roles = editForm.roles.filter((item) => item !== role);
-    },
-    setNewRole(value) {
-      console.log(value);
     },
     addNewRole() {
       if (this.newRole[0] !== "高管" && this.newRole.length < 2) {
