@@ -152,7 +152,7 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 }
 
 func (u *User) IsMasterUser() bool {
-	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil && val != -1 {
+	if val, err := u.GetArgByRole(MasterUser_NAME); err != nil || val != -1 {
 		return false
 	}
 	logrus.Info("What a pity! *he is a 高管！")
