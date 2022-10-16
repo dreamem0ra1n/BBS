@@ -39,7 +39,6 @@
             <div v-if="scope.row.roles && scope.row.roles.length">
               <div>
                 <span>角色：</span>
-                <p>{{ scope.row }}</p>
                 <el-tag
                   v-for="role in scope.row.roles"
                   :key="role"
