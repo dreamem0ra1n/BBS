@@ -55,7 +55,7 @@ func (u *User) HasAnyRole(roles ...string) bool {
 func (u *User) GetArgByRole(reqRole string) (int, error) {
 
 	if u == nil || len(u.Roles) == 0 {
-		return -1, nil
+		return -1, errors.New("no roles")
 	}
 	roles := strings.Split(u.Roles, ",")
 	for _, role := range roles {
