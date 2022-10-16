@@ -40,7 +40,7 @@ func (u *User) HasRole(role string) bool {
 
 // HasAnyRole 是否有指定的任意角色
 func (u *User) HasAnyRole(roles ...string) bool {
-	if len(roles) == 0 {
+	if u == nil || len(roles) == 0 {
 		return false
 	}
 	for _, role := range roles {
@@ -215,7 +215,7 @@ func (t *Topic) GetTitle() string {
 
 func (user *User) CanAccessTopic(topic *Topic) bool {
 	// 是站长就不需要做进一步的部门鉴权
-	if user.IsMasterUser() {
+	if user != nil && user.IsMasterUser() {
 		return true
 	}
 
