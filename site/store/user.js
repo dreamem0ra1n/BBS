@@ -32,7 +32,6 @@ export const actions = {
   // 登录
 
   signin(context) {
-    console.log(context)
     this.$axios
       .post('/api/login/signin', { ref: null })
       .then(async (res) => {

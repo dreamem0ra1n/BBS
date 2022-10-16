@@ -1,8 +1,5 @@
 export default function HTMLDecode(text) {
   const reg = /<[^>]+>/g
-  if (reg.test(text)) {
-    return text
-  }
   try {
     let temp = document.createElement('div')
     temp.innerHTML = text
@@ -11,5 +8,6 @@ export default function HTMLDecode(text) {
     return output
   } catch (e) {
     console.log(e)
+    return text
   }
 }

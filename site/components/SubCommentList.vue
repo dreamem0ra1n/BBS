@@ -40,7 +40,7 @@
         >
           <div v-if="comment.content" class="comment-content content">
             <div
-              v-html="HTMLDecode(comment.content.replace(/\n/gm, '<br>'))"
+              v-html="HTMLDecode(comment.content).replace(/\n/gm, '<br>')"
             ></div>
           </div>
           <div

@@ -46,7 +46,7 @@
       </div>
     </div>
     <input
-      ref="upload"
+      ref="upload2"
       type="file"
       @input="uploadFile"
       :styles="{ display: 'none' }"
@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     fileUpload() {
-      this.$refs.upload.dispatchEvent(new MouseEvent('click'))
+      this.$refs.upload2.dispatchEvent(new MouseEvent('click'))
     },
     uploadFile(e) {
       const files = e.target.files
@@ -98,10 +98,11 @@ export default {
         })
         .then((ret) => {
           that.post.content =
+            that.post.content +
             '<a href="' +
             that.$store.state.env.currentURL +
             '/api/file/download/' +
-            ret.fileId +
+            ret.file_id +
             '" download="' +
             fileName +
             '">点击下载附件</a>'
