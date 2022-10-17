@@ -176,6 +176,7 @@
           <div v-if="addRole">
             <el-cascader
               v-model="newRole"
+              :options="roleOptions"
             ></el-cascader>
             <el-button @click="() => addNewRole()">确认</el-button>
             <el-button @click="() => stopAddRole()">取消</el-button>
