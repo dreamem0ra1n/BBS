@@ -94,7 +94,7 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	logrus.Info("receive data from passport(binding): ", resp.Data)
 
 	if resp.Data.User.LoginType != "qsc" {
-		logrus.Error("actually, he/she is not a qscer!")
+		logrus.Info("Can't login! Actually, he/she is not a qscer!")
 		return web.JsonError(errors.New("you are not qscer"))
 	}
 

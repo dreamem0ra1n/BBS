@@ -260,7 +260,7 @@ func (user *User) CanManageTopic(topic *Topic) bool {
 	}
 
 	// 检查权限单元
-	// 如果有部门以上的管理权限则能够推荐
+	// 如果有部门以上的管理权限则能够修改
 	if au.ManageLv >= 2 {
 		return true
 	}
