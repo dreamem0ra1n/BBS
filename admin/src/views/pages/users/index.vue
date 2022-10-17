@@ -488,7 +488,10 @@ export default {
       }
       let role = this.newRole[0];
       if (this.newRole.length == 2) role = role + "_" + this.newRole[1].toString();
+      if(this.editForm.roles)
       this.editForm.roles.push(role);
+      else
+      this.editForm.roles=Object.assign([role])
       this.editForm.roles = Array.from(new Set(this.editForm.roles)); // 去重
       this.stopAddRole();
     },
