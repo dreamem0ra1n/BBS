@@ -37,7 +37,7 @@ func (c *UserController) GetCurrent() *web.JsonResult {
 // 获取用户板块权限
 func (c *UserController) GetNode_authBy(nodeId int64) *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)
-	logrus.Info("query user")
+	logrus.Info("query user", user)
 	if user != nil {
 		role, err := user.GetRoleByArg(nodeId)
 		if err != nil {
@@ -50,6 +50,7 @@ func (c *UserController) GetNode_authBy(nodeId int64) *web.JsonResult {
 			logrus.Error("error happen when get node auth", err)
 			return web.JsonError(err)
 		}
+		logrus.Info("user auth", au)
 
 		return web.JsonData(au)
 	}
