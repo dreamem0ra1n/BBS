@@ -187,12 +187,12 @@ func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 	}
 
 	// 没有阅读权限并且不是主题的作者
-	if !model.UserCanAccessTopic(user, topic) && (user != nil && topic.UserId != user.Id) {
+	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
+		services.TopicService.IncrViewCount(topicId) // 增加浏览量
+		return web.JsonData(render.BuildTopic(user, topic))
+	} else {
 		return web.JsonErrorMsg("无权限")
 	}
-
-	services.TopicService.IncrViewCount(topicId) // 增加浏览量
-	return web.JsonData(render.BuildTopic(user, topic))
 }
 
 // 点赞
