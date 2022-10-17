@@ -176,6 +176,7 @@
           <div v-if="addRole">
             <el-cascader
               v-model="newRole"
+              :options="roleOptions"
             ></el-cascader>
             <el-button @click="() => addNewRole()">确认</el-button>
             <el-button @click="() => stopAddRole()">取消</el-button>
@@ -487,7 +488,10 @@ export default {
       }
       let role = this.newRole[0];
       if (this.newRole.length == 2) role = role + "_" + this.newRole[1].toString();
+      if(this.editForm.roles)
       this.editForm.roles.push(role);
+      else
+      this.editForm.roles=Object.assign([role])
       this.editForm.roles = Array.from(new Set(this.editForm.roles)); // 去重
       this.stopAddRole();
     },

@@ -8,7 +8,7 @@
             <nuxt-link :to="'/user/' + item.id">{{ item.nickname }}</nuxt-link>
           </div>
           <div class="description">
-            {{ item.description }}{{ item.description }}{{ item.description }}
+            {{ item.description }}
           </div>
         </div>
         <div>
