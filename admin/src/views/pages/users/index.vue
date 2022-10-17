@@ -328,7 +328,7 @@ export default {
     this.axios.form("/api/admin/topic-node/list").then((data) => {
       me._section = data.results
         .filter(
-          (dep) => dep.name !== "通用" && dep.name !== "水版" && dep.id !== 0 && dep.id !== 11
+          (dep) => dep.name !== "通用" && dep.id !== 0 
         )
         .map((dep) => {
           return {
