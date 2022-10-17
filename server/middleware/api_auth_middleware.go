@@ -6,7 +6,6 @@ import (
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/web"
-	"github.com/sirupsen/logrus"
 )
 
 // AdminAuth 后台权限
@@ -19,7 +18,7 @@ func AdminAuth(ctx iris.Context) {
 	}
 
 	if user.IsAdminUserOrHigher() {
-		logrus.Info("auth pass")
+		// logrus.Info("auth pass")
 		ctx.Next()
 		return
 	}

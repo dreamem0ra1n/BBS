@@ -253,7 +253,7 @@ func (s *userService) SignIn(username, password string) (*model.User, error) {
 	}
 	var user *model.User = nil
 	user = s.GetByUsername(username)
-	logrus.Info("user login: ", user)
+	logrus.Info("用户登录信息: ", user)
 
 	if user == nil {
 		return nil, errors.New("NO_SUCH_USER")

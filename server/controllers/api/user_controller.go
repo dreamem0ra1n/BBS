@@ -13,6 +13,7 @@ import (
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
+	"github.com/sirupsen/logrus"
 
 	"bbs-go/cache"
 	"bbs-go/controllers/render"
@@ -31,6 +32,29 @@ func (c *UserController) GetCurrent() *web.JsonResult {
 		return web.JsonData(render.BuildUserProfile(user))
 	}
 	return web.JsonSuccess()
+}
+
+// 获取用户板块权限
+func (c *UserController) GetNode_auth(nodeId int64) *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if user != nil {
+		role, err := user.GetRoleByArg(nodeId)
+		if err != nil {
+			logrus.Error("error happen when get node auth", err)
+			return web.JsonError(err)
+		}
+
+		au, err := model.GetAuthUnit(role, int(nodeId))
+		if err != nil {
+			logrus.Error("error happen when get node auth", err)
+			return web.JsonError(err)
+		}
+
+		return web.JsonData(au)
+	}
+
+	au := model.DefaultAuthUnit()
+	return web.JsonData(au)
 }
 
 // 用户详情
