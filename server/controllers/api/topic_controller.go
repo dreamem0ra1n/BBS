@@ -14,6 +14,7 @@ import (
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
+	"github.com/sirupsen/logrus"
 
 	"bbs-go/cache"
 	"bbs-go/controllers/render"
@@ -187,6 +188,8 @@ func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 	}
 
 	// 没有阅读权限并且不是主题的作者
+	logrus.Info("权限验证:", topic.Title, model.UserCanAccessTopic(user, topic), (user != nil && topic.UserId == user.Id))
+
 	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
 		services.TopicService.IncrViewCount(topicId) // 增加浏览量
 		return web.JsonData(render.BuildTopic(user, topic))
