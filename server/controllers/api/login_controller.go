@@ -106,6 +106,8 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registerUser(resp.Data)
+	} else if err == nil && user != nil {
+		err = updateUser(*user, resp.Data)
 	}
 	if err != nil {
 		return web.JsonError(err)
@@ -143,6 +145,24 @@ func registerUser(u LoginUser) (*model.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+// 从 passport 更新信息
+func updateUser(user model.User, upd LoginUser) error {
+	email := upd.User.ZjuId + "@zju.edu.cn"
+
+	user.Username = sqls.SqlNullString(upd.User.Qsc.QscId)
+	user.Nickname = upd.User.Qsc.QscId
+	user.Email = sqls.SqlNullString(email)
+	user.Password = passwd.EncodePassword(upd.User.ZjuId)
+	user.Roles = getRoleFromLoginUserData(upd)
+
+	err := repositories.UserRepository.Update(sqls.DB(), &user)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func getRoleFromLoginUserData(u LoginUser) string {
