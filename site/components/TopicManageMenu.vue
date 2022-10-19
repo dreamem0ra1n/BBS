@@ -7,7 +7,9 @@
       <el-dropdown-item v-if="hasPermission && value.type === 0" command="edit"
         >修改</el-dropdown-item
       >
-      <el-dropdown-item v-if="isAdmin" command="delete">删除</el-dropdown-item>
+      <el-dropdown-item v-if="canDelete" command="delete"
+        >删除</el-dropdown-item
+      >
       <el-dropdown-item v-if="isAdmin" command="recommend">{{
         value.recommend ? '取消推荐' : '推荐'
       }}</el-dropdown-item>
@@ -16,9 +18,6 @@
       }}</el-dropdown-item>
       <el-dropdown-item v-if="isAdmin" command="forbidden7Days"
         >禁言7天</el-dropdown-item
-      >
-      <el-dropdown-item v-if="isAdmin" command="forbiddenForever"
-        >永久禁言</el-dropdown-item
       >
     </el-dropdown-menu>
   </el-dropdown>
@@ -37,7 +36,15 @@ export default {
   data() {
     return {
       topic: this.value,
+      canDelete: false,
     }
+  },
+  mounted() {
+    this.$axios
+      .get('/api/user/node_auth/' + this.topic.node.nodeId)
+      .then((res) => {
+        if (res.manage_lv >= 2) this.canDelete = true
+      })
   },
   computed: {
     hasPermission() {
@@ -71,8 +78,6 @@ export default {
         this.switchSticky()
       } else if (command === 'forbidden7Days') {
         await this.forbidden(7)
-      } else if (command === 'forbiddenForever') {
-        await this.forbidden(-1)
       } else {
         console.log('click on item ' + command)
       }
