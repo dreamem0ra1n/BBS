@@ -63,6 +63,7 @@ export default {
   }
   .go-bg {
     transition: all 0.3s;
+    -webkit-transition: all 0.3s;
     cursor: pointer;
     opacity: 0;
     color: #eb5424;
