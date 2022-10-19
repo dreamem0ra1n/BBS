@@ -51,7 +51,7 @@ export default {
   box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
   color: var(--text-color);
   padding: 0 8px;
-
+  overflow-x: auto;
   .input {
     border: none;
     box-shadow: none;
