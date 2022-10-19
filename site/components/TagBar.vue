@@ -44,6 +44,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .select-tags {
+  width: 100%;
   display: flex;
   background-color: var(--bg-color);
   border: 1px solid var(--border-color2);

@@ -1,5 +1,5 @@
-@import "./topic-list";
-@import "./topic-detail";
+@import './topic-list';
+@import './topic-detail';
 
 .topics-wrapper {
   display: flex;
@@ -9,7 +9,7 @@
   }
 
   .topics-main {
-    width: 100%;
+    overflow-x: auto;
   }
 
   @media screen and (max-width: 768px) {
