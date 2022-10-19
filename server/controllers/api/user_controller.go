@@ -287,32 +287,35 @@ func (c *UserController) GetScoreRank() *web.JsonResult {
 
 // 禁言
 func (c *UserController) PostForbidden() *web.JsonResult {
-	user := services.UserTokenService.GetCurrent(c.Ctx)
-	if user == nil {
-		return web.JsonError(errs.NotLogin)
-	}
-	if !user.IsAdminUserOrHigher() {
-		return web.JsonErrorMsg("无权限")
-	}
-	var (
-		userId = params.FormValueInt64Default(c.Ctx, "userId", 0)
-		days   = params.FormValueIntDefault(c.Ctx, "days", 0)
-		reason = params.FormValue(c.Ctx, "reason")
-	)
-	if userId < 0 {
-		return web.JsonErrorMsg("请传入：userId")
-	}
-	if days == -1 && !user.IsMasterUser() {
-		return web.JsonErrorMsg("无永久禁言权限")
-	}
-	if days == 0 {
-		services.UserService.RemoveForbidden(user.Id, userId, c.Ctx.Request())
-	} else {
-		if err := services.UserService.Forbidden(user.Id, userId, days, reason, c.Ctx.Request()); err != nil {
-			return web.JsonError(err)
-		}
-	}
-	return web.JsonSuccess()
+
+	return web.JsonErrorMsg("不可用")
+
+	// user := services.UserTokenService.GetCurrent(c.Ctx)
+	// if user == nil {
+	// 	return web.JsonError(errs.NotLogin)
+	// }
+	// if !user.IsAdminUserOrHigher() {
+	// 	return web.JsonErrorMsg("无权限")
+	// }
+	// var (
+	// 	userId = params.FormValueInt64Default(c.Ctx, "userId", 0)
+	// 	days   = params.FormValueIntDefault(c.Ctx, "days", 0)
+	// 	reason = params.FormValue(c.Ctx, "reason")
+	// )
+	// if userId < 0 {
+	// 	return web.JsonErrorMsg("请传入：userId")
+	// }
+	// if days == -1 && !user.IsMasterUser() {
+	// 	return web.JsonErrorMsg("无永久禁言权限")
+	// }
+	// if days == 0 {
+	// 	services.UserService.RemoveForbidden(user.Id, userId, c.Ctx.Request())
+	// } else {
+	// 	if err := services.UserService.Forbidden(user.Id, userId, days, reason, c.Ctx.Request()); err != nil {
+	// 		return web.JsonError(err)
+	// 	}
+	// }
+	// return web.JsonSuccess()
 }
 
 // PostEmailVerify 请求邮箱验证邮件
