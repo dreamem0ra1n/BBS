@@ -176,22 +176,34 @@ input {
   .v-md-editor {
     box-shadow: none !important;
     border: 1px solid var(--border-color2);
-
+    background-color: var(--markdown-background);
+    textarea {
+      background-color: var(--markdown-background);
+      color: var(--markdown-text);
+    }
     .v-md-editor__toolbar {
-      background-color: var(--text-color5);
+      background-color: var(--markdown-background);
+      border: 1px solid var(--border-color2);
       padding: 3px;
 
       .v-md-editor__toolbar-item {
         font-size: 14px !important;
+        color: var(--markdown-text);
+        background-color: var(--markdown-background);
+      }
+      .v-md-editor__toolbar-divider:before {
+        border-left-color: var(--border-color2);
       }
     }
 
     .v-md-editor__editor-wrapper {
-      background-color: var(--text-color5) !important;
+      border: 1px solid var(--border-color2);
+      background-color: var(--markdown-background) !important;
     }
 
     .v-md-editor__preview-wrapper {
-      background-color: rgb(251, 251, 251) !important;
+      border: 1px solid var(--border-color2);
+      background-color: var(--markdown-background) !important;
     }
   }
 }

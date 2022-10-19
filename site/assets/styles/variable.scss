@@ -17,6 +17,8 @@ $navbar-box-shadow-color: var(--navbar-box-shadow-color);
 $title-color: var(--text);
 
 .light-mode {
+  --markdown-background: #fff;
+  --markdown-text: #2c3e50;
   --qsc-color: rgb(64, 158, 255);
   --scheme-main: $black;
   --scheme-main-bis: $black;
@@ -53,7 +55,7 @@ $title-color: var(--text);
   --color-red: #fa5151;
   --color-navbar-icon: #1878f3;
 
-  --tag-back-color:#fff;
+  --tag-back-color: #fff;
 
   .navbar-dropdown {
     background-color: #fff !important;
@@ -62,6 +64,8 @@ $title-color: var(--text);
 }
 
 .dark-mode {
+  --markdown-background: #272727;
+  --markdown-text: #fff;
   --qsc-color: rgb(64, 158, 255);
   --scheme-main: $white;
   --scheme-main-bis: $white;
@@ -99,7 +103,7 @@ $title-color: var(--text);
   --color-red: #fa5151;
   --color-navbar-icon: #e3e3e3;
 
-  --tag-back-color:#272727;
+  --tag-back-color: #272727;
 
   .navbar-dropdown {
     background-color: #3a3a3a !important;

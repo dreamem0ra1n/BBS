@@ -252,4 +252,26 @@ export default {
 input {
   display: none;
 }
+.topic-title {
+  border-color: var(--border-color2);
+}
+.el-select .el-input__inner,
+.el-popper,
+.el-zoom-in-top-leave-active,
+.el-zoom-in-top-leave-to {
+  background-color: var(--bg-color);
+  border-color: var(--border-color2);
+}
+.el-select-dropdown {
+  background-color: var(--bg-color);
+  border-color: var(--border-color2);
+}
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background-color: var(--bg-color3);
+}
+.el-select-dropdown__item {
+  background-color: var(--bg-color);
+  border-color: var(--border-color2);
+}
 </style>
