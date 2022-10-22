@@ -98,17 +98,13 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		return web.JsonError(errors.New("you are not qscer"))
 	}
 
-	username := resp.Data.User.Qsc.QscId
 	ZjuId := resp.Data.User.ZjuId
 	_ = resp.Data.User.LoginType
 
-	user, err := services.UserService.SignIn(username, ZjuId)
+	user, err := services.UserService.SignIn(ZjuId+"@zju.edu.cn", ZjuId)
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registerUser(resp.Data)
-	} else if err != nil && err.Error() == "密码错误" {
-		// Should update password.
-		err = updateUser(*user, resp.Data)
 	} else if err == nil && user != nil {
 		err = updateUser(*user, resp.Data)
 	}

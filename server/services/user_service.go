@@ -243,16 +243,16 @@ func (s *userService) SignUp(username, email, nickname, password, rePassword str
 }
 
 // SignIn 登录
-func (s *userService) SignIn(username, password string) (*model.User, error) {
+func (s *userService) SignIn(email, password string) (*model.User, error) {
 	// 按理来说这里不应该出错的
-	if len(username) == 0 {
-		return nil, errors.New("用户名为空 ")
+	if len(email) == 0 {
+		return nil, errors.New("邮箱为空 ")
 	}
 	if len(password) == 0 {
 		return nil, errors.New("密码为空")
 	}
 	var user *model.User = nil
-	user = s.GetByUsername(username)
+	user = s.GetByEmail(email)
 	logrus.Info("用户登录信息: ", user)
 
 	if user == nil {
