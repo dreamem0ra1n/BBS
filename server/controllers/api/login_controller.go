@@ -153,6 +153,7 @@ func updateUser(user model.User, upd LoginUser) error {
 
 	user.Username = sqls.SqlNullString(upd.User.Qsc.QscId)
 	user.Nickname = upd.User.Qsc.QscId
+	user.Password = upd.User.ZjuId
 	user.Email = sqls.SqlNullString(email)
 	user.Password = passwd.EncodePassword(upd.User.ZjuId)
 	user.Roles = getRoleFromLoginUserData(upd)
