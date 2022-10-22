@@ -44,6 +44,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .select-tags {
+  width: 100%;
   display: flex;
   background-color: var(--bg-color);
   border: 1px solid var(--border-color2);
@@ -51,7 +52,7 @@ export default {
   box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
   color: var(--text-color);
   padding: 0 8px;
-
+  overflow-x: auto;
   .input {
     border: none;
     box-shadow: none;

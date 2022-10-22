@@ -3,17 +3,32 @@
     <ul>
       <li :class="{ active: currentNodeId === 1 }">
         <nuxt-link to="/topics/node/1">
-          <span class="node-name">公告</span>
+          <span class="node-name"
+            ><img
+              class="node-logo nav-logo"
+              src="~/assets/images/icon/gonggao.svg"
+            />公告</span
+          >
         </nuxt-link>
       </li>
       <li :class="{ active: currentNodeId === 0 }">
         <nuxt-link to="/topics/node/newest">
-          <span class="node-name">最新</span>
+          <span class="node-name"
+            ><img
+              class="node-logo nav-logo"
+              src="~/assets/images/icon/zuixinnew3.svg"
+            />最新</span
+          >
         </nuxt-link>
       </li>
       <li :class="{ active: currentNodeId === -1 }">
         <nuxt-link to="/topics/node/recommend">
-          <span class="node-name">推荐</span>
+          <span class="node-name"
+            ><img
+              class="node-logo nav-logo"
+              src="~/assets/images/icon/tuijian.svg"
+            />推荐</span
+          >
         </nuxt-link>
       </li>
       <li class="dock-nav-divider"></li>
@@ -133,6 +148,16 @@ export default {
       height: 15px;
       border-bottom: 1px solid var(--border-color);
     }
+  }
+  .node-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    margin-right: 10px;
+    background-color: var(--bg-color);
+  }
+  .nav-logo {
+    margin-bottom: -5px;
   }
 }
 </style>
