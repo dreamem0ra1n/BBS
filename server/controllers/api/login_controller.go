@@ -106,12 +106,16 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registerUser(resp.Data)
+	} else if err != nil && err.Error() == "密码错误" {
+		// Should update password.
+		err = updateUser(*user, resp.Data)
 	} else if err == nil && user != nil {
 		err = updateUser(*user, resp.Data)
 	}
 	if err != nil {
 		return web.JsonError(err)
 	}
+
 	return render.BuildLoginSuccess(user, ref)
 }
 
