@@ -298,7 +298,7 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 	limit := 20
 
 	sqls.DB().
-		Raw("SELECT * FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
+		Raw("SELECT a.title AS title FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
 			nodeId,
 			tagId,
 			cursor).
