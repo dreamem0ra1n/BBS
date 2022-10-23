@@ -271,9 +271,9 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 		return web.JsonError(err2)
 	}
 	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor)
-	topicResp := render.BuildSimpleTopics(topics, user)
-	logrus.Info("QAQ")
-	return web.JsonCursorData(topicResp, strconv.FormatInt(cursor, 10), hasMore)
+	logrus.Info(len(topics), topics[0])
+	ret := web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
+	return ret
 }
 
 // 标签帖子列表
@@ -287,6 +287,7 @@ func (c *TopicController) GetTagTopics() *web.JsonResult {
 		return web.JsonError(err)
 	}
 	topics, cursor, hasMore := services.TopicService.GetTagTopics(tagId, cursor)
+	logrus.Info(len(topics), topics[0])
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
