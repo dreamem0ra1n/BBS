@@ -9,6 +9,7 @@ import (
 
 	"github.com/mlogclub/simple/common/arrays"
 	"github.com/mlogclub/simple/common/strs"
+	"github.com/sirupsen/logrus"
 )
 
 func BuildTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
@@ -35,9 +36,11 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 
 	var responses []model.TopicResponse
 	for _, topic := range topics {
+		logrus.Info(topic.Title, "Begin to render")
 		item := BuildSimpleTopic(currentUser, &topic)
 		item.Liked = arrays.Contains(topic.Id, likedTopicIds)
 		responses = append(responses, *item)
+		logrus.Info(topic.Title, "Finish render")
 	}
 	return responses
 }
