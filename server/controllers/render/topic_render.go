@@ -9,6 +9,7 @@ import (
 
 	"github.com/mlogclub/simple/common/arrays"
 	"github.com/mlogclub/simple/common/strs"
+	"github.com/sirupsen/logrus"
 )
 
 func BuildTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
@@ -35,6 +36,9 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 
 	var responses []model.TopicResponse
 	for _, topic := range topics {
+		if topic.Id == 42 {
+			continue
+		}
 		item := BuildSimpleTopic(currentUser, &topic)
 		item.Liked = arrays.Contains(topic.Id, likedTopicIds)
 		responses = append(responses, *item)
@@ -72,13 +76,15 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 				rsp.Content = html.EscapeString(topic.Content)
 			}
 		} else {
+			logrus.Info(rsp.Title, "Start")
 			rsp.Summary = markdown.GetSummary(topic.Content, 128)
+			logrus.Info(rsp.Title, "End")
 		}
 	} else {
 		if buildContent {
-			rsp.Content = "抱歉，您无权访问该帖子的内容！"
+			rsp.Content = " 🚫 抱歉，您无权访问该帖子的内容！"
 		} else {
-			rsp.Summary = "抱歉，您无权访问该帖子的内容！"
+			rsp.Title = " 🚫 抱歉，您无权访问该帖！"
 		}
 	}
 

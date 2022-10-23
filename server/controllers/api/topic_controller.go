@@ -270,7 +270,8 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 		return web.JsonError(err2)
 	}
 	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor)
-	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
+	ret := web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
+	return ret
 }
 
 // 标签帖子列表
