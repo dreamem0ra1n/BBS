@@ -300,7 +300,7 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 
 	if cursor > 0 {
 		sqls.DB().
-			Raw("SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
+			Raw("SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.status = 0 AND a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
 				nodeId,
 				tagId,
 				cursor).
@@ -309,7 +309,7 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 			Scan(&topics)
 	} else {
 		sqls.DB().
-			Raw("SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ?",
+			Raw("SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.status = 0 AND a.node_id = ? AND b.tag_id = ?",
 				nodeId,
 				tagId).
 			Order("last_comment_time DESC").

@@ -72,9 +72,7 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 				rsp.Content = html.EscapeString(topic.Content)
 			}
 		} else {
-			if topic.Id != 55 {
-				rsp.Summary = markdown.GetSummary(topic.Content, 128)
-			}
+			rsp.Summary = markdown.GetSummary(topic.Content, 128)
 		}
 	} else {
 		if buildContent {
