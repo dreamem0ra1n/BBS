@@ -300,6 +300,7 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 		Eq("tag_id", tagId).
 		Eq("status", constants.StatusOk).
 		Desc("last_comment_time").Limit(limit))
+	logrus.Info("I am here! finish search and begin to filter")
 	if len(topicTags) > 0 {
 		nextCursor = topicTags[len(topicTags)-1].LastCommentTime
 
