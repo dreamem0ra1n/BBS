@@ -36,12 +36,9 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 
 	var responses []model.TopicResponse
 	for _, topic := range topics {
-		logrus.Info(topic.Title, "Begin to render")
 		item := BuildSimpleTopic(currentUser, &topic)
-		logrus.Info(topic.Title, "Begin render like")
 		item.Liked = arrays.Contains(topic.Id, likedTopicIds)
 		responses = append(responses, *item)
-		logrus.Info(topic.Title, "Finish render")
 	}
 	return responses
 }
@@ -51,8 +48,6 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 		return nil
 	}
 	rsp := &model.TopicResponse{}
-
-	logrus.Info(topic.Title, "reander progress 1")
 
 	rsp.TopicId = topic.Id
 	rsp.Type = topic.Type
@@ -68,14 +63,15 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.Sticky = topic.Sticky
 	rsp.StickyTime = topic.StickyTime
 
-	logrus.Info(topic.Title, "reander progress 2")
-
 	// 构建内容
 	if model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId) {
 		if buildContent {
 			if topic.Type == constants.TopicTypeTopic {
+				logrus.Info("I start")
 				content := markdown.ToHTML(topic.Content)
+				logrus.Info("I Finish")
 				rsp.Content = handleHtmlContent(content)
+				logrus.Info("I Finish too")
 			} else {
 				rsp.Content = html.EscapeString(topic.Content)
 			}
@@ -102,8 +98,6 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 		node := services.TopicNodeService.Get(topic.NodeId)
 		rsp.Node = BuildNode(node)
 	}
-
-	logrus.Info(topic.Title, "reander progress 3")
 
 	tags := services.TopicService.GetTopicTags(topic.Id)
 	rsp.Tags = BuildTags(tags)
