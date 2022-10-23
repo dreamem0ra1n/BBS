@@ -74,6 +74,9 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 			}
 		} else {
 			logrus.Info(topic.Title, "start render")
+			if topic.Id == 42 {
+				logrus.Info(topic.Content)
+			}
 			rsp.Summary = markdown.GetSummary(topic.Content, 128)
 			logrus.Info(topic.Title, "finish render")
 		}
