@@ -38,6 +38,7 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 	for _, topic := range topics {
 		logrus.Info(topic.Title, "Begin to render")
 		item := BuildSimpleTopic(currentUser, &topic)
+		logrus.Info(topic.Title, "Begin render like")
 		item.Liked = arrays.Contains(topic.Id, likedTopicIds)
 		responses = append(responses, *item)
 		logrus.Info(topic.Title, "Finish render")
