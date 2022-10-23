@@ -207,13 +207,24 @@ func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content
 	}
 
 	err := sqls.DB().Transaction(func(tx *gorm.DB) error {
-		err := repositories.TopicRepository.Updates(sqls.DB(), topicId, map[string]interface{}{
-			"node_id":      nodeId,
-			"title":        title,
-			"content":      content,
-			"hide_content": hideContent,
-			// "access_lv":    accessLv,
-		})
+		var err error
+		if accessLv == -1 {
+			err = repositories.TopicRepository.Updates(sqls.DB(), topicId, map[string]interface{}{
+				"node_id":      nodeId,
+				"title":        title,
+				"content":      content,
+				"hide_content": hideContent,
+				// "access_lv":    accessLv,
+			})
+		} else {
+			err = repositories.TopicRepository.Updates(sqls.DB(), topicId, map[string]interface{}{
+				"node_id":      nodeId,
+				"title":        title,
+				"content":      content,
+				"hide_content": hideContent,
+				"access_lv":    accessLv,
+			})
+		}
 		if err != nil {
 			return err
 		}

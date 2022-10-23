@@ -5,6 +5,7 @@ import (
 	"bbs-go/pkg/errs"
 	"bbs-go/pkg/markdown"
 	"bbs-go/spam"
+	"errors"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -121,6 +122,9 @@ func (c *TopicController) PostEditBy(topicId int64) *web.JsonResult {
 		accessLv    = params.FormValueIntDefault(c.Ctx, "access_lv", -1)
 	)
 
+	if accessLv < -1 {
+		return web.JsonError(errors.New("invalid access level"))
+	}
 	err := services.TopicService.Edit(topicId, nodeId, tags, title, content, hideContent, accessLv)
 	if err != nil {
 		return web.JsonError(err)

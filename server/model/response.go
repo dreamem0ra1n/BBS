@@ -112,6 +112,7 @@ type TopicResponse struct {
 	User            *UserInfo           `json:"user"`
 	Node            *NodeResponse       `json:"node"`
 	Tags            *[]TagResponse      `json:"tags"`
+	AccessLv        int                 `json:"access_lv"`
 	Title           string              `json:"title"`
 	Summary         string              `json:"summary"`
 	Content         string              `json:"content"`

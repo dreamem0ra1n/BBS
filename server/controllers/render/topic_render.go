@@ -61,6 +61,7 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.RecommendTime = topic.RecommendTime
 	rsp.Sticky = topic.Sticky
 	rsp.StickyTime = topic.StickyTime
+	rsp.AccessLv = topic.AccessLv
 
 	// 构建内容
 	if model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId) {
