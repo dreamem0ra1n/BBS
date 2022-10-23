@@ -296,33 +296,22 @@ func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool) (topics [
 func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (topics []model.Topic, nextCursor int64, hasMore bool) {
 	topics = []model.Topic{}
 	limit := 20
-	topicTags := repositories.TopicTagRepository.Find(sqls.DB(), sqls.NewCnd().
-		Eq("tag_id", tagId).
-		Eq("status", constants.StatusOk).
-		Desc("last_comment_time").Limit(limit))
-	logrus.Info("I am here! finish search and begin to filter")
-	if len(topicTags) > 0 {
-		nextCursor = topicTags[len(topicTags)-1].LastCommentTime
 
-		var topicIds []int64
-		for _, topicTag := range topicTags {
-			topicIds = append(topicIds, topicTag.TopicId)
-		}
+	sqls.DB().
+		Raw("SELECT * FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
+			nodeId,
+			tagId,
+			cursor).
+		Order("last_comment_time DESC").
+		Limit(limit).
+		Scan(&topics)
 
-		topicsMap := s.GetTopicInIds(topicIds)
-		if topicsMap != nil {
-			for _, topicTag := range topicTags {
-				if topic, found := topicsMap[topicTag.TopicId]; found {
-					if topic.NodeId == nodeId {
-						topics = append(topics, topic)
-					}
-				}
-			}
-		}
+	if len(topics) > 0 {
+		nextCursor = topics[len(topics)-1].LastCommentTime
+		hasMore = len(topics) >= limit
 	} else {
 		nextCursor = cursor
 	}
-	hasMore = len(topicTags) >= limit
 	return
 }
 
