@@ -24,8 +24,10 @@ func (c *CommentController) GetComments() *web.JsonResult {
 		cursor     int64
 		entityType string
 		entityId   int64
+		ascOrder   bool
 	)
 	cursor = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+	ascOrder = !(params.FormValueIntDefault(c.Ctx, "asc_order", 0) == 0)
 
 	if entityType, err = params.FormValueRequired(c.Ctx, "entityType"); err != nil {
 		return web.JsonError(err)
@@ -34,7 +36,7 @@ func (c *CommentController) GetComments() *web.JsonResult {
 		return web.JsonError(err)
 	}
 	currentUser := services.UserTokenService.GetCurrent(c.Ctx)
-	comments, cursor, hasMore := services.CommentService.GetComments(entityType, entityId, cursor)
+	comments, cursor, hasMore := services.CommentService.GetComments(entityType, entityId, cursor, ascOrder)
 	return web.JsonCursorData(render.BuildComments(comments, currentUser, true, false), strconv.FormatInt(cursor, 10), hasMore)
 }
 

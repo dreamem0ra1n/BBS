@@ -192,7 +192,7 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 }
 
 // 更新
-func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content, hideContent string) *web.CodeError {
+func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content, hideContent string, accessLv int) *web.CodeError {
 	if len(title) == 0 {
 		return web.NewErrorMsg("标题不能为空")
 	}
@@ -212,6 +212,7 @@ func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content
 			"title":        title,
 			"content":      content,
 			"hide_content": hideContent,
+			"access_lv":    accessLv,
 		})
 		if err != nil {
 			return err
@@ -296,16 +297,25 @@ func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool) (topics [
 func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (topics []model.Topic, nextCursor int64, hasMore bool) {
 	topics = []model.Topic{}
 	limit := 20
-	cursor = 1666254286333
 
-	sqls.DB().
-		Raw("SELECT * FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
-			nodeId,
-			tagId,
-			cursor).
-		Order("last_comment_time DESC").
-		Limit(limit).
-		Scan(&topics)
+	if cursor > 0 {
+		sqls.DB().
+			Raw("SELECT * FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
+				nodeId,
+				tagId,
+				cursor).
+			Order("last_comment_time DESC").
+			Limit(limit).
+			Scan(&topics)
+	} else {
+		sqls.DB().
+			Raw("SELECT * FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.node_id = ? AND b.tag_id = ?",
+				nodeId,
+				tagId).
+			Order("last_comment_time DESC").
+			Limit(limit).
+			Scan(&topics)
+	}
 
 	logrus.Info(topics)
 

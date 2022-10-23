@@ -118,9 +118,10 @@ func (c *TopicController) PostEditBy(topicId int64) *web.JsonResult {
 		content     = strings.TrimSpace(params.FormValue(c.Ctx, "content"))
 		hideContent = strings.TrimSpace(params.FormValue(c.Ctx, "hideContent"))
 		tags        = params.FormValueStringArray(c.Ctx, "tags")
+		accessLv    = params.FormValueIntDefault(c.Ctx, "access_lv", 0)
 	)
 
-	err := services.TopicService.Edit(topicId, nodeId, tags, title, content, hideContent)
+	err := services.TopicService.Edit(topicId, nodeId, tags, title, content, hideContent, accessLv)
 	if err != nil {
 		return web.JsonError(err)
 	}
