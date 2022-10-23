@@ -52,6 +52,8 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	}
 	rsp := &model.TopicResponse{}
 
+	logrus.Info(topic.Title, "reander progress 1")
+
 	rsp.TopicId = topic.Id
 	rsp.Type = topic.Type
 	rsp.Title = topic.Title
@@ -65,6 +67,8 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.RecommendTime = topic.RecommendTime
 	rsp.Sticky = topic.Sticky
 	rsp.StickyTime = topic.StickyTime
+
+	logrus.Info(topic.Title, "reander progress 2")
 
 	// 构建内容
 	if model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId) {
@@ -98,6 +102,8 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 		node := services.TopicNodeService.Get(topic.NodeId)
 		rsp.Node = BuildNode(node)
 	}
+
+	logrus.Info(topic.Title, "reander progress 3")
 
 	tags := services.TopicService.GetTopicTags(topic.Id)
 	rsp.Tags = BuildTags(tags)
