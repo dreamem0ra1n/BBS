@@ -212,7 +212,7 @@ func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content
 			"title":        title,
 			"content":      content,
 			"hide_content": hideContent,
-			"access_lv":    accessLv,
+			// "access_lv":    accessLv,
 		})
 		if err != nil {
 			return err

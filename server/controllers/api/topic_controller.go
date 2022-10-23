@@ -118,7 +118,7 @@ func (c *TopicController) PostEditBy(topicId int64) *web.JsonResult {
 		content     = strings.TrimSpace(params.FormValue(c.Ctx, "content"))
 		hideContent = strings.TrimSpace(params.FormValue(c.Ctx, "hideContent"))
 		tags        = params.FormValueStringArray(c.Ctx, "tags")
-		accessLv    = params.FormValueIntDefault(c.Ctx, "access_lv", 0)
+		accessLv    = params.FormValueIntDefault(c.Ctx, "access_lv", -1)
 	)
 
 	err := services.TopicService.Edit(topicId, nodeId, tags, title, content, hideContent, accessLv)
@@ -186,9 +186,6 @@ func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
-
-	// 没有阅读权限并且不是主题的作者
-	// logrus.Info("权限验证:", topic.Title, model.UserCanAccessTopic(user, topic), (user != nil && topic.UserId == user.Id))
 
 	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
 		services.TopicService.IncrViewCount(topicId) // 增加浏览量
