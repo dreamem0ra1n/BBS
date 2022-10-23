@@ -3,9 +3,12 @@ package render
 import (
 	"bbs-go/model"
 	"bbs-go/model/constants"
+	"bbs-go/pkg/markdown"
 	"bbs-go/services"
+	"html"
 
 	"github.com/mlogclub/simple/common/arrays"
+	"github.com/mlogclub/simple/common/strs"
 )
 
 func BuildTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
@@ -60,8 +63,31 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.StickyTime = topic.StickyTime
 
 	// 构建内容
-	if !(model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId)) {
-		rsp.Title = "[ 🚫 权限不足 🚫 ]" + rsp.Title
+	if model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId) {
+		if buildContent {
+			if topic.Type == constants.TopicTypeTopic {
+				content := markdown.ToHTML(topic.Content)
+				rsp.Content = handleHtmlContent(content)
+			} else {
+				rsp.Content = html.EscapeString(topic.Content)
+			}
+		} else {
+			rsp.Summary = markdown.GetSummary(topic.Content, 10)
+		}
+	} else {
+		if buildContent {
+			rsp.Content = "抱歉，您无权访问该帖子的内容！"
+		} else {
+			rsp.Summary = "抱歉，您无权访问该帖子的内容！"
+		}
+	}
+
+	if topic.Type == constants.TopicTypeTweet {
+		if strs.IsBlank(topic.Content) {
+			rsp.Content = "分享图片"
+		} else {
+			rsp.Content = html.EscapeString(topic.Content)
+		}
 	}
 
 	if topic.NodeId > 0 {
