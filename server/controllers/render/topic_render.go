@@ -72,13 +72,13 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 				rsp.Content = html.EscapeString(topic.Content)
 			}
 		} else {
-			rsp.Summary = markdown.GetSummary(topic.Content, 10)
+			rsp.Summary = ""
 		}
 	} else {
 		if buildContent {
-			rsp.Content = "抱歉，您无权访问该帖子的内容！"
+			rsp.Content = " 🚫 抱歉，您无权访问该帖子的内容！"
 		} else {
-			rsp.Summary = "抱歉，您无权访问该帖子的内容！"
+			rsp.Title = " 🚫 抱歉，您无权访问该帖！"
 		}
 	}
 
