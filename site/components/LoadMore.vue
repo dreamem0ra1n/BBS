@@ -56,6 +56,13 @@ export default {
       loading: false, // 是否正在加载中
     }
   },
+  watch: {
+    initData(newValue) {
+      this.cursor = newValue.cursor
+      this.results = newValue.results
+      this.hasMore = newValue.hasMore
+    },
+  },
   computed: {
     // 是否禁言自动加载
     disabled() {

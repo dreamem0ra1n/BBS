@@ -5,7 +5,11 @@
       ref="commentsLoadMore"
       v-slot="{ results }"
       :init-data="commentsPage"
-      :params="{ entityType: entityType, entityId: entityId }"
+      :params="{
+        entityType: entityType,
+        entityId: entityId,
+        asc_order: ascOrder,
+      }"
       url="/api/comment/comments"
     >
       <div v-for="comment in results" :key="comment.commentId" class="comment">
@@ -116,6 +120,10 @@ export default {
       default() {
         return {}
       },
+    },
+    ascOrder: {
+      type: Number,
+      default: 1,
     },
   },
   data() {

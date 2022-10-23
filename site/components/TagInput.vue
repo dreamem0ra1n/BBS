@@ -16,8 +16,6 @@
 </template>
 
 <script>
-import { all } from 'q'
-
 export default {
   props: {
     nodeId: {
@@ -27,6 +25,10 @@ export default {
     setTags: {
       type: Function,
       default: (id) => {},
+    },
+    tags: {
+      type: Array,
+      default: () => [],
     },
   },
   async mounted() {
@@ -42,13 +44,14 @@ export default {
         })
       )
       this.allTag.push()
+      if (this.tags) this.selectIndex = this.tags.map((tag) => tag.tagId)
+      console.log(this.selectIndex)
     } catch (e) {
       console.log(e)
     }
   },
   data() {
     return {
-      tags: [],
       allTag: [],
       deps: [],
       maxTagCount: 1, // 最多可以选择的标签数量
@@ -62,7 +65,6 @@ export default {
   },
   watch: {
     nodeId() {
-      this.tags = []
       this.selectIndex = []
     },
   },
@@ -80,10 +82,11 @@ export default {
       if (!this.selectIndex.includes(index)) {
         this.addTag(index)
       } else this.removeTag(index)
-      this.$emit(
-        'setTag',
-        this.tags.map((tag) => tag.name)
-      )
+      const newTag = this.allTag[this.currentDepId]
+        .filter((tag) => this.selectIndex.includes(tag.id))
+        .map((tag) => tag.name)
+      console.log(newTag)
+      this.$emit('setTag', newTag)
     },
 
     /**
@@ -92,16 +95,10 @@ export default {
      */
     addTag(index) {
       this.selectIndex.push(index)
-      this.tags = this.allTag[this.currentDepId].filter(
-        (tag) => tag.id === index
-      )
     },
     removeTag(index) {
       this.selectIndex = this.selectIndex.filter((item) => {
         return item !== index
-      })
-      this.tags = this.tags.filter((tag) => {
-        return tag.id !== index
       })
     },
     tagClass(id) {

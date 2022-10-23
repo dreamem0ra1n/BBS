@@ -51,7 +51,11 @@
 
         <div class="field">
           <div class="control">
-            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
+            <tag-input
+              :nodeId="postForm.nodeId"
+              @setTag="setTag"
+              :tags="postForm.fullTags"
+            />
           </div>
         </div>
         <!--<div class="control">
@@ -64,6 +68,18 @@
             ></el-option>
           </el-select>
         </div>-->
+        <div class="field">
+          <div class="control">
+            <el-select v-model="postForm.access_lv" placeholder="请选择可见性">
+              <el-option
+                v-for="lv in levelArray"
+                :key="lv.level"
+                :value="lv.level"
+                :label="lv.description"
+              ></el-option>
+            </el-select>
+          </div>
+        </div>
       </div>
       <div class="field is-grouped">
         <div class="control">
@@ -85,16 +101,17 @@ export default {
   middleware: 'authenticated',
   async asyncData({ $axios, params }) {
     const [topic, nodes] = await Promise.all([
-      $axios.get('/api/topic/edit/' + params.id),
+      $axios.get('/api/topic/' + params.id),
       $axios.get('/api/topic/nodes'),
     ])
     return {
       topic,
       nodes,
       postForm: {
-        nodeId: topic.nodeId,
+        nodeId: topic.node.nodeId,
         title: topic.title,
-        tags: topic.tags,
+        tags: topic.tags.map((tag) => tag.tagName),
+        fullTags: topic.tags,
         content: topic.content,
         hideContent: topic.hideContent,
         access_lv: topic.access_lv,
@@ -104,12 +121,6 @@ export default {
   data() {
     return {
       publishing: false, // 当前是否正处于发布中...
-      postForm: {
-        nodeId: 0,
-        title: '',
-        tags: [],
-        content: '',
-      },
       levelArray: [
         {
           level: 1,
@@ -152,6 +163,7 @@ export default {
       me.publishing = true
 
       try {
+        console.log(this.postForm.tags)
         const topic = await this.$axios.post(
           '/api/topic/edit/' + this.topic.topicId,
           {
@@ -160,6 +172,7 @@ export default {
             content: this.postForm.content,
             hideContent: this.postForm.hideContent,
             tags: this.postForm.tags ? this.postForm.tags.join(',') : '',
+            access_lv: this.postForm.access_lv,
           }
         )
         this.$msg({

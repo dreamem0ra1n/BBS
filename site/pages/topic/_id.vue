@@ -171,8 +171,10 @@
               :comments-page="commentsPage"
               :comment-count="topic.commentCount"
               :mode="topic.type === 1 ? 'text' : 'markdown'"
+              :ascOrder="ascOrder"
               entity-type="topic"
               @created="commentCreated"
+              @reGain="reGain"
             />
           </div>
         </div>
@@ -216,6 +218,7 @@ export default {
         params: {
           entityType: 'topic',
           entityId: params.id,
+          asc_order: 1,
         },
       }),
       $axios.get('/api/topic/recentlikes/' + params.id),
@@ -226,11 +229,13 @@ export default {
       favorited: favorited.favorited,
       liked: liked.liked,
       likeUsers,
+      entityId: params.id,
     }
   },
   data() {
     return {
       hideContent: null,
+      ascOrder: 1,
     }
   },
   head() {
@@ -321,6 +326,21 @@ export default {
       } catch (e) {
         console.log(e)
       }
+    },
+    reGain(order) {
+      const me = this
+      this.ascOrder = order
+      this.$axios
+        .get('/api/comment/comments', {
+          params: {
+            entityType: 'topic',
+            entityId: this.entityId,
+            asc_order: order,
+          },
+        })
+        .then((res) => {
+          me.commentsPage = res
+        })
     },
   },
 }

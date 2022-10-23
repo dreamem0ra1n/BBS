@@ -3,18 +3,13 @@
     <div class="comment-header">
       <span v-if="commentCount > 0">{{ commentCount }}条评论</span>
       <span v-else>评论</span>
+      <span class="comment-order" @click="changeOrder">{{
+        ascOrder === 1 ? '正序' : '倒序'
+      }}</span>
     </div>
 
     <template v-if="isLogin">
-      <div v-if="isNeedEmailVerify" class="comment-not-login">
-        <div class="comment-login-div">
-          请先前往
-          <nuxt-link style="font-weight: 700" to="/user/profile/account"
-            >个人中心 &gt; 账号设置</nuxt-link
-          >页面设置邮箱，并完成邮箱认证。
-        </div>
-      </div>
-      <template v-else>
+      <template>
         <comment-input
           ref="input"
           :mode="mode"
@@ -37,11 +32,14 @@
       :entity-type="entityType"
       :comments-page="commentsPage"
       @reply="reply"
+      :ascOrder="ascOrder"
     />
   </div>
 </template>
 
 <script>
+import { throws } from 'assert'
+
 export default {
   props: {
     mode: {
@@ -68,6 +66,14 @@ export default {
       type: Number,
       default: 0,
     },
+    ascOrder: {
+      type: Number,
+      default: 1,
+    },
+    reGain: {
+      type: Function,
+      default: (order) => {},
+    },
   },
   computed: {
     isLogin() {
@@ -79,18 +85,11 @@ export default {
     config() {
       return this.$store.state.config.config
     },
-    // 是否需要先邮箱认证
-    isNeedEmailVerify() {
-      return (
-        this.config.createCommentEmailVerified &&
-        this.user &&
-        !this.user.emailVerified
-      )
-    },
   },
   methods: {
     commentCreated(data) {
-      this.$refs.list.append(data)
+      if (this.ascOrder === 1) this.$emit('reGain', 0)
+      else this.$refs.list.append(data)
       this.$emit('created')
     },
     reply(quote) {
@@ -98,6 +97,12 @@ export default {
     },
     toLogin() {
       this.$toSignin()
+    },
+    changeOrder() {
+      let order
+      if (this.ascOrder === 0) order = 1
+      else order = 0
+      this.$emit('reGain', order)
     },
   },
 }
@@ -107,7 +112,6 @@ export default {
   background-color: var(--bg-color);
   border-radius: 3px;
   .comment-header {
-    display: flex;
     padding-top: 20px;
     margin: 0 10px;
     color: var(--text-color);
@@ -135,6 +139,10 @@ export default {
         margin-right: 10px;
       }
     }
+  }
+  .comment-order {
+    float: right;
+    cursor: pointer;
   }
 }
 </style>
