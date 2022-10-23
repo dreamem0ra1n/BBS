@@ -306,6 +306,8 @@ func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (top
 		Limit(limit).
 		Scan(&topics)
 
+	logrus.Info(topics)
+
 	if len(topics) > 0 {
 		nextCursor = topics[len(topics)-1].LastCommentTime
 		hasMore = len(topics) >= limit
