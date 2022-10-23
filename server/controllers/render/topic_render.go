@@ -74,7 +74,7 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 			}
 		} else {
 			logrus.Info(topic.Title, "start render")
-			if topic.Id == 42 {
+			if topic.Title == "【新·八方水楼】嘿嘿嘿嘿 启滇鱼塘 嘿嘿嘿嘿 让我们重新修到两万层吧！" {
 				logrus.Info("HA?")
 			}
 			rsp.Summary = markdown.GetSummary(topic.Content, 128)
