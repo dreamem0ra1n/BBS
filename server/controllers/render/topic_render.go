@@ -74,7 +74,7 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 			}
 		} else {
 			logrus.Info(topic.Title, "start render")
-			logrus.Info(topic.Content)
+			logrus.Info(strs.Substr(topic.Content, 0, 50))
 			rsp.Summary = markdown.GetSummary(topic.Content, 128)
 			logrus.Info(topic.Title, "finish render")
 		}
