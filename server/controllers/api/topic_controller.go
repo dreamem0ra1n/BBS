@@ -253,6 +253,7 @@ func (c *TopicController) GetTopics() *web.JsonResult {
 		user         = services.UserTokenService.GetCurrent(c.Ctx)
 	)
 	topics, cursor, hasMore := services.TopicService.GetTopics(nodeId, cursor, recommend)
+	logrus.Info(len(topics), topics[0])
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
@@ -287,7 +288,6 @@ func (c *TopicController) GetTagTopics() *web.JsonResult {
 		return web.JsonError(err)
 	}
 	topics, cursor, hasMore := services.TopicService.GetTagTopics(tagId, cursor)
-	logrus.Info(len(topics), topics[0])
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
