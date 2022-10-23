@@ -35,9 +35,6 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 
 	var responses []model.TopicResponse
 	for _, topic := range topics {
-		if topic.Id == 42 {
-			continue
-		}
 		item := BuildSimpleTopic(currentUser, &topic)
 		item.Liked = arrays.Contains(topic.Id, likedTopicIds)
 		responses = append(responses, *item)
