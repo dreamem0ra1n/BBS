@@ -9,6 +9,7 @@ import (
 
 	"github.com/mlogclub/simple/common/arrays"
 	"github.com/mlogclub/simple/common/strs"
+	"github.com/sirupsen/logrus"
 )
 
 func BuildTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
@@ -72,7 +73,9 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 				rsp.Content = html.EscapeString(topic.Content)
 			}
 		} else {
+			logrus.Info(rsp.Title, "Start")
 			rsp.Summary = markdown.GetSummary(topic.Content, 128)
+			logrus.Info(rsp.Title, "End")
 		}
 	} else {
 		if buildContent {
