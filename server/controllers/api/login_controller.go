@@ -168,17 +168,21 @@ func updateUser(user model.User, upd LoginUser) error {
 
 func getRoleFromLoginUserData(u LoginUser) string {
 	var ret string
+	prefix := ""
 	switch u.User.Qsc.Position {
 	case "实习成员":
 		ret = model.InternUser_NAME
 	case "正式成员":
+		prefix = model.NormalUser_NAME + "_1," + model.NormalUser_NAME + "_11,"
 		ret = model.NormalUser_NAME
 	case "顾问", "高级成员":
+		prefix = model.SeniorUser_NAME + "_1," + model.SeniorUser_NAME + "_11,"
 		ret = model.SeniorUser_NAME
 	case "中管":
-		ret = "中管_1,中管_11," + model.AdminUser_NAME // 添加公告权限
+		prefix = model.AdminUser_NAME + "_1," + model.AdminUser_NAME + "_11,"
+		ret = model.AdminUser_NAME
 	case "高管":
-		return model.MasterUser_NAME // 添加公告权限
+		return model.MasterUser_NAME
 	default:
 		return ""
 	}
@@ -187,23 +191,23 @@ func getRoleFromLoginUserData(u LoginUser) string {
 
 	switch u.User.Qsc.Department {
 	case "产品研发中心": // 产研合并
-		return ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.JiShuYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
+		return prefix + ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.JiShuYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
 	case "技术研发中心":
-		return ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.JiShuYanFa_SECTION)
+		return prefix + ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.JiShuYanFa_SECTION)
 	case "产品运营部门":
-		return ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
+		return prefix + ret + strconv.Itoa(model.ChanPinYanFa_SECTION) + "," + ret + strconv.Itoa(model.ChanPinYunYing_SECTION)
 	case "推广策划中心":
-		return ret + strconv.Itoa(model.TuiGuangCeHua_SECTION)
+		return prefix + ret + strconv.Itoa(model.TuiGuangCeHua_SECTION)
 	case "新闻资讯中心":
-		return ret + strconv.Itoa(model.XinWenZiXun_SECTION)
+		return prefix + ret + strconv.Itoa(model.XinWenZiXun_SECTION)
 	case "设计与视觉中心":
-		return ret + strconv.Itoa(model.SheJiYuShiJue_SECTION)
+		return prefix + ret + strconv.Itoa(model.SheJiYuShiJue_SECTION)
 	case "人力资源部门":
-		return ret + strconv.Itoa(model.RenLiZiYuan_SECTION)
+		return prefix + ret + strconv.Itoa(model.RenLiZiYuan_SECTION)
 	case "摄影部":
-		return ret + strconv.Itoa(model.SheYing_SECTION)
+		return prefix + ret + strconv.Itoa(model.SheYing_SECTION)
 	case "视频":
-		return ret + strconv.Itoa(model.ShiPin_SECTION)
+		return prefix + ret + strconv.Itoa(model.ShiPin_SECTION)
 	default:
 		return ""
 	}
