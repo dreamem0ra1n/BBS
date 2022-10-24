@@ -54,7 +54,7 @@
             <tag-input
               :nodeId="postForm.nodeId"
               @setTag="setTag"
-              :tags="postForm.fullTags"
+              :tags="postForm.tags"
             />
           </div>
         </div>
@@ -101,17 +101,16 @@ export default {
   middleware: 'authenticated',
   async asyncData({ $axios, params }) {
     const [topic, nodes] = await Promise.all([
-      $axios.get('/api/topic/' + params.id),
+      $axios.get('/api/topic/edit/' + params.id),
       $axios.get('/api/topic/nodes'),
     ])
     return {
       topic,
       nodes,
       postForm: {
-        nodeId: topic.node.nodeId,
+        nodeId: topic.nodeId,
         title: topic.title,
-        tags: topic.tags.map((tag) => tag.tagName),
-        fullTags: topic.tags,
+        tags: topic.tags,
         content: topic.content,
         hideContent: topic.hideContent,
         access_lv: topic.access_lv,
@@ -161,7 +160,10 @@ export default {
         return
       }
       me.publishing = true
-
+      if (this.postForm.content.length > 5000) {
+        this.$message.error('字数超过5000上限')
+        return
+      }
       try {
         console.log(this.postForm.tags)
         const topic = await this.$axios.post(

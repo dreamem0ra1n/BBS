@@ -5,8 +5,8 @@
         <div
           v-for="(item, index) in allTag[currentDepId]"
           :key="item.id + index"
-          :class="tagClass(item.id)"
-          @click="selectTag(item.id)"
+          :class="tagClass(item.name)"
+          @click="selectTag(item.name)"
         >
           {{ item.name }}
         </div>
@@ -44,8 +44,7 @@ export default {
         })
       )
       this.allTag.push()
-      if (this.tags) this.selectIndex = this.tags.map((tag) => tag.tagId)
-      console.log(this.selectIndex)
+      if (this.tags) this.selectIndex = this.tags
     } catch (e) {
       console.log(e)
     }
@@ -54,12 +53,6 @@ export default {
     return {
       allTag: [],
       deps: [],
-      maxTagCount: 1, // 最多可以选择的标签数量
-      maxWordCount: 15, // 每个标签最大字数
-      showRecommendTags: false, // 是否显示推荐
-      inputTag: '',
-      presetTags: [],
-      autocompleteTags: [],
       selectIndex: [],
     }
   },
@@ -76,33 +69,30 @@ export default {
   methods: {
     /**
      * 手动点击选择标签
-     * @param index
+     * @param name
      */
-    selectTag(index) {
-      if (!this.selectIndex.includes(index)) {
-        this.addTag(index)
-      } else this.removeTag(index)
-      const newTag = this.allTag[this.currentDepId]
-        .filter((tag) => this.selectIndex.includes(tag.id))
-        .map((tag) => tag.name)
-      console.log(newTag)
-      this.$emit('setTag', newTag)
+    selectTag(name) {
+      if (!this.selectIndex.includes(name)) {
+        this.addTag(name)
+      } else this.removeTag(name)
+      console.log(this.selectIndex)
+      this.$emit('setTag', this.selectIndex)
     },
 
     /**
      * 添加标签
      * @param event
      */
-    addTag(index) {
-      this.selectIndex.push(index)
+    addTag(name) {
+      this.selectIndex.push(name)
     },
-    removeTag(index) {
+    removeTag(name) {
       this.selectIndex = this.selectIndex.filter((item) => {
-        return item !== index
+        return item !== name
       })
     },
-    tagClass(id) {
-      if (this.selectIndex.includes(id)) {
+    tagClass(name) {
+      if (this.selectIndex.includes(name)) {
         return 'selected-item'
       }
       return 'tag-item'

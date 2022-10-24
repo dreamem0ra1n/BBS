@@ -204,6 +204,10 @@ export default {
         this.$message.error('请选择标签')
         return
       }
+      if (this.postForm.content.length > 5000) {
+        this.$message.error('字数超过5000上限')
+        return
+      }
       this.publishing = true
 
       if (this.$refs.simpleEditor && this.$refs.simpleEditor.isOnUpload()) {
