@@ -171,7 +171,6 @@
               :comments-page="commentsPage"
               :comment-count="topic.commentCount"
               :mode="topic.type === 1 ? 'text' : 'markdown'"
-              :ascOrder="ascOrder"
               entity-type="topic"
               @created="commentCreated"
               @reGain="reGain"
@@ -235,7 +234,6 @@ export default {
   data() {
     return {
       hideContent: null,
-      ascOrder: 1,
     }
   },
   head() {
@@ -262,6 +260,9 @@ export default {
   computed: {
     user() {
       return this.$store.state.user.current
+    },
+    ascOrder() {
+      return this.$store.state.env.ascOrder
     },
   },
   mounted() {
@@ -329,7 +330,7 @@ export default {
     },
     reGain(order) {
       const me = this
-      this.ascOrder = order
+      this.$store.commit('env/setAscOrder', order)
       this.$axios
         .get('/api/comment/comments', {
           params: {

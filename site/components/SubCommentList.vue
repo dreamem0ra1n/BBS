@@ -147,13 +147,11 @@ export default {
     commentProcess(comment) {
       comment = comment.replace(/\n/gm, '<br>')
       let fileLink, fileId, fileName
-      console.log(comment)
       fileLink = comment.match(/&lt;a&gt;(.+)&lt;a&gt;/)
       if (fileLink) {
         console.log(fileLink)
         ;[fileId, fileName] = fileLink[1].split(',')
         fileLink = comment = comment.replace(/<a>.+<a>/, fileLink)
-        console.log(comment)
       }
       return comment
     },

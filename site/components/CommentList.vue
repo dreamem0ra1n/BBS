@@ -12,7 +12,11 @@
       }"
       url="/api/comment/comments"
     >
-      <div v-for="comment in results" :key="comment.commentId" class="comment">
+      <div
+        v-for="comment in results"
+        :key="comment.commentId + new Date().getMilliseconds() * 10"
+        class="comment"
+      >
         <div class="comment-item-left">
           <avatar :user="comment.user" size="40" round has-border />
         </div>
@@ -121,10 +125,6 @@ export default {
         return {}
       },
     },
-    ascOrder: {
-      type: Number,
-      default: 1,
-    },
   },
   data() {
     return {
@@ -144,6 +144,9 @@ export default {
     },
     isLogin() {
       return this.$store.state.user.current != null
+    },
+    ascOrder() {
+      return this.$store.state.env.ascOrder
     },
   },
   methods: {
