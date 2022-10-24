@@ -103,6 +103,10 @@ func (c *TopicController) PostEditBy(topicId int64) *web.JsonResult {
 		return web.JsonError(err)
 	}
 
+	if user.Nickname != "pacman" {
+		return web.JsonError(errors.New("Sorry! You can't use this now!"))
+	}
+
 	topic := services.TopicService.Get(topicId)
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("话题不存在或已被删除")
