@@ -12,11 +12,7 @@
       }"
       url="/api/comment/comments"
     >
-      <div
-        v-for="comment in results"
-        :key="comment.commentId + new Date().getMilliseconds() * 10"
-        class="comment"
-      >
+      <div v-for="comment in results" :key="comment.commentId" class="comment">
         <div class="comment-item-left">
           <avatar :user="comment.user" size="40" round has-border />
         </div>
@@ -96,6 +92,7 @@
             :comment-id="comment.commentId"
             :data="comment.replies"
             @reply="onReply(comment, $event)"
+            :key="getNewKey()"
           />
         </div>
       </div>
@@ -223,6 +220,9 @@ export default {
           results: [comment],
         }
       }
+    },
+    getNewKey() {
+      return new Date().toISOString()
     },
   },
 }

@@ -186,6 +186,7 @@
 </template>
 
 <script>
+import { Loading } from 'element-ui'
 import CommonHelper from '~/common/CommonHelper'
 export default {
   async asyncData({ $axios, params, error }) {
@@ -330,6 +331,10 @@ export default {
     },
     reGain(order) {
       const me = this
+      const load = Loading.service({
+        target: '.comment-component',
+        background: 'var(--bg-color) ',
+      })
       this.$store.commit('env/setAscOrder', order)
       this.$axios
         .get('/api/comment/comments', {
@@ -341,10 +346,19 @@ export default {
         })
         .then((res) => {
           me.commentsPage = res
+          load.close()
+        })
+        .catch((e) => {
+          console.log(e)
+          load.close()
         })
     },
   },
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.el-loading-mask {
+  background-color: var(--bg-color) !important;
+}
+</style>
