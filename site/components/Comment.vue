@@ -32,7 +32,6 @@
       :entity-type="entityType"
       :comments-page="commentsPage"
       @reply="reply"
-      :ascOrder="ascOrder"
     />
   </div>
 </template>
@@ -66,10 +65,6 @@ export default {
       type: Number,
       default: 0,
     },
-    ascOrder: {
-      type: Number,
-      default: 1,
-    },
     reGain: {
       type: Function,
       default: (order) => {},
@@ -84,6 +79,9 @@ export default {
     },
     config() {
       return this.$store.state.config.config
+    },
+    ascOrder() {
+      return this.$store.state.env.ascOrder
     },
   },
   methods: {

@@ -23,8 +23,8 @@
       </li>
       <li :class="{ active: currentNodeId === -1 }">
         <nuxt-link to="/topics/node/recommend">
-          <span class="node-name"
-            ><img
+          <span class="node-name">
+            <img
               class="node-logo nav-logo"
               src="~/assets/images/icon/tuijian.svg"
             />推荐</span
@@ -154,7 +154,6 @@ export default {
     height: 24px;
     border-radius: 4px;
     margin-right: 10px;
-    background-color: var(--bg-color);
   }
   .nav-logo {
     margin-bottom: -5px;

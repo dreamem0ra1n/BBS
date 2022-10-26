@@ -9,6 +9,7 @@ export const state = () => ({
   currentNodeId: 0,
   currentTag: -1919810,
   currentURL: 'https://www.qsc.zju.edu.cn/bbs2',
+  ascOrder: 1,
 })
 
 export const mutations = {
@@ -29,6 +30,9 @@ export const mutations = {
   },
   setDomain(state, path) {
     state.currentURL = path
+  },
+  setAscOrder(state, order) {
+    state.ascOrder = order
   },
 }
 
