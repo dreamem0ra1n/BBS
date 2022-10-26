@@ -32,6 +32,7 @@ export const actions = {
   // 登录
 
   signin(context) {
+    const me = this
     this.$axios
       .post('/api/login/signin', { ref: null })
       .then(async (res) => {
@@ -66,6 +67,9 @@ export const actions = {
       })
       .catch((e) => {
         console.log(e)
+        window.location.href =
+          'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+          me.state.env.currentURL
       })
   },
 
