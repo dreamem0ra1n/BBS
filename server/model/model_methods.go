@@ -209,6 +209,11 @@ func (t *Topic) GetTitle() string {
 }
 
 func UserCanAccessTopic(user *User, topic *Topic) bool {
+	// 没有用户
+	if user == nil {
+		return false
+	}
+
 	// 是站长就不需要做进一步的部门鉴权
 	if user != nil && user.IsMasterUser() {
 		return true
