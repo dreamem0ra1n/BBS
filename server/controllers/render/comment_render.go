@@ -35,7 +35,7 @@ func BuildComments(comments []model.Comment, currentUser *model.User, isBuildRep
 }
 
 func getLikedCommentIds(comments []model.Comment, currentUser *model.User) (likedCommentIds []int64) {
-	if currentUser == nil || len(comments) == 0 {
+	if currentUser == nil || len(comments) == 0 || comments[0].IsOldBBS {
 		return
 	}
 	var commentIds []int64
@@ -81,6 +81,12 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		} else {
 			ret.Content = "内容已删除"
 		}
+		if isBuildQuote && comment.QuoteId > 0 {
+			quote := doBuildComment(services.CommentService.Get(comment.QuoteId), currentUser, false, false)
+			if quote != nil {
+				ret.Quote = quote
+			}
+		}
 	} else {
 		ret.Content = comment.Content
 		var repliesLimit int64 = 3
@@ -95,13 +101,6 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 			Id:       -1,
 			Nickname: comment.Author,
 			Realname: comment.Author,
-		}
-	}
-
-	if isBuildQuote && comment.QuoteId > 0 {
-		quote := doBuildComment(services.CommentService.Get(comment.QuoteId), currentUser, false, false)
-		if quote != nil {
-			ret.Quote = quote
 		}
 	}
 

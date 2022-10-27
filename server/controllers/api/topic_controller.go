@@ -183,7 +183,8 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 }
 
 // 帖子详情
-func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
+// 旧BBS带前缀OLD
+func (c *TopicController) GetBy(topicIdStr string) *web.JsonResult {
 	topicId, isOld := parseIdStr(topicIdStr)
 	user := services.UserTokenService.GetCurrent(c.Ctx)
 	var topic *model.Topic

@@ -46,8 +46,8 @@ type oldComment struct {
 }
 
 type oldForum struct {
-	Id      string `gorm:"column:fid"`
-	SuperId string `gorm:"column:fup"`
+	Id      int64  `gorm:"column:fid"`
+	SuperId int64  `gorm:"column:fup"`
 	Name    string `gorm:"column:name"`
 }
 
@@ -88,6 +88,7 @@ func (r *oldBBSService) GetComments(TopicId int64, cursor int, limit int) (comme
 			UserId:       -1,
 			EntityType:   "topic",
 			EntityId:     TopicId,
+			Author:       post.Author,
 			Content:      post.Content,
 			CommentCount: cnt,
 			CreateTime:   post.Timestamp,
@@ -135,7 +136,7 @@ func (r *oldBBSService) getForumName(fid int64) string {
 	r.DB.Table("qsc_bbs_forum_forum").Where("fid = ?", fid).Take(&forum)
 	name = forum.Name
 
-	if forum.SuperId != "" {
+	for forum.SuperId != 0 {
 		r.DB.Table("qsc_bbs_forum_forum").Where("fid = ?", forum.SuperId).Take(&forum)
 		name = forum.Name + "-" + name
 	}

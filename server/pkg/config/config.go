@@ -34,9 +34,7 @@ type Config struct {
 
 	// 数据库配置
 	OldDB struct {
-		Url          string `yaml:"Url"`
-		MaxIdleConns int    `yaml:"MaxIdleConns"`
-		MaxOpenConns int    `yaml:"MaxOpenConns"`
+		Url string `yaml:"Url"`
 	} `yaml:"OldDB"`
 
 	// smtp

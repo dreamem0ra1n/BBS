@@ -51,7 +51,15 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.TopicId = topic.Id
 	rsp.Type = topic.Type
 	rsp.Title = topic.Title
-	rsp.User = BuildUserInfoDefaultIfNull(topic.UserId)
+	if !topic.IsOldBBS {
+		rsp.User = BuildUserInfoDefaultIfNull(topic.UserId)
+	} else {
+		rsp.User = &model.UserInfo{
+			Id:       -1,
+			Nickname: topic.Author,
+			Realname: topic.Author,
+		}
+	}
 	rsp.LastCommentTime = topic.LastCommentTime
 	rsp.CreateTime = topic.CreateTime
 	rsp.ViewCount = topic.ViewCount
@@ -102,9 +110,9 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	} else {
 		rsp.Content = topic.Content
 
-		if topic.NodeId > 0 {
-			node := services.TopicNodeService.Get(topic.NodeId)
-			rsp.Node = BuildNode(node)
+		rsp.Node = &model.NodeResponse{
+			NodeId: -1,
+			Name:   "旧BBS考古",
 		}
 		rsp.Tags = &[]model.TagResponse{{
 			TagId:   -1,
