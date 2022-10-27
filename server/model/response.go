@@ -127,6 +127,7 @@ type TopicResponse struct {
 	RecommendTime   int64               `json:"recommendTime"`
 	Sticky          bool                `json:"sticky"`
 	StickyTime      int64               `json:"stickyTime"`
+	IsOldBBS        bool                `gorm:"-" json:"isOldBBS" form:"-"`
 }
 
 // CommentResponse 评论返回数据
@@ -145,6 +146,7 @@ type CommentResponse struct {
 	Replies      *web.CursorResult `json:"replies"`
 	Status       int               `json:"status"`
 	CreateTime   int64             `json:"createTime"`
+	IsOldBBS     bool              `gorm:"-" json:"isOldBBS" form:"-"`
 }
 
 // 收藏返回数据

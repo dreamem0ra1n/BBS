@@ -57,7 +57,6 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 	imgList := strToImgList(comment.ImageList)
 	ret := &model.CommentResponse{
 		CommentId:    comment.Id,
-		User:         BuildUserInfoDefaultIfNull(comment.UserId),
 		EntityType:   comment.EntityType,
 		EntityId:     comment.EntityId,
 		QuoteId:      comment.QuoteId,
@@ -66,19 +65,44 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		Status:       comment.Status,
 		CreateTime:   comment.CreateTime,
 		ImageList:    imgList,
+		IsOldBBS:     comment.IsOldBBS,
 	}
-
-	if comment.Status == constants.StatusOk {
-		if comment.ContentType == constants.ContentTypeMarkdown {
-			content := markdown.ToHTML(comment.Content)
-			ret.Content = handleHtmlContent(content)
-		} else if comment.ContentType == constants.ContentTypeHtml {
-			ret.Content = handleHtmlContent(comment.Content)
+	if !comment.IsOldBBS {
+		ret.User = BuildUserInfoDefaultIfNull(comment.UserId)
+		if comment.Status == constants.StatusOk {
+			if comment.ContentType == constants.ContentTypeMarkdown {
+				content := markdown.ToHTML(comment.Content)
+				ret.Content = handleHtmlContent(content)
+			} else if comment.ContentType == constants.ContentTypeHtml {
+				ret.Content = handleHtmlContent(comment.Content)
+			} else {
+				ret.Content = html.EscapeString(comment.Content)
+			}
 		} else {
-			ret.Content = html.EscapeString(comment.Content)
+			ret.Content = "内容已删除"
 		}
 	} else {
-		ret.Content = "内容已删除"
+		ret.Content = comment.Content
+		var repliesLimit int64 = 3
+		replies, nextCursor, _ := services.OldBBSService.GetReplies(comment.Id, 0, int(repliesLimit))
+		replyResults := BuildComments(replies, currentUser, false, true)
+		ret.Replies = &web.CursorResult{
+			Results: replyResults,
+			Cursor:  strconv.FormatInt(int64(nextCursor), 10),
+			HasMore: comment.CommentCount > repliesLimit,
+		}
+		ret.User = &model.UserInfo{
+			Id:       -1,
+			Nickname: comment.Author,
+			Realname: comment.Author,
+		}
+	}
+
+	if isBuildQuote && comment.QuoteId > 0 {
+		quote := doBuildComment(services.CommentService.Get(comment.QuoteId), currentUser, false, false)
+		if quote != nil {
+			ret.Quote = quote
+		}
 	}
 
 	if isBuildReplies && comment.CommentCount > 0 {
@@ -93,13 +117,6 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 			Results: replyResults,
 			Cursor:  strconv.FormatInt(nextCursor, 10),
 			HasMore: comment.CommentCount > repliesLimit,
-		}
-	}
-
-	if isBuildQuote && comment.QuoteId > 0 {
-		quote := doBuildComment(services.CommentService.Get(comment.QuoteId), currentUser, false, false)
-		if quote != nil {
-			ret.Quote = quote
 		}
 	}
 

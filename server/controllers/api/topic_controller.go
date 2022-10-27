@@ -184,16 +184,22 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 
 // 帖子详情
 func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
-
-	topic := services.TopicService.Get(topicId)
+	topicId, isOld := parseIdStr(topicIdStr)
 	user := services.UserTokenService.GetCurrent(c.Ctx)
-
+	var topic *model.Topic
+	if !isOld {
+		topic = services.TopicService.Get(topicId)
+	} else {
+		topic = services.OldBBSService.GetTopic(topicId)
+	}
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
 
 	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
-		services.TopicService.IncrViewCount(topicId) // 增加浏览量
+		if !isOld {
+			services.TopicService.IncrViewCount(topicId) // 增加浏览量
+		}
 		return web.JsonData(render.BuildTopic(user, topic))
 	} else {
 		return web.JsonErrorMsg("无权限")

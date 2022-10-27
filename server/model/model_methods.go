@@ -209,6 +209,10 @@ func (t *Topic) GetTitle() string {
 }
 
 func UserCanAccessTopic(user *User, topic *Topic) bool {
+	if topic.IsOldBBS {
+		return true
+	}
+
 	// 没有用户
 	if user == nil {
 		return false

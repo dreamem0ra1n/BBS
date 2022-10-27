@@ -7,6 +7,7 @@ import (
 	"bbs-go/pkg/common"
 	"bbs-go/pkg/config"
 	"bbs-go/scheduler"
+	"bbs-go/services"
 	_ "bbs-go/services/eventhandler"
 	"flag"
 	"io"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/mlogclub/simple/sqls"
 	"github.com/sirupsen/logrus"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -49,8 +51,13 @@ func init() {
 		logrus.Error(err)
 	}
 
+	var err error
 	// 连接数据库
-	if err := sqls.Open(Conf.DB.Url, gormConf, Conf.DB.MaxIdleConns, Conf.DB.MaxOpenConns, model.Models...); err != nil {
+	if err = sqls.Open(conf.DB.Url, gormConf, conf.DB.MaxIdleConns, conf.DB.MaxOpenConns, model.Models...); err != nil {
+		logrus.Error(err)
+	}
+
+	if services.OldBBSService.DB, err = gorm.Open(mysql.Open(conf.OldDB.Url)); err != nil {
 		logrus.Error(err)
 	}
 }
