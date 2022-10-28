@@ -4,6 +4,7 @@
       v-for="comment in replies.results"
       :key="comment.commentId"
       class="comment"
+      @click="test(comment.commentId)"
     >
       <div class="comment-item-left">
         <avatar :user="comment.user" size="30" round has-border />
@@ -40,8 +41,15 @@
         >
           <div v-if="comment.content" class="comment-content content">
             <div
-              v-html="HTMLDecode(comment.content).replace(/\n/gm, '<br>')"
+              v-html="commentProcess(comment.content, comment.commentId)"
             ></div>
+            <a
+              v-for="(link, index) in download[comment.commentId]"
+              :key="'link' + index"
+              :href="link.href"
+              :download="link.download"
+              >点击下载附件</a
+            >
           </div>
           <div
             v-if="comment.imageList && comment.imageList.length"
@@ -128,6 +136,7 @@ export default {
     return {
       replies: this.data,
       showReplyCommentId: 0,
+      download: [],
       reply: {
         quoteId: 0,
         value: {
@@ -143,15 +152,30 @@ export default {
     },
   },
   methods: {
-    HTMLDecode,
-    commentProcess(comment) {
+    test(id) {
+      console.log(this.download[id])
+    },
+    commentProcess(comment, id) {
+      const me = this
       comment = comment.replace(/\n/gm, '<br>')
-      let fileLink, fileId, fileName
-      fileLink = comment.match(/&lt;a&gt;(.+)&lt;a&gt;/)
+      const fileLink = comment.match(/&lt;a(.+)&lt;\/a&gt;/)
       if (fileLink) {
-        console.log(fileLink)
-        ;[fileId, fileName] = fileLink[1].split(',')
-        fileLink = comment = comment.replace(/<a>.+<a>/, fileLink)
+        const links = []
+        const filePath = fileLink[1].match(/href=&#34;(.+)&#34; /)
+        const fileName = fileLink[1].match(/download=&#34;(.+)&#34;/)
+        try {
+          const temp = {}
+          temp.href = filePath[1]
+          temp.download = fileName[1]
+          temp.innerText = '点击下载附件'
+          links.push(temp)
+          // console.log(links)
+          comment = comment.replace(/&lt;a(.+)&lt;\/a&gt;/, '')
+        } catch (e) {
+          console.log(e)
+        }
+        console.log(links)
+        me.download[id] = links
       }
       return comment
     },
