@@ -51,7 +51,15 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.TopicId = topic.Id
 	rsp.Type = topic.Type
 	rsp.Title = topic.Title
-	rsp.User = BuildUserInfoDefaultIfNull(topic.UserId)
+	if !topic.IsOldBBS {
+		rsp.User = BuildUserInfoDefaultIfNull(topic.UserId)
+	} else {
+		rsp.User = &model.UserInfo{
+			Id:       -1,
+			Nickname: topic.Author,
+			Realname: topic.Author,
+		}
+	}
 	rsp.LastCommentTime = topic.LastCommentTime
 	rsp.CreateTime = topic.CreateTime
 	rsp.ViewCount = topic.ViewCount
@@ -64,40 +72,52 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.AccessLv = topic.AccessLv
 
 	// 构建内容
-	if model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId) {
-		if buildContent {
-			if topic.Type == constants.TopicTypeTopic {
-				content := markdown.ToHTML(topic.Content)
-				rsp.Content = handleHtmlContent(content)
+	if !topic.IsOldBBS {
+		if model.UserCanAccessTopic(user, topic) || (user != nil && user.Id == topic.UserId) {
+			if buildContent {
+				if topic.Type == constants.TopicTypeTopic {
+					content := markdown.ToHTML(topic.Content)
+					rsp.Content = handleHtmlContent(content)
+				} else {
+					rsp.Content = html.EscapeString(topic.Content)
+				}
+			} else {
+				rsp.Summary = markdown.GetSummary(topic.Content, 128)
+			}
+		} else {
+			if buildContent {
+				rsp.Content = " 🚫 抱歉，您无权访问该帖子的内容！"
+			} else {
+				rsp.Title = " 🚫 抱歉，您无权访问该帖！"
+			}
+		}
+
+		if topic.Type == constants.TopicTypeTweet {
+			if strs.IsBlank(topic.Content) {
+				rsp.Content = "分享图片"
 			} else {
 				rsp.Content = html.EscapeString(topic.Content)
 			}
-		} else {
-			rsp.Summary = markdown.GetSummary(topic.Content, 128)
 		}
+
+		if topic.NodeId > 0 {
+			node := services.TopicNodeService.Get(topic.NodeId)
+			rsp.Node = BuildNode(node)
+		}
+
+		tags := services.TopicService.GetTopicTags(topic.Id)
+		rsp.Tags = BuildTags(tags)
 	} else {
-		if buildContent {
-			rsp.Content = " 🚫 抱歉，您无权访问该帖子的内容！"
-		} else {
-			rsp.Title = " 🚫 抱歉，您无权访问该帖！"
+		rsp.Content = topic.Content
+
+		rsp.Node = &model.NodeResponse{
+			NodeId: -1,
+			Name:   "旧BBS考古",
 		}
+		rsp.Tags = &[]model.TagResponse{{
+			TagId:   -1,
+			TagName: topic.Forum,
+		}}
 	}
-
-	if topic.Type == constants.TopicTypeTweet {
-		if strs.IsBlank(topic.Content) {
-			rsp.Content = "分享图片"
-		} else {
-			rsp.Content = html.EscapeString(topic.Content)
-		}
-	}
-
-	if topic.NodeId > 0 {
-		node := services.TopicNodeService.Get(topic.NodeId)
-		rsp.Node = BuildNode(node)
-	}
-
-	tags := services.TopicService.GetTopicTags(topic.Id)
-	rsp.Tags = BuildTags(tags)
-
 	return rsp
 }

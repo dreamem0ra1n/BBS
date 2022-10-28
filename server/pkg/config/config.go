@@ -32,6 +32,11 @@ type Config struct {
 		MaxOpenConns int    `yaml:"MaxOpenConns"`
 	} `yaml:"DB"`
 
+	// 数据库配置
+	OldDB struct {
+		Url string `yaml:"Url"`
+	} `yaml:"OldDB"`
+
 	// smtp
 	Smtp struct {
 		Host     string `yaml:"Host"`
