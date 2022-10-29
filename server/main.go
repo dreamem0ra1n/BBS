@@ -53,11 +53,11 @@ func init() {
 
 	var err error
 	// 连接数据库
-	if err = sqls.Open(conf.DB.Url, gormConf, conf.DB.MaxIdleConns, conf.DB.MaxOpenConns, model.Models...); err != nil {
+	if err = sqls.Open(config.Instance.DB.Url, gormConf, config.Instance.DB.MaxIdleConns, config.Instance.DB.MaxOpenConns, model.Models...); err != nil {
 		logrus.Error(err)
 	}
 
-	if services.OldBBSService.DB, err = gorm.Open(mysql.Open(conf.OldDB.Url)); err != nil {
+	if services.OldBBSService.DB, err = gorm.Open(mysql.Open(config.Instance.OldDB.Url)); err != nil {
 		logrus.Error(err)
 	}
 }
