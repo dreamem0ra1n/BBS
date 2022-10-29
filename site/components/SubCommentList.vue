@@ -4,7 +4,6 @@
       v-for="comment in replies.results"
       :key="comment.commentId"
       class="comment"
-      @click="test(comment.commentId)"
     >
       <div class="comment-item-left">
         <avatar :user="comment.user" size="30" round has-border />
@@ -152,9 +151,6 @@ export default {
     },
   },
   methods: {
-    test(id) {
-      console.log(this.download[id])
-    },
     commentProcess(comment, id) {
       const me = this
       comment = comment.replace(/\n/gm, '<br>')

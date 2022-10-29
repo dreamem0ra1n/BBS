@@ -37,7 +37,7 @@
                   </div>
                 </div>
                 <div class="topic-header-right">
-                  <topic-manage-menu v-model="topic" />
+                  <topic-manage-menu v-model="topic" v-if="!isOld" />
                 </div>
               </div>
 
@@ -187,6 +187,7 @@
 
 <script>
 import { Loading } from 'element-ui'
+import XBBCODE from '~/utils/xbbcode'
 import CommonHelper from '~/common/CommonHelper'
 export default {
   async asyncData({ $axios, params, error }) {
@@ -223,6 +224,16 @@ export default {
       }),
       $axios.get('/api/topic/recentlikes/' + params.id),
     ])
+    if (topic.isOldBBS) {
+      topic.content = XBBCODE.process({
+        text: topic.content,
+      })
+      commentsPage.forEach((comment)=>{
+        comment.content=XBBCODE.process({
+        text: comment.content,
+      })
+      })
+    }
     return {
       topic,
       commentsPage,
@@ -259,6 +270,9 @@ export default {
     }
   },
   computed: {
+    isOld() {
+      return this.topic.isOldBBS
+    },
     user() {
       return this.$store.state.user.current
     },
@@ -270,6 +284,7 @@ export default {
     // 加载隐藏内容
     this.getHideContent()
     this.$store.commit('env/setCurrentTag', -1919810)
+    this.$store.commit('env/setAscOrder', 1)
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
     CommonHelper.initHighlight(this)
