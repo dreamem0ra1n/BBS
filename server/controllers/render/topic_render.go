@@ -51,6 +51,7 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	rsp.TopicId = topic.Id
 	rsp.Type = topic.Type
 	rsp.Title = topic.Title
+	rsp.IsOldBBS = topic.IsOldBBS
 	if !topic.IsOldBBS {
 		rsp.User = BuildUserInfoDefaultIfNull(topic.UserId)
 	} else {

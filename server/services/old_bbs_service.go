@@ -73,10 +73,15 @@ func (r *oldBBSService) GetTopic(id int64) *model.Topic {
 	return &topic
 }
 
-func (r *oldBBSService) GetComments(TopicId int64, cursor int, limit int) (comments []model.Comment, nextCursor int, hasMore bool) {
+func (r *oldBBSService) GetComments(_ string, TopicId int64, cursor int64, ascOrder bool) (comments []model.Comment, nextCursor int64, hasMore bool) {
+	limit := 20
 	posts := []oldPost{}
 	comments = []model.Comment{}
-	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", TopicId).Order("position").Where("first = 0").Limit(limit).Offset(cursor).Find(&posts).Error != nil {
+	optional_desc := ""
+	if !ascOrder {
+		optional_desc = " DESC"
+	}
+	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", TopicId).Order("position"+optional_desc).Where("first = 0").Limit(limit).Offset(int(cursor)).Find(&posts).Error != nil {
 		comments = nil
 		return
 	}
@@ -95,7 +100,7 @@ func (r *oldBBSService) GetComments(TopicId int64, cursor int, limit int) (comme
 			IsOldBBS:     true,
 		})
 	}
-	nextCursor = cursor + len(comments)
+	nextCursor = cursor + int64(len(comments))
 	hasMore = len(comments) == 0
 	return
 }
