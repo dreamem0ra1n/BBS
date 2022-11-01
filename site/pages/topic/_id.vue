@@ -123,7 +123,7 @@
               </div>
 
               <!-- 功能按钮 -->
-              <div class="topic-actions">
+              <div class="topic-actions" v-if="!isOld">
                 <div class="action disabled">
                   <i class="action-icon iconfont icon-read" />
                   <div class="action-text">
@@ -192,8 +192,12 @@ import CommonHelper from '~/common/CommonHelper'
 export default {
   async asyncData({ $axios, params, error }) {
     let topic
+    let liked = null
+    let favorited = null
+    let likeUsers
     try {
       topic = await $axios.get('/api/topic/' + params.id)
+      console.log(topic)
     } catch (e) {
       error({
         statusCode: 404,
@@ -201,44 +205,47 @@ export default {
       })
       return
     }
+    const commentsPage = await $axios.get('/api/comment/comments', {
+      params: {
+        entityType: 'topic',
+        entityId: params.id,
+        asc_order: 1,
+      },
+    })
+    console.log(commentsPage)
+    if (!topic.isOldBBS) {
+      ;[liked, favorited, likeUsers] = await Promise.all([
+        $axios.get('/api/like/liked', {
+          params: {
+            entityType: 'topic',
+            entityId: params.id,
+          },
+        }),
+        $axios.get('/api/favorite/favorited', {
+          params: {
+            entityType: 'topic',
+            entityId: params.id,
+          },
+        }),
 
-    const [liked, favorited, commentsPage, likeUsers] = await Promise.all([
-      $axios.get('/api/like/liked', {
-        params: {
-          entityType: 'topic',
-          entityId: params.id,
-        },
-      }),
-      $axios.get('/api/favorite/favorited', {
-        params: {
-          entityType: 'topic',
-          entityId: params.id,
-        },
-      }),
-      $axios.get('/api/comment/comments', {
-        params: {
-          entityType: 'topic',
-          entityId: params.id,
-          asc_order: 1,
-        },
-      }),
-      $axios.get('/api/topic/recentlikes/' + params.id),
-    ])
+        $axios.get('/api/topic/recentlikes/' + params.id),
+      ])
+    }
     if (topic.isOldBBS) {
       topic.content = XBBCODE.process({
         text: topic.content,
-      })
-      commentsPage.forEach((comment)=>{
-        comment.content=XBBCODE.process({
-        text: comment.content,
-      })
+      }).html
+      commentsPage.results.forEach((comment) => {
+        comment.content = XBBCODE.process({
+          text: comment.content,
+        }).html
       })
     }
     return {
       topic,
       commentsPage,
-      favorited: favorited.favorited,
-      liked: liked.liked,
+      favorited: favorited?.favorited,
+      liked: liked?.liked,
       likeUsers,
       entityId: params.id,
     }
@@ -287,6 +294,7 @@ export default {
     this.$store.commit('env/setAscOrder', 1)
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
+    console.log(this.topic.content)
     CommonHelper.initHighlight(this)
   },
   methods: {
@@ -294,6 +302,9 @@ export default {
       this.getHideContent()
     },
     async addFavorite(topicId) {
+      if (this.topic.isOldBBS) {
+        return
+      }
       try {
         if (this.favorited) {
           await this.$axios.get('/api/favorite/delete', {
@@ -315,6 +326,9 @@ export default {
       }
     },
     async like(topic) {
+      if (this.topic.isOldBBS) {
+        return
+      }
       try {
         if (this.liked) {
           return
