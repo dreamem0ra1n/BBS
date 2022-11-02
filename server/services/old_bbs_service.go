@@ -161,7 +161,7 @@ func (r *oldBBSService) GetTopicsByForum(fid int64, cursor int64) (topics []mode
 	posts := []oldPost{}
 	topics = []model.Topic{}
 
-	if r.DB.Table("qsc_bbs_forum_post").Where("fid = ?", fid).Order("datetime DESC").Where("first = 1").Limit(limit).Offset(int(cursor)).Find(&posts).Error != nil {
+	if r.DB.Table("qsc_bbs_forum_post").Where("fid = ?", fid).Order("dateline DESC").Where("first = 1").Limit(limit).Offset(int(cursor)).Find(&posts).Error != nil {
 		topics = nil
 		return
 	}
@@ -172,6 +172,7 @@ func (r *oldBBSService) GetTopicsByForum(fid int64, cursor int64) (topics []mode
 	hasMore = len(topics) == 0
 	return
 }
+
 func (r *oldBBSService) GetTopicsByKeyword(keyword string, page int, pagesize int) (topics []model.Topic, total int64) {
 	posts := []oldPost{}
 	topics = []model.Topic{}
@@ -180,7 +181,7 @@ func (r *oldBBSService) GetTopicsByKeyword(keyword string, page int, pagesize in
 	query := r.DB.Table("qsc_bbs_forum_post").Where("subject like ?", "%"+keyword+"%").Where("first = 1")
 	query.Count(&total)
 
-	if query.Order("datetime DESC").Limit(pagesize).Offset(offset).Find(&posts).Error != nil {
+	if query.Order("dateline DESC").Limit(pagesize).Offset(offset).Find(&posts).Error != nil {
 		topics = nil
 		return
 	}
