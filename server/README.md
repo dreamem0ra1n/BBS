@@ -83,3 +83,22 @@ data: {
 `[GET]` `/api/file/download/{file_id}`
 
 resp: file
+
+## OLD-BBS 兼容性修改
+
+### ID
+
+- topic.getById和comment.getById，id参数加上字符串前缀OLD表示旧BBS
+- 为了Json兼容性，返回的id字段仍然只是int64，不带OLD字符串前缀
+
+### Model修改
+- topic和comment都添加了`bool IsOldBBS`字段
+- 部分无关字段置为null或0（点赞、收藏等）
+  
+### new apis
+
+- `/search/oldbbs`
+  - param `page,keyword,limit`
+  - return same as `/search/topic`
+- `/topic/tag/topics`
+  - add param: `isOld=true, tagId=forumId`

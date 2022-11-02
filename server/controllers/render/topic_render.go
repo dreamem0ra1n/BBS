@@ -24,8 +24,8 @@ func BuildSimpleTopics(topics []model.Topic, currentUser *model.User) []model.To
 	if len(topics) == 0 {
 		return nil
 	}
-	var likedTopicIds []int64
-	if currentUser != nil {
+	var likedTopicIds []int64 = []int64{}
+	if currentUser != nil && !topics[0].IsOldBBS {
 		var topicIds []int64
 		for _, topic := range topics {
 			topicIds = append(topicIds, topic.Id)

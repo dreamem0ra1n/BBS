@@ -6,6 +6,7 @@ import (
 	"bbs-go/pkg/markdown"
 	"bbs-go/spam"
 	"errors"
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -285,14 +286,23 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 // 标签帖子列表
 func (c *TopicController) GetTagTopics() *web.JsonResult {
 	var (
-		cursor     = params.FormValueInt64Default(c.Ctx, "cursor", 0)
-		tagId, err = params.FormValueInt64(c.Ctx, "tagId")
-		user       = services.UserTokenService.GetCurrent(c.Ctx)
+		cursor   = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+		tagIdStr = params.FormValue(c.Ctx, "tagId")
+		user     = services.UserTokenService.GetCurrent(c.Ctx)
 	)
-	if err != nil {
-		return web.JsonError(err)
+	tagId, isOld := parseIdStr(tagIdStr)
+	if tagId == -1 {
+		return web.JsonError(fmt.Errorf("bad tag id"))
 	}
-	topics, cursor, hasMore := services.TopicService.GetTagTopics(tagId, cursor)
+	var (
+		topics  []model.Topic
+		hasMore bool
+	)
+	if !isOld {
+		topics, cursor, hasMore = services.TopicService.GetTagTopics(tagId, cursor)
+	} else {
+		topics, cursor, hasMore = services.OldBBSService.GetTopicsByForum(tagId, cursor)
+	}
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
