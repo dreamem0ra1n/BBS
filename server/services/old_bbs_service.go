@@ -51,16 +51,12 @@ type oldForum struct {
 	Name    string `gorm:"column:name"`
 }
 
-func (r *oldBBSService) GetTopic(id int64) *model.Topic {
-	post := oldPost{}
-	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Take(&post).Error != nil {
-		return nil
-	}
+func (r *oldBBSService) post2topic(post oldPost) model.Topic {
 	var cnt int64
-	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Count(&cnt)
-	topic := model.Topic{
+	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", post.PostId).Where("first = 1").Count(&cnt)
+	return model.Topic{
 		IsOldBBS:     true,
-		Model:        model.Model{Id: id},
+		Model:        model.Model{Id: post.PostId},
 		Title:        post.Title,
 		UserId:       -1,
 		Author:       post.Author,
@@ -70,6 +66,16 @@ func (r *oldBBSService) GetTopic(id int64) *model.Topic {
 		CreateTime:   post.Timestamp,
 		Forum:        r.getForumName(post.ForumId),
 	}
+}
+
+func (r *oldBBSService) GetTopic(id int64) *model.Topic {
+	post := oldPost{}
+	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Take(&post).Error != nil {
+		return nil
+	}
+	var cnt int64
+	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Count(&cnt)
+	topic := r.post2topic(post)
 	return &topic
 }
 
@@ -148,4 +154,39 @@ func (r *oldBBSService) getForumName(fid int64) string {
 
 	r.forum_name_map[fid] = name
 	return name
+}
+
+func (r *oldBBSService) GetTopicsByForum(fid int64, cursor int64) (topics []model.Topic, nextCursor int64, hasMore bool) {
+	limit := 20
+	posts := []oldPost{}
+	topics = []model.Topic{}
+
+	if r.DB.Table("qsc_bbs_forum_post").Where("fid = ?", fid).Order("dateline DESC").Where("first = 1").Limit(limit).Offset(int(cursor)).Find(&posts).Error != nil {
+		topics = nil
+		return
+	}
+	for _, post := range posts {
+		topics = append(topics, r.post2topic(post))
+	}
+	nextCursor = cursor + int64(len(topics))
+	hasMore = len(topics) == 0
+	return
+}
+
+func (r *oldBBSService) GetTopicsByKeyword(keyword string, page int, pagesize int) (topics []model.Topic, total int64) {
+	posts := []oldPost{}
+	topics = []model.Topic{}
+	offset := (page - 1) * pagesize
+
+	query := r.DB.Table("qsc_bbs_forum_post").Where("subject like ?", "%"+keyword+"%").Where("first = 1")
+	query.Count(&total)
+
+	if query.Order("dateline DESC").Limit(pagesize).Offset(offset).Find(&posts).Error != nil {
+		topics = nil
+		return
+	}
+	for _, post := range posts {
+		topics = append(topics, r.post2topic(post))
+	}
+	return
 }
