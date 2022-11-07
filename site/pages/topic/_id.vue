@@ -190,7 +190,7 @@ import { Loading } from 'element-ui'
 import XBBCODE from '~/utils/xbbcode'
 import CommonHelper from '~/common/CommonHelper'
 export default {
-  async asyncData({ $axios, params, error }) {
+  async asyncData({ $axios, params, error, store }) {
     let topic
     let liked = null
     let favorited = null
@@ -209,10 +209,9 @@ export default {
       params: {
         entityType: 'topic',
         entityId: params.id,
-        asc_order: 1,
+        asc_order: store.state.env.ascOrder,
       },
     })
-    console.log(commentsPage)
     if (!topic.isOldBBS) {
       ;[liked, favorited, likeUsers] = await Promise.all([
         $axios.get('/api/like/liked', {
@@ -291,7 +290,7 @@ export default {
     // 加载隐藏内容
     this.getHideContent()
     this.$store.commit('env/setCurrentTag', -1919810)
-    this.$store.commit('env/setAscOrder', 1)
+    this.$store.commit('env/setAscOrder', 0)
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
     console.log(this.topic.content)
