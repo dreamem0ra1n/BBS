@@ -257,11 +257,13 @@ export default {
     },
     async reload() {
       const _user = await this.$axios.get('/api/user/current')
-      const pattern = _user.roles[0].split('_')
-      const role = pattern[0]
-      _user.position = _user.department + '-' + role
-      this.$store.commit('user/setCurrent', _user)
-      this.form = { ..._user }
+      if (_user) {
+        const pattern = _user.roles[0].split('_')
+        const role = pattern[0]
+        _user.position = _user.department + '-' + role
+        this.$store.commit('user/setCurrent', _user)
+        this.form = { ..._user }
+      }
     },
   },
 }

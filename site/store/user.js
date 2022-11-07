@@ -69,7 +69,9 @@ export const actions = {
         console.log(e)
         window.location.href =
           'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
-          me.state.env.currentURL
+          window.location.origin +
+          window.location.pathname
+        // me.state.env.currentURL
       })
   },
 
