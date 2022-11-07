@@ -42,7 +42,10 @@ export default {
   loading: { color: '#FFB90F' },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [{ src: '~/assets/styles/main.scss', lang: 'scss' }],
+  css: [
+    { src: '~/assets/styles/main.scss', lang: 'scss' },
+    { src: '~/assets/styles/xbbcode.css', lang: 'css' },
+  ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
@@ -61,7 +64,7 @@ export default {
    */
   router: {
     middleware: ['resetEnv'],
-    base:'/bbs2',
+    base: '/bbs2',
   },
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
@@ -89,12 +92,12 @@ export default {
 
   proxy: {
     '/api/': 'http://127.0.0.1:8082',
-    '/bbs2/api':{
-      target:'http://127.0.0.1:8082',
-      pathRewrite:{
-        '^/bbs2/api':'/api'
-      }
-    }
+    '/bbs2/api': {
+      target: 'http://127.0.0.1:8082',
+      pathRewrite: {
+        '^/bbs2/api': '/api',
+      },
+    },
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -107,7 +110,10 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     // publicPath: 'https://file.mlog.club/_nuxt/',
-    publicPath: process.env.NODE_ENV === 'prod' ? 'https://www.qsc.zju.edu.cn/bbs2/_nuxt/' : '',
+    publicPath:
+      process.env.NODE_ENV === 'prod'
+        ? 'https://www.qsc.zju.edu.cn/bbs2/_nuxt/'
+        : '',
     optimizeCSS: true,
     extractCSS: true,
     splitChunks: {
