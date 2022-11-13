@@ -3,6 +3,7 @@ package api
 import (
 	"bbs-go/model"
 	"bbs-go/repositories"
+	"bbs-go/services"
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/sqls"
@@ -61,6 +62,28 @@ func (c *SearchController) PostTopic() *web.JsonResult {
 			nodeId,
 		)
 	}
+
+	paging := &sqls.Paging{
+		Page:  page,
+		Limit: limit,
+		Total: totResult,
+	}
+
+	return web.JsonPageData(searchResults, paging)
+}
+
+func (c *SearchController) PostOldbbs() *web.JsonResult {
+
+	var (
+		page    = params.FormValueIntDefault(c.Ctx, "page", 1)
+		keyword = params.FormValue(c.Ctx, "keyword")
+		limit   = params.FormValueIntDefault(c.Ctx, "limit", 20)
+	)
+
+	var searchResults []model.Topic
+	var totResult int64
+
+	searchResults, totResult = services.OldBBSService.GetTopicsByKeyword(keyword, page, limit)
 
 	paging := &sqls.Paging{
 		Page:  page,

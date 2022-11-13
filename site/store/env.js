@@ -8,8 +8,9 @@ export const state = () => ({
   // 当前所在节点编号，0：最新、-1：recommend
   currentNodeId: 0,
   currentTag: -1919810,
-  currentURL: 'https://www.qsc.zju.edu.cn/bbs2',
-  ascOrder: 1,
+  currentURL: '',
+  // currentURL: 'http://localhost:3000/bbs2',
+  ascOrder: 0,
 })
 
 export const mutations = {

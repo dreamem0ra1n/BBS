@@ -119,6 +119,10 @@ type Comment struct {
 	Ip           string `gorm:"size:128" json:"ip" form:"ip"`                                               // IP
 	Status       int    `gorm:"int;index:idx_comment_status" json:"status" form:"status"`                   // 状态：0：待审核、1：审核通过、2：审核失败、3：已发布
 	CreateTime   int64  `json:"createTime" form:"createTime"`                                               // 创建时间
+
+	// 旧BBS兼容设计
+	IsOldBBS bool   `gorm:"-" json:"-" form:"-"`
+	Author   string `gorm:"-" json:"-" form:"-"`
 }
 
 // 收藏
@@ -166,6 +170,11 @@ type Topic struct {
 	Ip                string              `gorm:"size:128" json:"ip" form:"ip"`                                                    // IP
 	CreateTime        int64               `gorm:"index:idx_topic_create_time" json:"createTime" form:"createTime"`                 // 创建时间
 	ExtraData         string              `gorm:"type:text" json:"extraData" form:"extraData"`                                     // 扩展数据
+
+	// 旧BBS兼容设计
+	IsOldBBS bool   `gorm:"-" json:"-" form:"-"`
+	Author   string `gorm:"-" json:"-" form:"-"`
+	Forum    string `gorm:"-" json:"-" form:"-"`
 }
 
 // 主题标签

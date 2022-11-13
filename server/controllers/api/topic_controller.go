@@ -6,6 +6,7 @@ import (
 	"bbs-go/pkg/markdown"
 	"bbs-go/spam"
 	"errors"
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -183,17 +184,24 @@ func (c *TopicController) PostRecommendBy(topicId int64) *web.JsonResult {
 }
 
 // 帖子详情
-func (c *TopicController) GetBy(topicId int64) *web.JsonResult {
-
-	topic := services.TopicService.Get(topicId)
+// 旧BBS带前缀OLD
+func (c *TopicController) GetBy(topicIdStr string) *web.JsonResult {
+	topicId, isOld := parseIdStr(topicIdStr)
 	user := services.UserTokenService.GetCurrent(c.Ctx)
-
+	var topic *model.Topic
+	if !isOld {
+		topic = services.TopicService.Get(topicId)
+	} else {
+		topic = services.OldBBSService.GetTopic(topicId)
+	}
 	if topic == nil || topic.Status != constants.StatusOk {
 		return web.JsonErrorMsg("主题不存在")
 	}
 
 	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
-		services.TopicService.IncrViewCount(topicId) // 增加浏览量
+		if !isOld {
+			services.TopicService.IncrViewCount(topicId) // 增加浏览量
+		}
 		return web.JsonData(render.BuildTopic(user, topic))
 	} else {
 		return web.JsonErrorMsg("无权限")
@@ -278,14 +286,23 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 // 标签帖子列表
 func (c *TopicController) GetTagTopics() *web.JsonResult {
 	var (
-		cursor     = params.FormValueInt64Default(c.Ctx, "cursor", 0)
-		tagId, err = params.FormValueInt64(c.Ctx, "tagId")
-		user       = services.UserTokenService.GetCurrent(c.Ctx)
+		cursor   = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+		tagIdStr = params.FormValue(c.Ctx, "tagId")
+		user     = services.UserTokenService.GetCurrent(c.Ctx)
 	)
-	if err != nil {
-		return web.JsonError(err)
+	tagId, isOld := parseIdStr(tagIdStr)
+	if tagId == -1 {
+		return web.JsonError(fmt.Errorf("bad tag id"))
 	}
-	topics, cursor, hasMore := services.TopicService.GetTagTopics(tagId, cursor)
+	var (
+		topics  []model.Topic
+		hasMore bool
+	)
+	if !isOld {
+		topics, cursor, hasMore = services.TopicService.GetTagTopics(tagId, cursor)
+	} else {
+		topics, cursor, hasMore = services.OldBBSService.GetTopicsByForum(tagId, cursor)
+	}
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 

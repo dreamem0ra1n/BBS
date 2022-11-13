@@ -4,6 +4,7 @@ import (
 	"bbs-go/model"
 	"bbs-go/pkg/errs"
 	"bbs-go/spam"
+	"fmt"
 	"strconv"
 
 	"github.com/kataras/iris/v12"
@@ -20,11 +21,13 @@ type CommentController struct {
 
 func (c *CommentController) GetComments() *web.JsonResult {
 	var (
-		err        error
-		cursor     int64
-		entityType string
-		entityId   int64
-		ascOrder   bool
+		err         error
+		cursor      int64
+		entityType  string
+		entityId    int64
+		IsOldBBS    bool
+		entityIdStr string
+		ascOrder    bool
 	)
 	cursor = params.FormValueInt64Default(c.Ctx, "cursor", 0)
 	ascOrder = !(params.FormValueIntDefault(c.Ctx, "asc_order", 0) == 0)
@@ -32,12 +35,18 @@ func (c *CommentController) GetComments() *web.JsonResult {
 	if entityType, err = params.FormValueRequired(c.Ctx, "entityType"); err != nil {
 		return web.JsonError(err)
 	}
-	if entityId, err = params.FormValueInt64(c.Ctx, "entityId"); err != nil {
-		return web.JsonError(err)
+	entityIdStr = params.FormValue(c.Ctx, "entityId")
+	if entityId, IsOldBBS = parseIdStr(entityIdStr); entityId == -1 {
+		return web.JsonError(fmt.Errorf("bad id"))
 	}
-	currentUser := services.UserTokenService.GetCurrent(c.Ctx)
-	comments, cursor, hasMore := services.CommentService.GetComments(entityType, entityId, cursor, ascOrder)
-	return web.JsonCursorData(render.BuildComments(comments, currentUser, true, false), strconv.FormatInt(cursor, 10), hasMore)
+	if !IsOldBBS {
+		currentUser := services.UserTokenService.GetCurrent(c.Ctx)
+		comments, cursor, hasMore := services.CommentService.GetComments(entityType, entityId, cursor, ascOrder)
+		return web.JsonCursorData(render.BuildComments(comments, currentUser, true, false), strconv.FormatInt(cursor, 10), hasMore)
+	} else {
+		comments, cursor, hasMore := services.OldBBSService.GetComments(entityType, entityId, cursor, ascOrder)
+		return web.JsonCursorData(render.BuildComments(comments, nil, true, false), strconv.FormatInt(cursor, 10), hasMore)
+	}
 }
 
 func (c *CommentController) GetReplies() *web.JsonResult {

@@ -37,7 +37,7 @@
                   </div>
                 </div>
                 <div class="topic-header-right">
-                  <topic-manage-menu v-model="topic" />
+                  <topic-manage-menu v-model="topic" v-if="!isOld" />
                 </div>
               </div>
 
@@ -123,7 +123,7 @@
               </div>
 
               <!-- 功能按钮 -->
-              <div class="topic-actions">
+              <div class="topic-actions" v-if="!isOld">
                 <div class="action disabled">
                   <i class="action-icon iconfont icon-read" />
                   <div class="action-text">
@@ -186,12 +186,18 @@
 </template>
 
 <script>
+import { Loading } from 'element-ui'
+import XBBCODE from '~/utils/xbbcode'
 import CommonHelper from '~/common/CommonHelper'
 export default {
-  async asyncData({ $axios, params, error }) {
+  async asyncData({ $axios, params, error, store }) {
     let topic
+    let liked = null
+    let favorited = null
+    let likeUsers
     try {
       topic = await $axios.get('/api/topic/' + params.id)
+      console.log(topic)
     } catch (e) {
       error({
         statusCode: 404,
@@ -199,34 +205,46 @@ export default {
       })
       return
     }
+    const commentsPage = await $axios.get('/api/comment/comments', {
+      params: {
+        entityType: 'topic',
+        entityId: params.id,
+        asc_order: store.state.env.ascOrder,
+      },
+    })
+    if (!topic.isOldBBS) {
+      ;[liked, favorited, likeUsers] = await Promise.all([
+        $axios.get('/api/like/liked', {
+          params: {
+            entityType: 'topic',
+            entityId: params.id,
+          },
+        }),
+        $axios.get('/api/favorite/favorited', {
+          params: {
+            entityType: 'topic',
+            entityId: params.id,
+          },
+        }),
 
-    const [liked, favorited, commentsPage, likeUsers] = await Promise.all([
-      $axios.get('/api/like/liked', {
-        params: {
-          entityType: 'topic',
-          entityId: params.id,
-        },
-      }),
-      $axios.get('/api/favorite/favorited', {
-        params: {
-          entityType: 'topic',
-          entityId: params.id,
-        },
-      }),
-      $axios.get('/api/comment/comments', {
-        params: {
-          entityType: 'topic',
-          entityId: params.id,
-          asc_order: 1,
-        },
-      }),
-      $axios.get('/api/topic/recentlikes/' + params.id),
-    ])
+        $axios.get('/api/topic/recentlikes/' + params.id),
+      ])
+    }
+    if (topic.isOldBBS) {
+      topic.content = XBBCODE.process({
+        text: topic.content,
+      }).html
+      commentsPage.results.forEach((comment) => {
+        comment.content = XBBCODE.process({
+          text: comment.content,
+        }).html
+      })
+    }
     return {
       topic,
       commentsPage,
-      favorited: favorited.favorited,
-      liked: liked.liked,
+      favorited: favorited?.favorited,
+      liked: liked?.liked,
       likeUsers,
       entityId: params.id,
     }
@@ -258,6 +276,9 @@ export default {
     }
   },
   computed: {
+    isOld() {
+      return this.topic.isOldBBS
+    },
     user() {
       return this.$store.state.user.current
     },
@@ -269,8 +290,10 @@ export default {
     // 加载隐藏内容
     this.getHideContent()
     this.$store.commit('env/setCurrentTag', -1919810)
+    this.$store.commit('env/setAscOrder', 0)
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
+    console.log(this.topic.content)
     CommonHelper.initHighlight(this)
   },
   methods: {
@@ -278,6 +301,9 @@ export default {
       this.getHideContent()
     },
     async addFavorite(topicId) {
+      if (this.topic.isOldBBS) {
+        return
+      }
       try {
         if (this.favorited) {
           await this.$axios.get('/api/favorite/delete', {
@@ -299,6 +325,9 @@ export default {
       }
     },
     async like(topic) {
+      if (this.topic.isOldBBS) {
+        return
+      }
       try {
         if (this.liked) {
           return
@@ -330,6 +359,10 @@ export default {
     },
     reGain(order) {
       const me = this
+      const load = Loading.service({
+        target: '.comment-component',
+        background: 'var(--bg-color) ',
+      })
       this.$store.commit('env/setAscOrder', order)
       this.$axios
         .get('/api/comment/comments', {
@@ -341,10 +374,19 @@ export default {
         })
         .then((res) => {
           me.commentsPage = res
+          load.close()
+        })
+        .catch((e) => {
+          console.log(e)
+          load.close()
         })
     },
   },
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.el-loading-mask {
+  background-color: var(--bg-color) !important;
+}
+</style>
