@@ -206,7 +206,7 @@ func getRoleFromLoginUserData(u LoginUser) string {
 		return prefix + ret + strconv.Itoa(model.RenLiZiYuan_SECTION)
 	case "摄影部":
 		return prefix + ret + strconv.Itoa(model.SheYing_SECTION)
-	case "视频":
+	case "视频团队":
 		return prefix + ret + strconv.Itoa(model.ShiPin_SECTION)
 	default:
 		return ""
