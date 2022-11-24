@@ -107,6 +107,7 @@ export default {
               text:
                 '<a href="' +
                 that.$store.state.env.currentURL +
+                '/bbs2' +
                 '/api/file/download/' +
                 ret.file_id +
                 '" download="' +
