@@ -133,13 +133,13 @@ func (c *FileController) GetDownloadBy(fileId string) {
 	}
 
 	object, fileName, err := getFile(fileId)
-
 	if err != nil {
 		c.Ctx.StatusCode(400)
 		return
 	}
 
 	c.Ctx.ServeContent(object, fileName, time.Now())
+	object.Close()
 }
 
 func putFile(file io.Reader, fileSize int64) (*model.FileRecord, error) {
