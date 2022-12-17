@@ -138,6 +138,7 @@ func (c *FileController) GetDownloadBy(fileId string) {
 		return
 	}
 
+	c.Ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
 	c.Ctx.ServeContent(object, fileName, time.Now())
 	object.Close()
 }
