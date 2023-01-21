@@ -28,7 +28,7 @@
 <script>
 export default {
   async asyncData({ $axios, params, error, store }) {
-    const json = require('~/oldBBSgit.json')
+    const json = require('~/oldBBS.json')
     const data = await $axios.get('/api/topic/tag/topics', {
       params: {
         isOld: true,
