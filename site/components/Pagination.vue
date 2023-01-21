@@ -103,7 +103,7 @@ export default {
       if (this.page.page === page) {
         return 'javascript:void(0)'
       }
-      return this.urlPrefix + page
+      return '/bbs2'+this.urlPrefix + page
     },
     getTotalPage() {
       return this.page.total % this.page.limit > 0
