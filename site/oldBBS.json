@@ -1,0 +1,469 @@
+[
+  {
+    "type": "group",
+    "fid": 2,
+    "name": "项目交流平台",
+    "fdn": [
+      {
+        "fname": "存档",
+        "fid": 124,
+        "type": "forum",
+        "fdn": [
+          { "fname": "新生始业教育片", "fid": 50, "type": "sub" },
+          { "fname": "主站改版2004", "fid": 52, "type": "sub" },
+          { "fname": "中大在线", "fid": 63, "type": "sub" },
+          { "fname": "求是潮军训网", "fid": 64, "type": "sub" },
+          { "fname": "dv大赛的专版", "fid": 82, "type": "sub" },
+          { "fname": "求是潮搜索引擎", "fid": 84, "type": "sub" },
+          { "fname": "求是潮宿舍楼", "fid": 85, "type": "sub" },
+          { "fname": "求是潮个人主页之家", "fid": 86, "type": "sub" },
+          { "fname": "求是潮IT板块", "fid": 88, "type": "sub" },
+          { "fname": "娱乐版块", "fid": 89, "type": "sub" },
+          { "fname": "求是潮影迷俱乐部", "fid": 93, "type": "sub" },
+          { "fname": "浙大学生DV联盟", "fid": 99, "type": "sub" },
+          { "fname": "网络文化节2005", "fid": 119, "type": "sub" },
+          { "fname": "浙江大学学生DV联盟", "fid": 127, "type": "sub" },
+          { "fname": "求是潮个性版项目组", "fid": 130, "type": "sub" },
+          { "fname": "家长学生交流平台项目组", "fid": 131, "type": "sub" },
+          { "fname": "网络文化节2006", "fid": 138, "type": "sub" },
+          { "fname": "五周年庆典2006", "fid": 139, "type": "sub" },
+          { "fname": "记者节2006", "fid": 182, "type": "sub" },
+          { "fname": "主持人大赛2006", "fid": 183, "type": "sub" },
+          { "fname": "网络文化节2007", "fid": 199, "type": "sub" },
+          { "fname": "网络文化节2008", "fid": 212, "type": "sub" },
+          { "fname": "网络文化节2009", "fid": 224, "type": "sub" },
+          { "fname": "魅·声色配音大赛2010", "fid": 233, "type": "sub" },
+          { "fname": "网络文化节2010", "fid": 235, "type": "sub" },
+          { "fname": "潮人毕业典礼2010", "fid": 237, "type": "sub" },
+          { "fname": "十周年庆+网络文化节2011", "fid": 246, "type": "sub" },
+          { "fname": "CUBA新闻工作2011", "fid": 252, "type": "sub" },
+          { "fname": "求是好声音2012", "fid": 276, "type": "sub" },
+          { "fname": "主站项目组2015", "fid": 293, "type": "sub" },
+          { "fname": "军训2010", "fid": 310, "type": "sub" },
+          { "fname": "主站改版2006", "fid": 311, "type": "sub" },
+          { "fname": "军训2013", "fid": 312, "type": "sub" },
+          { "fname": "军训2014", "fid": 313, "type": "sub" },
+          { "fname": "制度组", "fid": 315, "type": "sub" },
+          { "fname": "军训2007", "fid": 316, "type": "sub" },
+          { "fname": "军训2012", "fid": 317, "type": "sub" },
+          { "fname": "军训2011", "fid": 318, "type": "sub" },
+          { "fname": "军训2009", "fid": 319, "type": "sub" },
+          { "fname": "军训2008", "fid": 320, "type": "sub" },
+          { "fname": "军训2015", "fid": 327, "type": "sub" },
+          { "fname": "年鉴小组2015", "fid": 328, "type": "sub" },
+          { "fname": "纳新小组2015", "fid": 330, "type": "sub" },
+          { "fname": "新闻小组2015", "fid": 331, "type": "sub" },
+          { "fname": "年鉴小组2016", "fid": 365, "type": "sub" },
+          { "fname": "纳新小组2016", "fid": 366, "type": "sub" },
+          { "fname": "军训2016", "fid": 368, "type": "sub" },
+          { "fname": "纳新小组2017", "fid": 369, "type": "sub" },
+          { "fname": "年鉴小组2017", "fid": 370, "type": "sub" },
+          { "fname": "军训2017", "fid": 371, "type": "sub" },
+          { "fname": "军训2018", "fid": 377, "type": "sub" },
+          { "fname": "纳新小组2018", "fid": 378, "type": "sub" },
+          { "fname": "年鉴小组2018", "fid": 379, "type": "sub" },
+          { "fname": "军训2019", "fid": 382, "type": "sub" },
+          { "fname": "纳新2019", "fid": 383, "type": "sub" },
+          { "fname": "年鉴小组2019", "fid": 384, "type": "sub" },
+          { "fname": "军训2021", "fid": 392, "type": "sub" }
+        ]
+      },
+      { "fname": "潮汐音乐节", "fid": 308, "type": "forum", "fdn": [] },
+      { "fname": "线上渠道运营", "fid": 314, "type": "forum", "fdn": [] }
+    ]
+  },
+  { "type": "group", "fid": 6, "name": "工作交流平台", "fdn": [] },
+  {
+    "type": "group",
+    "fid": 49,
+    "name": "娱乐平台",
+    "fdn": [
+      { "fname": "休闲专区", "fid": 45, "type": "forum", "fdn": [] },
+      { "fname": "贴图专区", "fid": 69, "type": "forum", "fdn": [] },
+      { "fname": "网站成员大曝光", "fid": 77, "type": "forum", "fdn": [] },
+      { "fname": "潮友汇沙龙", "fid": 98, "type": "forum", "fdn": [] },
+      {
+        "fname": "鹊桥相会",
+        "fid": 121,
+        "type": "forum",
+        "fdn": [{ "fname": "七夕版", "fid": 122, "type": "sub" }]
+      },
+      { "fname": "活动发布区", "fid": 125, "type": "forum", "fdn": [] },
+      { "fname": "文艺小筑", "fid": 136, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 78,
+    "name": "回收站",
+    "fdn": [
+      { "fname": "新文章系统BUG报告", "fid": 5, "type": "forum", "fdn": [] },
+      { "fname": "站务区", "fid": 16, "type": "forum", "fdn": [] },
+      { "fname": "资料下载", "fid": 60, "type": "forum", "fdn": [] },
+      { "fname": "资源共享区", "fid": 74, "type": "forum", "fdn": [] },
+      { "fname": "生命在于运动", "fid": 79, "type": "forum", "fdn": [] },
+      { "fname": "Project NextGene", "fid": 309, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 133,
+    "name": "学无止境",
+    "fdn": [
+      {
+        "fname": "培训地带",
+        "fid": 102,
+        "type": "forum",
+        "fdn": [{ "fname": "文选分区", "fid": 211, "type": "sub" }]
+      },
+      { "fname": "课业交流", "fid": 134, "type": "forum", "fdn": [] },
+      { "fname": "在水一方", "fid": 248, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 151,
+    "name": "站务管理",
+    "fdn": [
+      { "fname": "指导老师办公室", "fid": 62, "type": "forum", "fdn": [] },
+      {
+        "fname": "管理团队讨论室",
+        "fid": 67,
+        "type": "forum",
+        "fdn": [
+          { "fname": "管理层会议室", "fid": 81, "type": "sub" },
+          { "fname": "团队&成员考评中心", "fid": 137, "type": "sub" },
+          { "fname": "255MEMO", "fid": 294, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "重要通知",
+        "fid": 90,
+        "type": "forum",
+        "fdn": [{ "fname": "人事变更", "fid": 118, "type": "sub" }]
+      },
+      {
+        "fname": "素质拓展申报&评奖评优",
+        "fid": 120,
+        "type": "forum",
+        "fdn": []
+      },
+      {
+        "fname": "金点子",
+        "fid": 123,
+        "type": "forum",
+        "fdn": []
+      },
+      {
+        "fname": "论坛事务管理",
+        "fid": 169,
+        "type": "forum",
+        "fdn": [
+          { "fname": "网络监察区", "fid": 80, "type": "sub" },
+          { "fname": "值班&网上监控", "fid": 100, "type": "sub" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 156,
+    "name": ">>>综合事务<<<",
+    "fdn": [
+      {
+        "fname": "调研中心",
+        "fid": 19,
+        "type": "forum",
+        "fdn": [
+          { "fname": "调研会议室", "fid": 107, "type": "sub" },
+          { "fname": "网站内部调研", "fid": 126, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "资料汇总",
+        "fid": 168,
+        "type": "forum",
+        "fdn": [
+          { "fname": "全站相关资料", "fid": 58, "type": "sub" },
+          { "fname": "查看以往重要通知", "fid": 135, "type": "sub" },
+          { "fname": "日常事务中心文献资料区", "fid": 140, "type": "sub" }
+        ]
+      },
+      { "fname": "测试板块", "fid": 381, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 157,
+    "name": "求是文化宣讲队",
+    "fdn": [
+      { "fname": "会议工作区", "fid": 150, "type": "forum", "fdn": [] },
+      { "fname": "资料共享区", "fid": 170, "type": "forum", "fdn": [] },
+      { "fname": "交流讨论区", "fid": 179, "type": "forum", "fdn": [] },
+      { "fname": "总结汇报区", "fid": 208, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 186,
+    "name": "学工部工作区",
+    "fdn": [
+      {
+        "fname": "本科生调研员专区",
+        "fid": 187,
+        "type": "forum",
+        "fdn": [
+          { "fname": "布置性工作区", "fid": 192, "type": "sub" },
+          { "fname": "日常性工作区", "fid": 193, "type": "sub" },
+          { "fname": "交流讨论区", "fid": 194, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "浙大学工报专区",
+        "fid": 188,
+        "type": "forum",
+        "fdn": [
+          { "fname": "工作区", "fid": 190, "type": "sub" },
+          { "fname": "生活区", "fid": 191, "type": "sub" }
+        ]
+      },
+      { "fname": "学生助理之家", "fid": 197, "type": "forum", "fdn": [] },
+      { "fname": "现代写作中心", "fid": 250, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 214,
+    "name": "生工食品团学联",
+    "fdn": [
+      { "fname": "各部工作区", "fid": 215, "type": "forum", "fdn": [] },
+      { "fname": "专题项目区", "fid": 216, "type": "forum", "fdn": [] },
+      { "fname": "资料共享区", "fid": 217, "type": "forum", "fdn": [] },
+      { "fname": "交流休闲区", "fid": 218, "type": "forum", "fdn": [] },
+      { "fname": "食品科技协会", "fid": 231, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 247,
+    "name": "档案馆",
+    "fdn": [
+      {
+        "fname": "子网存档",
+        "fid": 321,
+        "type": "forum",
+        "fdn": [
+          { "fname": "休闲网", "fid": 33, "type": "sub" },
+          { "fname": "服务网", "fid": 158, "type": "sub" },
+          { "fname": "子网会议室", "fid": 159, "type": "sub" },
+          { "fname": "教育网", "fid": 160, "type": "sub" },
+          { "fname": "子网总交流", "fid": 198, "type": "sub" },
+          { "fname": "薄荷糖论坛", "fid": 207, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "子中心存档",
+        "fid": 322,
+        "type": "forum",
+        "fdn": [
+          { "fname": "浙大广角", "fid": 111, "type": "sub" },
+          { "fname": "校园视角", "fid": 112, "type": "sub" },
+          { "fname": "求是视角", "fid": 114, "type": "sub" },
+          { "fname": "浪激青春", "fid": 115, "type": "sub" },
+          { "fname": "思想天地", "fid": 116, "type": "sub" },
+          { "fname": "求是园地", "fid": 117, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "天坑",
+        "fid": 374,
+        "type": "forum",
+        "fdn": [
+          { "fname": "Notice", "fid": 260, "type": "sub" },
+          { "fname": "Share", "fid": 261, "type": "sub" }
+        ]
+      },
+      { "fname": "秘密档案", "fid": 380, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 341,
+    "name": "媒体工作室",
+    "fdn": [
+      {
+        "fname": "工作室交流区",
+        "fid": 350,
+        "type": "forum",
+        "fdn": [
+          { "fname": "青媒素", "fid": 358, "type": "sub" },
+          { "fname": "媒体融合", "fid": 359, "type": "sub" },
+          { "fname": "日常活动", "fid": 360, "type": "sub" },
+          { "fname": "被智子封锁的技术", "fid": 361, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "视频团队",
+        "fid": 351,
+        "type": "forum",
+        "fdn": [
+          { "fname": "霖水报告厅", "fid": 307, "type": "sub" },
+          { "fname": "制片局", "fid": 325, "type": "sub" },
+          { "fname": "藏精阁", "fid": 326, "type": "sub" },
+          { "fname": "白箱", "fid": 332, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "摄影部",
+        "fid": 352,
+        "type": "forum",
+        "fdn": [
+          { "fname": "技术交流区", "fid": 290, "type": "sub" },
+          { "fname": "日常工作区", "fid": 291, "type": "sub" },
+          { "fname": "汪汪洒水车", "fid": 292, "type": "sub" },
+          { "fname": "微信运营区", "fid": 324, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "新闻资讯中心",
+        "fid": 353,
+        "type": "forum",
+        "fdn": [
+          { "fname": "浪激青春", "fid": 35, "type": "sub" },
+          { "fname": "思想天地", "fid": 36, "type": "sub" },
+          { "fname": "求是园地", "fid": 39, "type": "sub" },
+          { "fname": "资讯大秀场", "fid": 61, "type": "sub" },
+          { "fname": "校园视角", "fid": 71, "type": "sub" },
+          { "fname": "官方讲座", "fid": 72, "type": "sub" },
+          { "fname": "[休闲网]博客", "fid": 129, "type": "sub" },
+          { "fname": "国际国内", "fid": 184, "type": "sub" },
+          { "fname": "新闻专题", "fid": 185, "type": "sub" },
+          { "fname": "人物采访", "fid": 200, "type": "sub" },
+          { "fname": "院系风采", "fid": 201, "type": "sub" },
+          { "fname": "声音", "fid": 271, "type": "sub" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 342,
+    "name": "网络工作室",
+    "fdn": [
+      {
+        "fname": "工作室交流区",
+        "fid": 354,
+        "type": "forum",
+        "fdn": [
+          { "fname": "Mobile", "fid": 258, "type": "sub" },
+          { "fname": "Bubble", "fid": 259, "type": "sub" },
+          { "fname": "Box", "fid": 273, "type": "sub" },
+          { "fname": "技术&产品联合内训项目", "fid": 333, "type": "sub" },
+          { "fname": "大漩涡", "fid": 362, "type": "sub" },
+          { "fname": "酿酒厂", "fid": 363, "type": "sub" },
+          { "fname": "Notify", "fid": 385, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "产品运营部门",
+        "fid": 355,
+        "type": "forum",
+        "fdn": [
+          { "fname": "发布会现场", "fid": 305, "type": "sub" },
+          { "fname": "Apple Park", "fid": 339, "type": "sub" },
+          { "fname": "锤子科技游泳馆", "fid": 375, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "技术研发中心",
+        "fid": 356,
+        "type": "forum",
+        "fdn": [
+          { "fname": "技术会议室", "fid": 105, "type": "sub" },
+          { "fname": "Fishbox", "fid": 236, "type": "sub" },
+          { "fname": "内部交流区", "fid": 268, "type": "sub" },
+          { "fname": "水水更健康", "fid": 277, "type": "sub" },
+          { "fname": "优化行为大赏", "fid": 338, "type": "sub" }
+        ]
+      },
+      {
+        "fname": "设计研究大院",
+        "fid": 357,
+        "type": "forum",
+        "fdn": [
+          { "fname": "鸽巢", "fid": 95, "type": "sub" },
+          { "fname": "曙光社", "fid": 335, "type": "sub" },
+          { "fname": "瓜田", "fid": 336, "type": "sub" }
+        ]
+      },
+      { "fname": "产品研发中心", "fid": 394, "type": "forum", "fdn": [] }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 343,
+    "name": "水朝夕工作室",
+    "fdn": [
+      {
+        "fname": "水朝夕工作室",
+        "fid": 349,
+        "type": "forum",
+        "fdn": [
+          { "fname": "工作室", "fid": 269, "type": "sub" },
+          { "fname": "比奇堡菠萝屋", "fid": 270, "type": "sub" },
+          { "fname": "废纸区", "fid": 275, "type": "sub" },
+          { "fname": "奥克诺斯", "fid": 340, "type": "sub" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 344,
+    "name": "人力资源部门",
+    "fdn": [
+      {
+        "fname": "人力资源大厅",
+        "fid": 348,
+        "type": "forum",
+        "fdn": [
+          { "fname": "顶顶小夫却莓射", "fid": 11, "type": "sub" },
+          { "fname": "日常管理会议室", "fid": 18, "type": "sub" },
+          { "fname": "日常运营大会议室", "fid": 108, "type": "sub" },
+          { "fname": "人资资料馆", "fid": 282, "type": "sub" },
+          { "fname": "人事总务司", "fid": 283, "type": "sub" },
+          { "fname": "日常事务所", "fid": 284, "type": "sub" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 345,
+    "name": "推广策划中心",
+    "fdn": [
+      {
+        "fname": "推广策划大厅",
+        "fid": 347,
+        "type": "forum",
+        "fdn": [
+          { "fname": "红茶玛奇朵", "fid": 7, "type": "sub" },
+          { "fname": "四季奶青", "fid": 162, "type": "sub" },
+          { "fname": "冻顶乌龙奶", "fid": 167, "type": "sub" },
+          { "fname": "招商银行の前三次太贵", "fid": 306, "type": "sub" }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "fid": 386,
+    "name": "学生资助中心",
+    "fdn": [
+      { "fname": "工作区", "fid": 388, "type": "forum", "fdn": [] },
+      { "fname": "内建区", "fid": 389, "type": "forum", "fdn": [] },
+      { "fname": "团支部", "fid": 390, "type": "forum", "fdn": [] },
+      { "fname": "交流讨论区", "fid": 391, "type": "forum", "fdn": [] }
+    ]
+  }
+]
