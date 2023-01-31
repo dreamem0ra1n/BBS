@@ -45,6 +45,11 @@ type oldComment struct {
 	Content   string `gorm:"column:comment"`
 }
 
+type oldPostMeta struct {
+	PostId     int64 `gorm:"column:tid"`
+	Permission int   `gorm:"column:readperm"`
+}
+
 type oldForum struct {
 	Id      int64  `gorm:"column:fid"`
 	SuperId int64  `gorm:"column:fup"`
@@ -76,6 +81,10 @@ func (r *oldBBSService) GetTopic(id int64) *model.Topic {
 	var cnt int64
 	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Count(&cnt)
 	topic := r.post2topic(post)
+	// 加入权限控制
+	post_meta := oldPostMeta{}
+	r.DB.Table("qsc_bbs_forum_thread").Where("tid = ?", id).Take(&post_meta)
+	topic.AccessLv = post_meta.Permission
 	return &topic
 }
 
