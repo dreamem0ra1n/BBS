@@ -34,9 +34,10 @@ export const actions = {
     context.commit('setNodeId', nodeId || 0)
     context.commit('setPage', page || 1)
   },
-  changeNodeId(context, nodeId) {
+  changeNodeId(context, { nodeId, old }) {
     context.commit('setNodeId', nodeId || 0)
-    context.dispatch('searchTopic')
+    if (!old) context.dispatch('searchTopic')
+    else context.dispatch('searchOldTopic')
   },
   async searchTopic({ state, commit }) {
     commit('setLoading', true)
@@ -44,6 +45,19 @@ export const actions = {
       const result = await this.$axios.post('/api/search/topic', {
         keyword: state.keyword,
         nodeId: state.nodeId,
+        page: state.page,
+      })
+      commit('setSearchPage', result)
+    } finally {
+      commit('setLoading', false)
+    }
+  },
+  async searchOld({ state, commit }) {
+    commit('setLoading', true)
+    try {
+      const result = await this.$axios.post('/api/search/oldbbs', {
+        keyword: state.keyword,
+        nodeId: 'OLD' + state.nodeId,
         page: state.page,
       })
       commit('setSearchPage', result)

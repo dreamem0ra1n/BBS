@@ -97,7 +97,16 @@ export default {
         return
       }
       this.addHistories()
-      this.$linkTo('/search?q=' + encodeURIComponent(this.keyword))
+      try {
+        if (
+          window.location.pathname.includes('old') ||
+          window.location.pathname.includes('OLD')
+        ) {
+          this.$linkTo('/search/old?q=' + encodeURIComponent(this.keyword))
+        } else this.$linkTo('/search?q=' + encodeURIComponent(this.keyword))
+      } catch (e) {
+        console.log(e)
+      }
     },
     onFocus() {
       this.inputFocus = true

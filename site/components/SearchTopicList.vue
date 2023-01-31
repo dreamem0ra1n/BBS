@@ -5,7 +5,7 @@
       :key="item.id"
       class="topic-search-item"
     >
-      <nuxt-link :to="'/topic/' + item.id">
+      <nuxt-link :to="'/topic/' + (old ? 'OLD' : '') + item.id">
         <h1 class="topic-search-item-title" v-html="item.title"></h1>
       </nuxt-link>
       <p class="topic-search-item-summary content" v-html="item.summary"></p>
@@ -37,6 +37,10 @@ export default {
     searchPage: {
       type: Object,
       default: null,
+    },
+    old: {
+      type: Boolean,
+      default: false,
     },
   },
 }

@@ -28,6 +28,12 @@ export default {
         return []
       },
     },
+    old: {
+      type: Boolean,
+      default() {
+        return false
+      },
+    },
   },
   data() {
     return {
@@ -41,7 +47,8 @@ export default {
   },
   methods: {
     setNodeId(nodeId) {
-      this.$store.dispatch('search/changeNodeId', nodeId)
+      console.log(this.old)
+      this.$store.dispatch('search/changeNodeId', { nodeId, old: this.old })
     },
   },
 }
