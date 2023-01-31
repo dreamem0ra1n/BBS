@@ -171,6 +171,7 @@
               :comments-page="commentsPage"
               :comment-count="topic.commentCount"
               :mode="topic.type === 1 ? 'text' : 'markdown'"
+              :noComment="isOld"
               entity-type="topic"
               @created="commentCreated"
               @reGain="reGain"
@@ -197,7 +198,6 @@ export default {
     let likeUsers
     try {
       topic = await $axios.get('/api/topic/' + params.id)
-      console.log(topic)
     } catch (e) {
       error({
         statusCode: 404,
@@ -234,11 +234,13 @@ export default {
       topic.content = XBBCODE.process({
         text: topic.content,
       }).html
-      commentsPage.results.forEach((comment) => {
-        comment.content = XBBCODE.process({
-          text: comment.content,
-        }).html
-      })
+      if (commentsPage?.results) {
+        commentsPage.results.forEach((comment) => {
+          comment.content = XBBCODE.process({
+            text: comment.content,
+          }).html
+        })
+      }
     }
     return {
       topic,
@@ -293,7 +295,6 @@ export default {
     this.$store.commit('env/setAscOrder', 0)
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
-    console.log(this.topic.content)
     CommonHelper.initHighlight(this)
   },
   methods: {

@@ -12,6 +12,7 @@
       <template>
         <comment-input
           ref="input"
+          v-if="!noComment"
           :mode="mode"
           :entity-id="entityId"
           :entity-type="entityType"
@@ -37,7 +38,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     mode: {
@@ -67,6 +67,10 @@ export default {
     reGain: {
       type: Function,
       default: (order) => {},
+    },
+    noComment: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

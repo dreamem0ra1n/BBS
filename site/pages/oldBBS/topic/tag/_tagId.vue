@@ -12,7 +12,7 @@
               v-if="topicsPage"
               v-slot="{ results }"
               :init-data="topicsPage"
-              :url="'/api/topic/tag/topics?isOld=true&tagId=' + tagId"
+              :url="'/api/topic/tag/topics?tagId=OLD' + tagId"
             >
               <topic-list :topics="results" :isOld="true" />
             </load-more>
@@ -31,8 +31,7 @@ export default {
     const json = require('~/oldBBS.json')
     const data = await $axios.get('/api/topic/tag/topics', {
       params: {
-        isOld: true,
-        tagId: parseInt(params.tagId),
+        tagId: 'OLD' + params.tagId,
       },
     })
     let tags = []
