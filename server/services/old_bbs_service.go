@@ -107,7 +107,7 @@ func (r *oldBBSService) GetComments(_ string, TopicId int64, cursor int64, ascOr
 		})
 	}
 	nextCursor = cursor + int64(len(comments))
-	hasMore = len(comments) == 0
+	hasMore = len(comments) != 0
 	return
 }
 
@@ -133,7 +133,7 @@ func (r *oldBBSService) GetReplies(CommentId int64, cursor int, limit int) (comm
 		})
 	}
 	nextCursor = cursor + len(comments)
-	hasMore = len(comments) == 0
+	hasMore = len(comments) != 0
 	return
 }
 
@@ -169,7 +169,7 @@ func (r *oldBBSService) GetTopicsByForum(fid int64, cursor int64) (topics []mode
 		topics = append(topics, r.post2topic(post))
 	}
 	nextCursor = cursor + int64(len(topics))
-	hasMore = len(topics) == 0
+	hasMore = len(topics) != 0
 	return
 }
 
