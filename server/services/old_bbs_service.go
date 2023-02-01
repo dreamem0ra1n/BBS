@@ -59,6 +59,11 @@ type oldForum struct {
 func (r *oldBBSService) post2topic(post oldPost) model.Topic {
 	var cnt int64
 	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", post.PostId).Where("first = 1").Count(&cnt)
+
+	// 加入权限控制
+	post_meta := oldPostMeta{}
+	r.DB.Table("qsc_bbs_forum_thread").Where("tid = ?", post.PostId).Take(&post_meta)
+
 	return model.Topic{
 		IsOldBBS:     true,
 		Model:        model.Model{Id: post.PostId},
@@ -70,6 +75,7 @@ func (r *oldBBSService) post2topic(post oldPost) model.Topic {
 		CommentCount: cnt,
 		CreateTime:   post.Timestamp,
 		Forum:        r.getForumName(post.ForumId),
+		AccessLv:     post_meta.Permission,
 	}
 }
 
@@ -78,13 +84,7 @@ func (r *oldBBSService) GetTopic(id int64) *model.Topic {
 	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Take(&post).Error != nil {
 		return nil
 	}
-	var cnt int64
-	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Count(&cnt)
 	topic := r.post2topic(post)
-	// 加入权限控制
-	post_meta := oldPostMeta{}
-	r.DB.Table("qsc_bbs_forum_thread").Where("tid = ?", id).Take(&post_meta)
-	topic.AccessLv = post_meta.Permission
 	return &topic
 }
 
