@@ -355,6 +355,15 @@ var XBBCODE = (function() {
             },
             restrictChildrenTo: ["*", "li"]
         },
+        "p": {
+            openTag: function(params,content) {
+                const styles = params.substr(1).split(',')
+                return '<p style="line-height: '+styles[0]+'px; text-indent: '+styles[1]+'em; text-align: '+styles[2]+';">';
+            },
+            closeTag: function(params,content) {
+                return '</p>';
+            },
+        },
         "php": {
             openTag: function(params,content) {
                 return '<span class="xbbcode-code">';
