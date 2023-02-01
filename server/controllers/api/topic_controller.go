@@ -198,11 +198,6 @@ func (c *TopicController) GetBy(topicIdStr string) *web.JsonResult {
 		return web.JsonErrorMsg("主题不存在")
 	}
 
-	if isOld {
-		if (user == nil) || (topic.AccessLv > 0 && !user.HasAnyRole("高管", "oldbbs_readall")) {
-			return web.JsonErrorMsg("无权限")
-		}
-	}
 	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
 		if !isOld {
 			services.TopicService.IncrViewCount(topicId) // 增加浏览量
