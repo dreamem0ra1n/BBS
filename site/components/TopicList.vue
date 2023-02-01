@@ -20,7 +20,9 @@
             >
           </div>
           <div class="topic-time">
-            发布于{{ topic.createTime | prettyDate }}
+            发布于{{
+              (isOld ? topic.createTime * 1000 : topic.createTime) | prettyDate
+            }}
           </div>
         </div>
         <div class="topic-content" :class="{ 'topic-tweet': topic.type === 1 }">

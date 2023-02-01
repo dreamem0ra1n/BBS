@@ -28,10 +28,17 @@
                       发布于
                       <time
                         :datetime="
-                          topic.createTime | formatDate('yyyy-MM-ddTHH:mm:ss')
+                          topic.isOldBBS
+                            ? topic.createTime * 1000
+                            : topic.createTime
+                              | formatDate('yyyy-MM-ddTHH:mm:ss')
                         "
                         itemprop="datePublished"
-                        >{{ topic.createTime | prettyDate }}</time
+                        >{{
+                          topic.isOldBBS
+                            ? topic.createTime * 1000
+                            : topic.createTime | prettyDate
+                        }}</time
                       >
                     </span>
                   </div>
@@ -167,7 +174,7 @@
 
             <!-- 评论 -->
             <comment
-              :entity-id="topic.topicId"
+              :entity-id="entityId"
               :comments-page="commentsPage"
               :comment-count="topic.commentCount"
               :mode="topic.type === 1 ? 'text' : 'markdown'"
@@ -375,6 +382,13 @@ export default {
         })
         .then((res) => {
           me.commentsPage = res
+          if (me.topic.isOldBBS) {
+            me?.commentsPage?.results.forEach((comment) => {
+              comment.content = XBBCODE.process({
+                text: comment.content,
+              }).html
+            })
+          }
           load.close()
         })
         .catch((e) => {
