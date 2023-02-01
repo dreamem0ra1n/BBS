@@ -136,7 +136,7 @@ export default {
       }
     },
     toTopicDetail(topicId) {
-      this.$linkTo(`/topic/${topicId}`)
+      this.$linkTo('/topic/' + (this.isOld ? 'OLD' : '') + topicId)
     },
   },
 }
