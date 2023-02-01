@@ -47,7 +47,6 @@ export default {
   },
   methods: {
     setNodeId(nodeId) {
-      console.log(this.old)
       this.$store.dispatch('search/changeNodeId', { nodeId, old: this.old })
     },
   },

@@ -75,7 +75,6 @@ export default {
       if (!this.selectIndex.includes(name)) {
         this.addTag(name)
       } else this.removeTag(name)
-      console.log(this.selectIndex)
       this.$emit('setTag', this.selectIndex)
     },
 

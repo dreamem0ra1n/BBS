@@ -155,7 +155,6 @@ export default {
         return
       }
       try {
-        console.log(this.postForm.tags)
         const topic = await this.$axios.post(
           '/api/topic/edit/' + this.topic.topicId,
           {
