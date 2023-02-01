@@ -101,4 +101,4 @@ resp: file
   - param `page,keyword,limit`
   - return same as `/search/topic`
 - `/topic/tag/topics`
-  - add param: `isOld=true, tagId=forumId`
+  - add param: `tagId="OLD"+forumId`

@@ -111,6 +111,13 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	} else {
 		rsp.Content = topic.Content
 
+		// 加入权限控制
+		if (user == nil) || (topic.AccessLv > 0 && !user.HasAnyRole("高管", "oldbbs_readall")) {
+			rsp.Title = "【无权限】" + rsp.Title
+			rsp.Content = " 🚫 抱歉，您无权访问该帖子的内容！"
+			rsp.TopicId = -1
+		}
+
 		rsp.Node = &model.NodeResponse{
 			NodeId: -1,
 			Name:   "旧BBS考古",
