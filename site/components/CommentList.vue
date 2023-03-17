@@ -26,8 +26,16 @@
             </nuxt-link>
             <time
               class="comment-time"
-              :datetime="comment.createTime | formatDate('yyyy-MM-ddTHH:mm:ss')"
-              >{{ comment.createTime | prettyDate }}</time
+              :datetime="
+                (comment.isOldBBS
+                  ? comment.createTime * 1000
+                  : comment.createTime) | formatDate('yyyy-MM-ddTHH:mm:ss')
+              "
+              >{{
+                (comment.isOldBBS
+                  ? comment.createTime * 1000
+                  : comment.createTime) | prettyDate
+              }}</time
             >
           </div>
           <div
@@ -112,7 +120,7 @@ export default {
       required: true,
     },
     entityId: {
-      type: Number,
+      type: String || Number,
       default: 0,
       required: true,
     },

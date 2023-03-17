@@ -93,6 +93,14 @@ var XBBCODE = (function() {
      * --------------------------------------------------------------------------- */
 
     tags = {
+        "align": {
+            openTag: function (params, content) {
+              return '<span class="xbbcode-' + params.substr(1) + '">';
+            },
+            closeTag: function (params, content) {
+              return "</span>";
+            },
+          },
         "b": {
             openTag: function(params,content) {
                 return '<span class="xbbcode-b">';
@@ -111,6 +119,29 @@ var XBBCODE = (function() {
             },
             closeTag: function(params,content) {
                 return '';
+            }
+        },
+        "backcolor": {
+            openTag: function(params,content) {
+                params = params || '';
+                
+                var colorCode = (params.substr(1)).toLowerCase() || "black";
+                colorNamePattern.lastIndex = 0;
+                colorCodePattern.lastIndex = 0;
+                if ( !colorNamePattern.test( colorCode ) ) {
+                    if ( !colorCodePattern.test( colorCode ) ) {
+                        colorCode = "white";
+                    } else {
+                        if (colorCode.substr(0,1) !== "#") {
+                            colorCode = "#" + colorCode;
+                        }
+                    }
+                }
+
+                return '<span style="background-color:' + colorCode + '">';
+            },
+            closeTag: function(params,content) {
+                return '</span>';
             }
         },
         "center": {
@@ -134,7 +165,6 @@ var XBBCODE = (function() {
         "color": {
             openTag: function(params,content) {
                 params = params || '';
-                
                 var colorCode = (params.substr(1)).toLowerCase() || "black";
                 colorNamePattern.lastIndex = 0;
                 colorCodePattern.lastIndex = 0;
@@ -208,7 +238,14 @@ var XBBCODE = (function() {
                 return '</span>';
             }
         },
-
+        "hide": {
+            openTag: function(params,content) {
+                return '';
+            },
+            closeTag: function(params,content) {
+                return '';
+            }
+        },
         "i": {
             openTag: function(params,content) {
                 return '<span class="xbbcode-i">';
@@ -233,6 +270,14 @@ var XBBCODE = (function() {
                 return '';
             },
             displayContent: false
+        },
+        "indent": {
+            openTag: function(params,content) {
+                return '<blockquote>';
+            },
+            closeTag: function(params,content) {
+                return '</blockquote>';
+            }
         },
         "justify": {
             openTag: function(params,content) {
@@ -309,6 +354,15 @@ var XBBCODE = (function() {
                 return '</ol>';
             },
             restrictChildrenTo: ["*", "li"]
+        },
+        "p": {
+            openTag: function(params,content) {
+                const styles = params.substr(1).split(',')
+                return '<p style="line-height: '+styles[0]+'px; text-indent: '+styles[1]+'em; text-align: '+styles[2]+';">';
+            },
+            closeTag: function(params,content) {
+                return '</p>';
+            },
         },
         "php": {
             openTag: function(params,content) {
@@ -519,6 +573,7 @@ var XBBCODE = (function() {
             },
             restrictParentsTo: ["list","ul","ol"]
         }
+        
     };
 
     // create tag list and lookup fields

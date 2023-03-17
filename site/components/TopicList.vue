@@ -20,24 +20,29 @@
             >
           </div>
           <div class="topic-time">
-            发布于{{ topic.createTime | prettyDate }}
+            发布于{{
+              (isOld ? topic.createTime * 1000 : topic.createTime) | prettyDate
+            }}
           </div>
         </div>
         <div class="topic-content" :class="{ 'topic-tweet': topic.type === 1 }">
           <template v-if="topic.type === 0">
             <h1 class="topic-title">
-              <nuxt-link :to="'/topic/' + topic.topicId">{{
-                topic.title
-              }}</nuxt-link>
+              <nuxt-link
+                :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
+                >{{ topic.title }}</nuxt-link
+              >
             </h1>
-            <nuxt-link :to="'/topic/' + topic.topicId" class="topic-summary">{{
-              topic.summary
-            }}</nuxt-link>
+            <nuxt-link
+              :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
+              class="topic-summary"
+              >{{ topic.summary }}</nuxt-link
+            >
           </template>
           <template v-if="topic.type === 1">
             <nuxt-link
               v-if="topic.content"
-              :to="'/topic/' + topic.topicId"
+              :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
               class="topic-summary"
               >{{ topic.content }}</nuxt-link
             >
@@ -46,7 +51,10 @@
               class="topic-image-list"
             >
               <li v-for="(image, index) in topic.imageList" :key="index">
-                <nuxt-link :to="'/topic/' + topic.topicId" class="image-item">
+                <nuxt-link
+                  :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
+                  class="image-item"
+                >
                   <img v-lazy="image.preview" />
                 </nuxt-link>
               </li>
@@ -54,7 +62,7 @@
           </template>
         </div>
         <div class="topic-bottom">
-          <div class="topic-handlers">
+          <div class="topic-handlers" :v-if="!isOld">
             <div
               class="btn"
               :class="{ liked: topic.liked }"
@@ -107,6 +115,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isOld: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     async like(topic) {
@@ -124,7 +136,7 @@ export default {
       }
     },
     toTopicDetail(topicId) {
-      this.$linkTo(`/topic/${topicId}`)
+      this.$linkTo('/topic/' + (this.isOld ? 'OLD' : '') + topicId)
     },
   },
 }

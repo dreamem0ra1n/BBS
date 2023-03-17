@@ -170,7 +170,6 @@ export default {
         } catch (e) {
           console.log(e)
         }
-        console.log(links)
         me.download[id] = links
       }
       return comment

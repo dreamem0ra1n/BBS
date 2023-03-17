@@ -45,6 +45,11 @@ type oldComment struct {
 	Content   string `gorm:"column:comment"`
 }
 
+type oldPostMeta struct {
+	PostId     int64 `gorm:"column:tid"`
+	Permission int   `gorm:"column:readperm"`
+}
+
 type oldForum struct {
 	Id      int64  `gorm:"column:fid"`
 	SuperId int64  `gorm:"column:fup"`
@@ -54,6 +59,11 @@ type oldForum struct {
 func (r *oldBBSService) post2topic(post oldPost) model.Topic {
 	var cnt int64
 	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", post.PostId).Where("first = 1").Count(&cnt)
+
+	// 加入权限控制
+	post_meta := oldPostMeta{}
+	r.DB.Table("qsc_bbs_forum_thread").Where("tid = ?", post.PostId).Take(&post_meta)
+
 	return model.Topic{
 		IsOldBBS:     true,
 		Model:        model.Model{Id: post.PostId},
@@ -65,6 +75,7 @@ func (r *oldBBSService) post2topic(post oldPost) model.Topic {
 		CommentCount: cnt,
 		CreateTime:   post.Timestamp,
 		Forum:        r.getForumName(post.ForumId),
+		AccessLv:     post_meta.Permission,
 	}
 }
 
@@ -73,8 +84,6 @@ func (r *oldBBSService) GetTopic(id int64) *model.Topic {
 	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Take(&post).Error != nil {
 		return nil
 	}
-	var cnt int64
-	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", id).Where("first = 1").Count(&cnt)
 	topic := r.post2topic(post)
 	return &topic
 }
@@ -107,7 +116,7 @@ func (r *oldBBSService) GetComments(_ string, TopicId int64, cursor int64, ascOr
 		})
 	}
 	nextCursor = cursor + int64(len(comments))
-	hasMore = len(comments) == 0
+	hasMore = len(comments) != 0
 	return
 }
 
@@ -133,7 +142,7 @@ func (r *oldBBSService) GetReplies(CommentId int64, cursor int, limit int) (comm
 		})
 	}
 	nextCursor = cursor + len(comments)
-	hasMore = len(comments) == 0
+	hasMore = len(comments) != 0
 	return
 }
 
@@ -169,7 +178,7 @@ func (r *oldBBSService) GetTopicsByForum(fid int64, cursor int64) (topics []mode
 		topics = append(topics, r.post2topic(post))
 	}
 	nextCursor = cursor + int64(len(topics))
-	hasMore = len(topics) == 0
+	hasMore = len(topics) != 0
 	return
 }
 

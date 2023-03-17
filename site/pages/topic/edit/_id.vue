@@ -58,16 +58,6 @@
             />
           </div>
         </div>
-        <!--<div class="control">
-          <el-select v-model="postForm.access_lv" placeholder="请选择可见性">
-            <el-option
-              v-for="lv in levelArray"
-              :key="lv.level"
-              :value="lv.level"
-              :label="lv.description"
-            ></el-option>
-          </el-select>
-        </div>-->
         <div class="field">
           <div class="control">
             <el-select v-model="postForm.access_lv" placeholder="请选择可见性">
@@ -165,7 +155,6 @@ export default {
         return
       }
       try {
-        console.log(this.postForm.tags)
         const topic = await this.$axios.post(
           '/api/topic/edit/' + this.topic.topicId,
           {
