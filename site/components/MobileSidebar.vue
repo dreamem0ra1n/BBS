@@ -72,9 +72,9 @@ export default {
     loginUrl() {
       try {
         const url = window.location.href
-          ? 'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+          ? 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
             window.location.href
-          : 'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+          : 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
             this.$store.state.env.currentURL
         window.location.href = url
       } catch (e) {}
