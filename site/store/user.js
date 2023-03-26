@@ -68,7 +68,7 @@ export const actions = {
       .catch((e) => {
         console.log(e)
         window.location.href =
-          'https://www.qsc.zju.edu.cn/passport/v4/qsc/login?success=' +
+          'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
           window.location.origin +
           window.location.pathname
         // me.state.env.currentURL
