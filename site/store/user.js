@@ -86,11 +86,15 @@ export const actions = {
     context.commit('setUserToken', null)
     context.commit('setCurrent', null)
     this.$cookies.remove('userToken')
-    this.$cookies.remove('SESSION_TOKEN')
-    await fetch('https://www.qsc.zju.edu.cn/passport/v4/logout', {
-      method: 'GET',
-      credentials: 'include',
-    })
-    this.$forceUpdate()
+    try {
+      await fetch('https://www.qsc.zju.edu.cn/passport/v4/logout', {
+        method: 'GET',
+        credentials: 'include',
+      })
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.$forceUpdate()
+    }
   },
 }

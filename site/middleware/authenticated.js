@@ -1,10 +1,8 @@
 import UserHelper from '~/common/UserHelper'
-
 export default function (context) {
   const user = context.store.state.user.current
   if (!user) {
-    // toSignIn(context)
-    // LoginNeo()
+    toSignIn(context)
     return
   }
   if (isAdminUrl(context)) {
@@ -16,18 +14,15 @@ export default function (context) {
     }
   }
 }
-
 // 当前访问URL是否是管理后台
 function isAdminUrl(context) {
   return context.route.path.indexOf('/admin') === 0
 }
-
 // 前往登录地址
 function toSignIn(context) {
   const signInUrl = getSignInUrl(context)
   context.redirect(signInUrl)
 }
-
 // 获取登录跳转地址
 function getSignInUrl(context) {
   let ref // 来源地址
@@ -38,7 +33,8 @@ function getSignInUrl(context) {
     // 客户端
     ref = context.route.path
   }
-  let signinUrl = '/user/signin'
+  let signinUrl =
+    'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success='
   if (ref) {
     signinUrl += '?ref=' + encodeURIComponent(ref)
   }

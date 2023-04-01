@@ -1,29 +1,16 @@
 import qs from 'qs'
-export default function ({ req, $axios, app, store }) {
+export default function ({ req, $axios, app }) {
   let prefix = ''
   try {
     if (window) prefix = '/bbs2'
   } catch (e) {
   } finally {
-    // using the middleware in /middleware/login.js,the cookie is added on the request header
-    // however, it seems that when the server transmits the request, the cookies are ignored
-    // so I decided to pick userToken out manually here
-    const ifToken = req?.rawHeaders.find((str) => str.includes('userToken'))
-    let token
-    if (ifToken) {
-      token = ifToken.split('userToken=')[1].split(';')[0]
-      app.$cookies.set('userToken', token)
-      store.commit('user/setUserToken', token)
-    }
-    // the above part picks out userToken
     $axios.onRequest((config) => {
       config.url = prefix + config.url
       config.headers.common['X-Client'] = 'bbs-go-site'
       config.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
-      // const userToken = app.$cookies.get('userToken')
-      if (token) {
-        config.headers.common['X-User-Token'] = token
-      }
+      const userToken = app.$cookies.get('userToken')
+      if (userToken) config.headers.common['X-User-Token'] = userToken
       config.transformRequest = [
         function (data) {
           if (process.client && data instanceof FormData) {
