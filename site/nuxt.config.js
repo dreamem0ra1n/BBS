@@ -136,5 +136,4 @@ export default {
       },
     },
   },
-  // serverMiddleware: ['~/middleware/login'],
 }

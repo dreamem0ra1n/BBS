@@ -1,8 +1,8 @@
 import qs from 'qs'
-export default function ({ req, $axios, app }) {
+export default function ({ $axios, app }) {
   let prefix = ''
   try {
-    if (window) prefix = '/bbs2'
+    if (process.client) prefix = '/bbs2'
   } catch (e) {
   } finally {
     $axios.onRequest((config) => {
