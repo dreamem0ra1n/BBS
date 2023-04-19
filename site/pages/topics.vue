@@ -8,8 +8,8 @@
         </div>
       </div>
       <div class="right-container">
-        <check-in />
         <site-notice />
+        <check-in />
         <score-rank :score-rank="scoreRank" />
         <friend-links :links="links" />
       </div>

@@ -119,7 +119,6 @@
 </template>
 
 <script>
-import HTMLDecode from '../utils/HTMLDecode'
 export default {
   props: {
     commentId: {
