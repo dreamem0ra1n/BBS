@@ -101,8 +101,8 @@ export default {
             that.post.content +
             '<a href="' +
             that.$store.state.env.currentURL +
-            '/bbs2'+
-          '/api/file/download/' +
+            '/bbs2'
+            '/api/file/download/' +
             ret.file_id +
             '" download="' +
             fileName +
