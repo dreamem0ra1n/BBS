@@ -14,9 +14,9 @@ const OLD_BBS_PREFIX = "OLD"
 // id==-1 if parse failed
 func parseIdStr(idStr string) (id int64, isOld bool) {
 	isOld = false
-	if strings.HasPrefix(idStr, OLD_BBS_PREFIX) {
+	if strings.HasPrefix(idStr, "OLD") {
 		isOld = true
-		idStr = strings.TrimPrefix(idStr, OLD_BBS_PREFIX)
+		idStr = strings.TrimPrefix(idStr, "OLD")
 	}
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
