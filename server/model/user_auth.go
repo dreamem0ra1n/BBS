@@ -35,6 +35,7 @@ const (
 	SeniorUser_NAME  = "高级成员"
 	NormalUser_NAME  = "正式成员"
 	InternUser_NAME  = "实习成员"
+	OLDBBSUser_NAME  = "oldbbs_readall"
 )
 
 func GetAuthUnit(role string, arg int) (*AuthUnit, error) {

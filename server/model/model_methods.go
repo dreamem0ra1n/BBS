@@ -220,7 +220,7 @@ func UserCanAccessTopic(user *User, topic *Topic) bool {
 	}
 
 	if topic.IsOldBBS {
-		return topic.AccessLv == 0 || user.HasAnyRole("oldbbs_readall")
+		return topic.AccessLv == 0 || user.HasAnyRole(OLDBBSUser_NAME)
 	}
 
 	// 获取该部门的权限
