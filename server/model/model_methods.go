@@ -91,7 +91,7 @@ func (u *User) GetRoleByArg(arg int64) (string, error) {
 		roleType := roleItems[0]
 		var roleArgv int
 		var err error
-		if len(roleItems) == 2 {
+		if len(roleItems) == 2 && role != OLDBBSUser_NAME {
 			roleArgv, err = strconv.Atoi(roleItems[1])
 		} else {
 			roleArgv = -1

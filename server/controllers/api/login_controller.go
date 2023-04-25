@@ -179,10 +179,10 @@ func getRoleFromLoginUserData(u LoginUser) string {
 		prefix = model.SeniorUser_NAME + "_1," + model.SeniorUser_NAME + "_11,"
 		ret = model.SeniorUser_NAME
 	case "中管":
-		prefix = model.AdminUser_NAME + "_1," + model.AdminUser_NAME + "_11,"
+		prefix = model.AdminUser_NAME + "_1," + model.AdminUser_NAME + "_11," + model.OLDBBSUser_NAME + ","
 		ret = model.AdminUser_NAME
 	case "高管":
-		return model.MasterUser_NAME
+		return model.MasterUser_NAME + model.OLDBBSUser_NAME + ","
 	default:
 		return ""
 	}
