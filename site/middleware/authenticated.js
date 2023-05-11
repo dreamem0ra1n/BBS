@@ -36,7 +36,8 @@ function getSignInUrl(context) {
   let signinUrl =
     'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success='
   if (ref) {
-    signinUrl += '?ref=' + encodeURIComponent(ref)
+    signinUrl +=
+      context.store.state.env.currentURL + '/bbs2' + encodeURIComponent(ref)
   }
   return signinUrl
 }

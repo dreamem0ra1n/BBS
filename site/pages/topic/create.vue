@@ -95,8 +95,6 @@
 </template>
 
 <script>
-import { throws } from 'assert'
-
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, query, store }) {
