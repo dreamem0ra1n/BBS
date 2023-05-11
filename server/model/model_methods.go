@@ -91,7 +91,7 @@ func (u *User) GetRoleByArg(arg int64) (string, error) {
 		roleType := roleItems[0]
 		var roleArgv int
 		var err error
-		if len(roleItems) == 2 {
+		if len(roleItems) == 2 && role != OLDBBSUser_NAME {
 			roleArgv, err = strconv.Atoi(roleItems[1])
 		} else {
 			roleArgv = -1
@@ -220,7 +220,7 @@ func UserCanAccessTopic(user *User, topic *Topic) bool {
 	}
 
 	if topic.IsOldBBS {
-		return topic.AccessLv == 0 || user.HasAnyRole("oldbbs_readall")
+		return topic.AccessLv == 0 || user.HasAnyRole(OLDBBSUser_NAME)
 	}
 
 	// 获取该部门的权限
