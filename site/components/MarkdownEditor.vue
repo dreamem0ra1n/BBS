@@ -66,9 +66,14 @@ export default {
           title: '添加链接',
           icon: 'v-md-icon-link',
           action(editor) {
-            editor.insert(() => {
+            editor.insert(function (selected) {
+              const prefix = '['
+              const suffix = '](链接地址)'
+              const placeholder = '链接名称'
+              const content = selected || placeholder
               return {
-                text: '[链接名称](链接地址)',
+                text: `${prefix}${content}${suffix}`,
+                selected: content,
               }
             })
           },
