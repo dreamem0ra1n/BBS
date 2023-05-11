@@ -62,6 +62,17 @@ export default {
             _this.$refs.upload.dispatchEvent(new MouseEvent('click'))
           },
         },
+        myLink: {
+          title: '添加链接',
+          icon: 'v-md-icon-link',
+          action(editor) {
+            editor.insert(() => {
+              return {
+                text: '[链接名称](链接地址)',
+              }
+            })
+          },
+        },
       },
     }
   },
@@ -73,7 +84,7 @@ export default {
       if (this.isMobile) {
         return 'h bold italic strikethrough image customToolBar1'
       } else {
-        return 'undo redo clear | h bold italic strikethrough quote | ul ol table hr | link image code | customToolBar1'
+        return 'undo redo clear | h bold italic strikethrough quote | ul ol table hr | myLink image code | customToolBar1'
       }
     },
     rightToolbar() {
