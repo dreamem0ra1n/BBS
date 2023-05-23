@@ -42,7 +42,7 @@ export default {
       required: true,
     },
     entityId: {
-      type: Number,
+      type: Number || String,
       default: 0,
       required: true,
     },
