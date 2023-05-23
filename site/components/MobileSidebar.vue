@@ -35,10 +35,13 @@
                 >编辑资料</nuxt-link
               >
             </div>
+            <div class="sidebar-menu-item">
+              <p @click="signout">退出登录</p>
+            </div>
           </div>
         </template>
         <template v-else>
-          <div class="sidebar-login-btn button is-primary" @click="loginUrl">
+          <div class="sidebar-login-btn button is-primary" @click="login">
             登录
           </div>
         </template>
@@ -69,15 +72,8 @@ export default {
     },
   },
   methods: {
-    loginUrl() {
-      try {
-        const url = window.location.href
-          ? 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
-            window.location.href
-          : 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
-            this.$store.state.env.currentURL
-        window.location.href = url
-      } catch (e) {}
+    login() {
+      this.$toSignin()
     },
     async signout() {
       try {

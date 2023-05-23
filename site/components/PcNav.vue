@@ -71,7 +71,7 @@
           </div>
           <div v-else class="navbar-item">
             <div class="buttons">
-              <div class="button login-btn" @click="loginUrl">登录</div>
+              <div class="button login-btn" @click="login">登录</div>
             </div>
           </div>
           <div class="navbar-item">
@@ -104,15 +104,8 @@ export default {
     },
   },
   methods: {
-    loginUrl() {
-      try {
-        const url = window.location.href
-          ? 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
-            window.location.href
-          : 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login?success=' +
-            this.$store.state.env.currentURL
-        window.location.href = url
-      } catch (e) {}
+    login() {
+      this.$toSignin()
     },
     async signout() {
       try {
