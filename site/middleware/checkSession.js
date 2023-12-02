@@ -17,10 +17,11 @@ export default async function (context) {
         path: '/',
       })
     } catch (e) {
-      console.log(e)
+      // console.log(e)
     } finally {
       // 重定向至该页（无 SESSION_TOKEN 参数）
       context.redirect(context.route.path)
     }
   }
 }
+
