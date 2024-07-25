@@ -35,6 +35,7 @@ const (
 	SeniorUser_NAME  = "高级成员"
 	NormalUser_NAME  = "正式成员"
 	InternUser_NAME  = "实习成员"
+	RetireUser_NAME  = "退休"
 	OLDBBSUser_NAME  = "oldbbs_readall"
 )
 
@@ -89,6 +90,16 @@ func NormalUserAuthUnit(section int) *AuthUnit {
 
 // 顾问 / 高级成员
 func SeniorUserAuthUnit(section int) *AuthUnit {
+	ret := &AuthUnit{
+		BelongSection: section,
+		ReadLv:        3,
+		ManageLv:      1,
+	}
+	return ret
+}
+
+// 退休
+func RetireUserAuthUnit(section int) *AuthUnit {
 	ret := &AuthUnit{
 		BelongSection: section,
 		ReadLv:        3,

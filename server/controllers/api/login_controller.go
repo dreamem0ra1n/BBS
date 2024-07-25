@@ -172,12 +172,15 @@ func getRoleFromLoginUserData(u LoginUser) string {
 	switch u.User.Qsc.Position {
 	case "实习成员":
 		ret = model.InternUser_NAME
-	case "正式成员", "退休":
+	case "正式成员":
 		prefix = model.NormalUser_NAME + "_1," + model.NormalUser_NAME + "_11,"
 		ret = model.NormalUser_NAME
 	case "顾问", "高级成员":
 		prefix = model.SeniorUser_NAME + "_1," + model.SeniorUser_NAME + "_11,"
 		ret = model.SeniorUser_NAME
+	case "退休":
+		prefix = model.RetireUser_NAME + "_1," + model.RetireUser_NAME + "_11,"
+		ret = model.RetireUser_NAME
 	case "中管":
 		prefix = model.AdminUser_NAME + "_1," + model.AdminUser_NAME + "_11," + model.OLDBBSUser_NAME + ","
 		ret = model.AdminUser_NAME
