@@ -158,7 +158,7 @@ func updateUser(user model.User, upd LoginUser) error {
 	user.Password = passwd.EncodePassword(upd.User.ZjuId)
 	user.Roles = getRoleFromLoginUserData(upd)
 
-	err := repositories.UserRepository.Update(sqls.DB(), &user)
+	err := services.UserService.Update(&user)
 
 	if err != nil {
 		return err
@@ -172,7 +172,7 @@ func getRoleFromLoginUserData(u LoginUser) string {
 	switch u.User.Qsc.Position {
 	case "实习成员":
 		ret = model.InternUser_NAME
-	case "正式成员":
+	case "正式成员", "退休":
 		prefix = model.NormalUser_NAME + "_1," + model.NormalUser_NAME + "_11,"
 		ret = model.NormalUser_NAME
 	case "顾问", "高级成员":
