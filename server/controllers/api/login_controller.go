@@ -178,7 +178,7 @@ func getRoleFromLoginUserData(u LoginUser) string {
 	case "顾问", "高级成员":
 		prefix = model.SeniorUser_NAME + "_1," + model.SeniorUser_NAME + "_11,"
 		ret = model.SeniorUser_NAME
-	case "退休":
+	case "退休老干部":
 		prefix = model.RetireUser_NAME + "_1," + model.RetireUser_NAME + "_11,"
 		ret = model.RetireUser_NAME
 	case "中管":

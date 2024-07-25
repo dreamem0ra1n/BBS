@@ -35,7 +35,7 @@ const (
 	SeniorUser_NAME  = "高级成员"
 	NormalUser_NAME  = "正式成员"
 	InternUser_NAME  = "实习成员"
-	RetireUser_NAME  = "退休"
+	RetireUser_NAME  = "退休老干部"
 	OLDBBSUser_NAME  = "oldbbs_readall"
 )
 
