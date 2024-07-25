@@ -51,6 +51,8 @@ func GetAuthUnit(role string, arg int) (*AuthUnit, error) {
 		return NormalUserAuthUnit(arg), nil
 	case InternUser_NAME:
 		return InternUserAuthUnit(arg), nil
+	case RetireUser_NAME:
+		return RetireUserAuthUnit(arg), nil
 	case DefaultUser_NAME:
 		return DefaultAuthUnit(), nil
 	default:
