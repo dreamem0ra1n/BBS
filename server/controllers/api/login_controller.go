@@ -93,15 +93,19 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	// logrus.Info("receive data from passport(string): ", bodyStr)
 	logrus.Info("receive data from passport(binding): ", resp.Data)
 
-	if resp.Data.User.LoginType != "qsc" {
+	if resp.Data.User.LoginType != "qsc" || resp.Data.User.Qsc.QscId == "" {
 		logrus.Info("Can't login! Actually, he/she is not a qscer!")
 		return web.JsonError(errors.New("you are not qscer"))
 	}
 
-	ZjuId := resp.Data.User.ZjuId
-	_ = resp.Data.User.LoginType
+	// BUGFIX: 导入的字段有可能前后有空格（应该已经修复）；给字段Trim一下
 
-	user, err := services.UserService.SignIn(ZjuId+"@zju.edu.cn", ZjuId)
+	ZjuId := strings.TrimSpace(resp.Data.User.ZjuId)
+	QscId := strings.TrimSpace(resp.Data.User.Qsc.QscId)
+
+	// BUGFIX: 当ZjuID (email) 修改后，QscID (username) 的Unique约束会导致注册失败；改为查询ZjuId OR QscId
+
+	user, err := services.UserService.SignIn(ZjuId+"@zju.edu.cn", QscId)
 	if err != nil && err.Error() == "NO_SUCH_USER" {
 		logrus.Info("No such user, try to create a new account.")
 		user, err = registerUser(resp.Data)

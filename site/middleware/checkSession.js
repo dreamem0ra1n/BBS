@@ -12,15 +12,19 @@ export default async function (context) {
     try {
       // 向 bbs 后端发送请求获取 userToken
       const response = await context.$axios.post('/api/login/signin')
+      console.log('user token:', response.token)
       await context.app.$cookies.set('userToken', response.token, {
         maxAge: 86400 * context.store.state.config.config.tokenExpireDays,
         path: '/',
       })
-    } catch (e) {
-      // console.log(e)
-    } finally {
       // 重定向至该页（无 SESSION_TOKEN 参数）
       context.redirect(context.route.path)
+    } catch (e) {
+      console.error(e)
+      context.error({
+        statusCode: 500,
+        message: '500 Internal Error: ' + e.message,
+      })
     }
   }
 }
