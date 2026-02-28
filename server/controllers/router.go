@@ -27,6 +27,10 @@ import (
 // 10 MB
 const FileMaxSize = 10 << 20
 
+// Shared HTTP client for image proxy to avoid leaking connections.
+// Creating a new resty client per request leaks TCP connections and file descriptors.
+var imgProxyClient = resty.New()
+
 func Router() {
 	app := iris.New()
 	app.Logger().SetLevel("warn")
@@ -97,7 +101,7 @@ func Router() {
 
 	app.Get("/api/img/proxy", func(i iris.Context) {
 		url := i.FormValue("url")
-		resp, err := resty.New().R().Get(url)
+		resp, err := imgProxyClient.R().Get(url)
 		i.Header("Content-Type", "image/jpg")
 		if err == nil {
 			_, _ = i.Write(resp.Body())
@@ -127,7 +131,7 @@ func Router() {
 }
 
 func handleSignal(server *http.Server) {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
 
 	go func() {

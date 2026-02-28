@@ -16,7 +16,7 @@ var (
 
 func init() {
 	var err error
-	eventPool, err = ants.NewPoolWithFunc(4, dispatch, ants.WithMaxBlockingTasks(1000), ants.WithLogger(logrus.New()))
+	eventPool, err = ants.NewPoolWithFunc(50, dispatch, ants.WithMaxBlockingTasks(1000), ants.WithLogger(logrus.New()))
 	if err != nil {
 		logrus.Error(err)
 	}

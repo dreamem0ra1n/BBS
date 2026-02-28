@@ -29,35 +29,28 @@ type FileController struct {
 	Ctx iris.Context
 }
 
-var (
-	ConfEndpoint        string
-	ConfAccessKeyID     string
-	ConfSecretAccessKey string
-	ConfUseSSL          bool
-)
+// Global MinIO client reused across all file operations.
+// Creating a new client per request leaks connections and exhausts resources.
+var globalMinioClient *minio.Client
 
 // Offical Docs
 // http://docs.minio.org.cn/docs/master/golang-client-api-reference#PutObject
 
 func InitMinio(conf *config.Config) {
 	// 初使化minio client对象。
-	ConfEndpoint = conf.MinIO.Endpoint
-	ConfAccessKeyID = conf.MinIO.AccessKeyID
-	ConfSecretAccessKey = conf.MinIO.SecretAccessKey
-	ConfUseSSL = conf.MinIO.UseSSL
-
-	minioClient, err := minio.New(
-		ConfEndpoint,
-		ConfAccessKeyID,
-		ConfSecretAccessKey,
-		ConfUseSSL,
+	var err error
+	globalMinioClient, err = minio.New(
+		conf.MinIO.Endpoint,
+		conf.MinIO.AccessKeyID,
+		conf.MinIO.SecretAccessKey,
+		conf.MinIO.UseSSL,
 	)
 
 	if err != nil {
 		logrus.Fatal("Fail to create MinIO Client: ", err)
 		return
 	}
-	exists, err := minioClient.BucketExists(bucketName)
+	exists, err := globalMinioClient.BucketExists(bucketName)
 	if err == nil && exists {
 		logrus.Info(fmt.Sprintf("We already own a bucket called %s\n", bucketName))
 	} else {
@@ -65,7 +58,7 @@ func InitMinio(conf *config.Config) {
 			logrus.Fatal("Fail to find exist bucket: ", err)
 			return
 		}
-		err = minioClient.MakeBucket(bucketName, conf.MinIO.BucketLocation)
+		err = globalMinioClient.MakeBucket(bucketName, conf.MinIO.BucketLocation)
 		if err != nil {
 			logrus.Fatal("Fail to create bucket:", err)
 			return
@@ -146,20 +139,7 @@ func (c *FileController) GetDownloadBy(fileId string) {
 func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord, error) {
 	fileUUID := uuid.New().String()
 
-	// 初使化minio client对象。
-	minioClient, err := minio.New(
-		ConfEndpoint,
-		ConfAccessKeyID,
-		ConfSecretAccessKey,
-		ConfUseSSL,
-	)
-
-	if err != nil {
-		logrus.Error("Fail to create MinIO Client")
-		return nil, err
-	}
-
-	bytes, err := minioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	bytes, err := globalMinioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	if err != nil {
 		logrus.Error("error happen when put object to minio: %s", err)
@@ -184,19 +164,6 @@ func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord
 }
 
 func getFile(fileId string) (*minio.Object, string, error) {
-	// 初使化minio client对象。
-	minioClient, err := minio.New(
-		ConfEndpoint,
-		ConfAccessKeyID,
-		ConfSecretAccessKey,
-		ConfUseSSL,
-	)
-
-	if err != nil {
-		logrus.Error("Fail to create MinIO Client")
-		return nil, "", err
-	}
-
 	fileRecord := repositories.FileRepository.GetByUUID(sqls.DB(), fileId)
 
 	if fileRecord == nil {
@@ -204,7 +171,7 @@ func getFile(fileId string) (*minio.Object, string, error) {
 		return nil, "", errors.New("no such file")
 	}
 
-	object, err := minioClient.GetObject(
+	object, err := globalMinioClient.GetObject(
 		fileRecord.BucketName,
 		fileRecord.FileUUID,
 		minio.GetObjectOptions{},

@@ -43,13 +43,18 @@ type LoginController struct {
 	Ctx iris.Context
 }
 
+// Shared HTTP client for passport requests to avoid leaking connections.
+// Creating a new http.Client per request leaks TCP connections and file descriptors.
+var passportClient = &http.Client{
+	Timeout: 10 * time.Second,
+}
+
 // 用户名密码登录
 func (c *LoginController) PostSignin() *web.JsonResult {
 	successCookieVal := c.Ctx.GetCookie("SESSION_TOKEN")
 	// 跳转前的网址
 	ref := c.Ctx.PostValueTrim("ref")
 
-	client := &http.Client{}
 	parms := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", "https://www.qsc.zju.edu.cn/passport/v4/profile", parms)
 
@@ -67,14 +72,14 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	}
 	logrus.Info(cookie)
 	req.AddCookie(cookie)
-	HTTPresp, err := client.Do(req)
+	HTTPresp, err := passportClient.Do(req)
 	if err != nil {
 		logrus.Error("error happen when send request to passport", err)
 		return web.JsonError(err)
 	}
+	defer HTTPresp.Body.Close()
 
 	body, err := ioutil.ReadAll(HTTPresp.Body)
-	HTTPresp.Body.Close()
 	if err != nil {
 		logrus.Error("error happen when read response from passport", err)
 		return web.JsonError(err)
