@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/iris-contrib/middleware/cors"
@@ -28,8 +30,8 @@ import (
 const FileMaxSize = 10 << 20
 
 // Shared HTTP client for image proxy to avoid leaking connections.
-// Creating a new resty client per request leaks TCP connections and file descriptors.
-var imgProxyClient = resty.New()
+// Add a timeout to prevent stuck upstream requests from exhausting workers.
+var imgProxyClient = resty.New().SetTimeout(10 * time.Second)
 
 func Router() {
 	app := iris.New()
@@ -101,11 +103,28 @@ func Router() {
 
 	app.Get("/api/img/proxy", func(i iris.Context) {
 		url := i.FormValue("url")
-		resp, err := imgProxyClient.R().Get(url)
-		i.Header("Content-Type", "image/jpg")
-		if err == nil {
-			_, _ = i.Write(resp.Body())
+		resp, err := imgProxyClient.R().SetDoNotParseResponse(true).Get(url)
+		if err != nil {
+			i.StatusCode(http.StatusBadGateway)
+			logrus.Error(err)
+			return
+		}
+
+		body := resp.RawBody()
+		if body == nil {
+			i.StatusCode(http.StatusBadGateway)
+			return
+		}
+		defer body.Close()
+
+		if contentType := resp.Header().Get("Content-Type"); contentType != "" {
+			i.Header("Content-Type", contentType)
 		} else {
+			i.Header("Content-Type", "image/jpeg")
+		}
+		i.StatusCode(resp.StatusCode())
+
+		if _, err = io.Copy(i.ResponseWriter(), body); err != nil {
 			logrus.Error(err)
 		}
 	})

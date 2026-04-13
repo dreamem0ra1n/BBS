@@ -73,6 +73,7 @@ func (c *FileController) PostUpload() *web.JsonResult {
 		logrus.Error("error happen when get multipart file: ", err)
 		return web.JsonError(err)
 	}
+	defer file.Close()
 
 	fileSize := info.Size
 
