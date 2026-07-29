@@ -4,12 +4,16 @@
       <div>
         <nuxt-link to="/tags">标签</nuxt-link>
         <nuxt-link to="/links">友链</nuxt-link>
-        <span @click="BG" class="go-bg">一键BG</span>
+        <span class="go-bg" @click="BG">一键BG</span>
       </div>
       <div>
-        © 2022 Powered by
+        © 2026 Powered by
         <a href="https://docs.bbs-go.com" target="_blank" class="light"
           >BBS-GO</a
+        >
+        and Modified by
+        <a href="https://www.qsc.zju.edu.cn" target="_blank" class="light"
+          >QSC-tech</a
         >
       </div>
     </div>
