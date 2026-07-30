@@ -13,6 +13,8 @@ features:
 footer: Copyright © 2022
 ---
 
+> 本页保留上游 `mlogclub/bbs-go` 的历史介绍和链接，用于说明项目来源，不代表本仓库当前的部署方式、维护团队或支持渠道。当前项目说明以仓库根目录的 `README.md` 为准。
+
 ![bbs-go功能简介](https://file.mlog.club/images/2021/11/12/8754103189670afe659f88d5596c8f2a.png)
 
 ## 官网

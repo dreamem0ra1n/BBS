@@ -12,26 +12,18 @@
       </div>
     </div>
     <div class="widget">
-      <div class="widget-header">开发团队信息</div>
+      <div class="widget-header">项目来源</div>
       <div class="widget-content">
         <div>
-          Official Site:
-          <a href="https://mlog.club/" target="_blank">https://mlog.club/</a>
-        </div>
-        <div>
-          Dev Team:
-          <a href="https://github.com/mlogclub/" target="_blank">码农俱乐部</a>
-        </div>
-        <div>
-          Github:
-          <a href="https://github.com/mlogclub/bbs-go" target="_blank"
-            >https://github.com/mlogclub/bbs-go</a
+          当前仓库：
+          <a href="https://github.com/dreamem0ra1n/BBS" target="_blank"
+            >https://github.com/dreamem0ra1n/BBS</a
           >
         </div>
         <div>
-          Gitee:
-          <a href="https://gitee.com/mlogclub/bbs-go" target="_blank"
-            >https://gitee.com/mlogclub/bbs-go</a
+          上游项目：
+          <a href="https://github.com/mlogclub/bbs-go" target="_blank"
+            >https://github.com/mlogclub/bbs-go</a
           >
         </div>
       </div>

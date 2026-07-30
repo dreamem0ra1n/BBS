@@ -2,7 +2,7 @@
 
 ## 介绍
 
-该项目使用nuxt.js进行构建，利用服务端渲染技术构建 https://mlog.club 前端界面。
+该目录是本项目的 Nuxt.js 服务端渲染前台。完整的本地与服务器部署流程以仓库根目录的 `README.md` 为准。
 
 ## Build Setup
 

@@ -1,5 +1,24 @@
 ## 介绍
-该项目使用Golang进行构建，具体参见：https://mlog.club
+
+该目录是项目的 Go 后端。完整的本地与服务器部署流程以仓库根目录的 `README.md` 为准。
+
+## 后端镜像构建
+
+生产镜像默认不编译密码登录提供者；生产示例配置只启用求是潮 Passport：
+
+```bash
+docker build -t bbs-neo-backend ./server
+```
+
+本地开发镜像需要显式选择 `dev` target，该 target 会使用 `passwordlogin` build tag：
+
+```bash
+docker build --target dev -t bbs-neo-backend-dev ./server
+```
+
+登录方式由配置文件中的 `LoginMethods` 声明。开发配置启用 `password`，生产配置只启用 `passport`。业务代码不根据 `Env` 选择登录方式；生产镜像即使误配 `password: true`，也不会注册 `/api/login/password`。
+
+密码登录接口为 `[POST] /api/login/password`，只供本地调试使用，要求数据库中的普通用户名和密码。生产构建不会注册该接口。
 
 ## 魔改后的接口介绍
 
@@ -94,7 +113,7 @@ resp: file
 ### Model修改
 - topic和comment都添加了`bool IsOldBBS`字段
 - 部分无关字段置为null或0（点赞、收藏等）
-  
+
 ### new apis
 
 - `/search/oldbbs`
