@@ -39,6 +39,30 @@ Vue.use({
      * @param ref
      */
     Vue.prototype.$toSignin = function (ref) {
+      const loginMethods = this.$store.state.config.config.loginMethods || {}
+
+      // 如果启用了密码登录，则跳转到密码登录页面
+      if (loginMethods.password) {
+        const currentPath = this.$route && this.$route.fullPath
+        const signinRoute = { path: '/user/signin' }
+        const returnPath = ref || currentPath
+        if (returnPath && !this.$isSigninUrl(returnPath)) {
+          signinRoute.query = { ref: returnPath }
+        }
+        this.$router.push(signinRoute)
+        return
+      }
+
+      // 如果启用了passport登录，则跳转到passport登录页面
+      if (loginMethods.passport) {
+        this.$toPassportSignin(ref)
+        return
+      }
+
+      this.$msg({ type: 'error', message: '当前没有可用的登录方式' })
+    }
+
+    Vue.prototype.$toPassportSignin = function (ref) {
       if (!ref && process.client) {
         // 如果没配置refUrl，那么取当前地址
         ref = window.location.href

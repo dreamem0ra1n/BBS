@@ -20,9 +20,28 @@ function isAdminUrl(context) {
 }
 // 前往登录地址
 function toSignIn(context) {
-  const signInUrl = getSignInUrl(context)
-  context.redirect(signInUrl)
+  const loginMethods = context.store.state.config.config.loginMethods || {}
+
+  // 如果启用了密码登录，则跳转到密码登录页面
+  if (loginMethods.password) {
+    let ref = context.route.fullPath
+    if (process.server && context.req) {
+      ref = context.req.originalUrl.replace(/^\/bbs2/, '')
+    }
+    context.redirect('/user/signin?ref=' + encodeURIComponent(ref || '/'))
+    return
+  }
+
+  // 如果启用了passport登录，则跳转到passport登录页面
+  if (loginMethods.passport) {
+    context.redirect(getSignInUrl(context))
+    return
+  }
+
+  // 如果没有启用任何登录方式，则返回错误
+  context.error({ statusCode: 503, message: 'No login method is enabled' })
 }
+
 // 获取登录跳转地址
 function getSignInUrl(context) {
   let ref // 来源地址

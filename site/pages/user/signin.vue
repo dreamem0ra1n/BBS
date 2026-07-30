@@ -5,7 +5,7 @@
         <div class="widget signin">
           <div class="widget-header">登录</div>
           <div class="widget-content">
-            <template v-if="loginMethod.password">
+            <template v-if="loginMethods.password">
               <div class="field">
                 <label class="label">用户名</label>
                 <div class="control has-icons-left">
@@ -47,6 +47,12 @@
               </div>
             </template>
 
+            <div v-if="loginMethods.passport" class="field">
+              <button class="button is-link" @click="$toPassportSignin(ref)">
+                通过求是潮 Passport 登录
+              </button>
+            </div>
+
             <div
               v-if="loginMethod.qq || loginMethod.github || loginMethod.osc"
               class="third-party-line"
@@ -69,9 +75,6 @@ export default {
     return {
       username: '',
       password: '',
-      // captchaId: '',
-      // captchaUrl: '',
-      // captchaCode: '',
     }
   },
   head() {
@@ -86,8 +89,11 @@ export default {
     isLogin() {
       return !!this.currentUser
     },
+    loginMethods() {
+      return this.$store.state.config.config.loginMethods || {}
+    },
     loginMethod() {
-      return this.$store.state.config.config.loginMethod
+      return this.$store.state.config.config.loginMethod || {}
     },
   },
   methods: {
@@ -112,19 +118,6 @@ export default {
           // 跳到个人主页
           this.$linkTo('/user/' + user.id)
         }
-      } catch (e) {
-        this.$message.error(e.message || e)
-      }
-    },
-    async showCaptcha() {
-      try {
-        const ret = await this.$axios.get('/api/captcha/request', {
-          params: {
-            captchaId: this.captchaId || '',
-          },
-        })
-        this.captchaId = ret.captchaId
-        this.captchaUrl = ret.captchaUrl
       } catch (e) {
         this.$message.error(e.message || e)
       }
