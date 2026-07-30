@@ -48,6 +48,7 @@
 const defaultTab = 'topics'
 
 export default {
+  middleware: 'authenticated',
   async asyncData({ $axios, params, query, error }) {
     let user
     try {

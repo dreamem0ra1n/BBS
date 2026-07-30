@@ -59,6 +59,10 @@ func (c *UserController) GetNode_authBy(nodeId int64) *web.JsonResult {
 
 // 用户详情
 func (c *UserController) GetBy(userId int64) *web.JsonResult {
+	if services.UserTokenService.GetCurrent(c.Ctx) == nil {
+		return web.JsonError(errs.NotLogin)
+	}
+
 	user := cache.UserCache.Get(userId)
 	if user != nil && user.Status != constants.StatusDeleted {
 		return web.JsonData(render.BuildUserProfile(user))
