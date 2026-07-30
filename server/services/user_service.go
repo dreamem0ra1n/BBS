@@ -250,8 +250,6 @@ func (s *userService) SignIn(email, username string) (*model.User, error) {
 		user = s.GetByUsername(username)
 	}
 
-	logrus.Infof("Try SignIn: email=%s username=%s user=%+v", email, username, user)
-
 	if user == nil {
 		return nil, errors.New("NO_SUCH_USER")
 	}

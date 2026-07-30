@@ -70,7 +70,6 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		Value:   successCookieVal,
 		Expires: time.Now().Add(111 * time.Second),
 	}
-	logrus.Info(cookie)
 	req.AddCookie(cookie)
 	HTTPresp, err := passportClient.Do(req)
 	if err != nil {
@@ -94,9 +93,6 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 		logrus.Error("error happen when unmarshal the resp: ", err)
 		return web.JsonError(err)
 	}
-
-	// logrus.Info("receive data from passport(string): ", bodyStr)
-	logrus.Info("receive data from passport(binding): ", resp.Data)
 
 	if resp.Data.User.LoginType != "qsc" || resp.Data.User.Qsc.QscId == "" {
 		logrus.Info("Can't login! Actually, he/she is not a qscer!")
