@@ -2,6 +2,8 @@ package services
 
 import (
 	"bbs-go/model/constants"
+	"bbs-go/pkg/authproviders"
+	appconfig "bbs-go/pkg/config"
 	"errors"
 	"strconv"
 	"strings"
@@ -155,6 +157,13 @@ func (s *sysConfigService) GetLoginMethod() model.LoginMethod {
 	return loginMethod
 }
 
+func (s *sysConfigService) GetLoginMethods() model.LoginMethods {
+	return model.LoginMethods{
+		Passport: appconfig.Instance.LoginMethods.Passport,
+		Password: appconfig.Instance.LoginMethods.Password && authproviders.PasswordCompiled(),
+	}
+}
+
 func (s *sysConfigService) IsCreateTopicEmailVerified() bool {
 	value := cache.SysConfigCache.GetValue(constants.SysConfigCreateTopicEmailVerified)
 	return strs.EqualsIgnoreCase(value, "true") || strs.EqualsIgnoreCase(value, "1")
@@ -202,6 +211,7 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 		siteNavs                   = s.GetSiteNavs()
 		tokenExpireDays            = s.GetTokenExpireDays()
 		loginMethod                = s.GetLoginMethod()
+		loginMethods               = s.GetLoginMethods()
 		createTopicEmailVerified   = s.IsCreateTopicEmailVerified()
 		createArticleEmailVerified = s.IsCreateArticleEmailVerified()
 		createCommentEmailVerified = s.IsCreateCommentEmailVerified()
@@ -253,6 +263,7 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 		UserObserveSeconds:         userObserveSeconds,
 		TokenExpireDays:            tokenExpireDays,
 		LoginMethod:                loginMethod,
+		LoginMethods:               loginMethods,
 		CreateTopicEmailVerified:   createTopicEmailVerified,
 		CreateArticleEmailVerified: createArticleEmailVerified,
 		CreateCommentEmailVerified: createCommentEmailVerified,

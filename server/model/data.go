@@ -20,6 +20,11 @@ type LoginMethod struct {
 	Osc      bool `json:"osc"`
 }
 
+type LoginMethods struct {
+	Passport bool `json:"passport"`
+	Password bool `json:"password"`
+}
+
 // SysConfigResponse 配置返回结构体
 type SysConfigResponse struct {
 	SiteTitle                  string       `json:"siteTitle"`
@@ -36,6 +41,7 @@ type SysConfigResponse struct {
 	UserObserveSeconds         int          `json:"userObserveSeconds"`
 	TokenExpireDays            int          `json:"tokenExpireDays"`
 	LoginMethod                LoginMethod  `json:"loginMethod"`
+	LoginMethods               LoginMethods `json:"loginMethods"`
 	CreateTopicEmailVerified   bool         `json:"createTopicEmailVerified"`
 	CreateArticleEmailVerified bool         `json:"createArticleEmailVerified"`
 	CreateCommentEmailVerified bool         `json:"createCommentEmailVerified"`

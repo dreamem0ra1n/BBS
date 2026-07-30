@@ -17,6 +17,11 @@ type Config struct {
 	ShowSql    bool   `yaml:"ShowSql"`    // 是否显示日志
 	StaticPath string `yaml:"StaticPath"` // 静态文件目录
 
+	LoginMethods struct {
+		Passport bool `yaml:"passport"`
+		Password bool `yaml:"password"`
+	} `yaml:"LoginMethods"`
+
 	MinIO struct {
 		Endpoint        string `yaml:"Endpoint"`
 		AccessKeyID     string `yaml:"AccessKeyID"`
@@ -49,6 +54,7 @@ type Config struct {
 
 func Init(filename string) *Config {
 	Instance = &Config{}
+	Instance.LoginMethods.Passport = true
 	if yamlFile, err := ioutil.ReadFile(filename); err != nil {
 		logrus.Error(err)
 	} else if err = yaml.Unmarshal(yamlFile, Instance); err != nil {

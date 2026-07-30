@@ -44,29 +44,6 @@ CREATE TABLE `t_user`
   DEFAULT CHARSET = utf8mb4;
 ```
 
-- 初始化用户数据（用户名：admin、密码：123456）
-
-```sql
-INSERT INTO t_user (`id`, `username`, `nickname`, `avatar`, `email`, `password`, `status`, `create_time`, `update_time`,
-                    `roles`, `description`, `topic_count`, `comment_count`, `score`)
-SELECT 1,
-       'admin',
-       'bbsgo站长',
-       '',
-       'a@example.com',
-       '$2a$10$ofA39bAFMpYpIX/Xiz7jtOMH9JnPvYfPRlzHXqAtLPFpbE/cLdjmS',
-       0,
-       (UNIX_TIMESTAMP(now()) * 1000),
-       (UNIX_TIMESTAMP(now()) * 1000),
-       'owner',
-       '轻轻地我走了，正如我轻轻的来。',
-       0,
-       0,
-       0
-FROM DUAL
-WHERE NOT EXISTS(SELECT * FROM `t_user` WHERE `id` = 1);
-```
-
 - 初始化话题节点
   
 ```sql
@@ -244,25 +221,6 @@ CREATE TABLE `t_user`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-INSERT INTO t_user (`id`, `username`, `nickname`, `avatar`, `email`, `password`, `status`, `create_time`, `update_time`,
-                    `roles`, `description`, `topic_count`, `comment_count`, `score`)
-SELECT 1,
-       'admin',
-       'bbsgo站长',
-       '',
-       'a@example.com',
-       '$2a$10$ofA39bAFMpYpIX/Xiz7jtOMH9JnPvYfPRlzHXqAtLPFpbE/cLdjmS',
-       0,
-       (UNIX_TIMESTAMP(now()) * 1000),
-       (UNIX_TIMESTAMP(now()) * 1000),
-       'owner',
-       '轻轻地我走了，正如我轻轻的来。',
-       0,
-       0,
-       0
-FROM DUAL
-WHERE NOT EXISTS(SELECT * FROM `t_user` WHERE `id` = 1);
-
 CREATE TABLE `t_topic_node`
 (
     `id`          bigint(20) NOT NULL AUTO_INCREMENT,
@@ -351,8 +309,8 @@ WHERE NOT EXISTS(SELECT * FROM `t_sys_config` WHERE `key` = 'siteNavs');
 INSERT INTO t_sys_config (`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'defaultNodeId',
        '1',
-       '公告',
-       '公告',
+       '默认节点',
+       '默认节点',
        (UNIX_TIMESTAMP(now()) * 1000),
        (UNIX_TIMESTAMP(now()) * 1000)
 FROM DUAL
@@ -378,4 +336,4 @@ SELECT 'scoreConfig',
 FROM DUAL
 WHERE NOT EXISTS(SELECT * FROM `t_sys_config` WHERE `key` = 'scoreConfig');
 
-``` 
+```

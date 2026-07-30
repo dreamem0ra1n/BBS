@@ -39,7 +39,7 @@ type LoginUser struct {
 	} `json:"user"`
 }
 
-type LoginController struct {
+type PassportLoginController struct {
 	Ctx iris.Context
 }
 
@@ -49,11 +49,12 @@ var passportClient = &http.Client{
 	Timeout: 10 * time.Second,
 }
 
-// 用户名密码登录
-func (c *LoginController) PostSignin() *web.JsonResult {
-	successCookieVal := c.Ctx.GetCookie("SESSION_TOKEN")
+// 求是潮 Passport 登录
+func (c *PassportLoginController) PostSignin() *web.JsonResult {
 	// 跳转前的网址
 	ref := c.Ctx.PostValueTrim("ref")
+
+	successCookieVal := c.Ctx.GetCookie("SESSION_TOKEN")
 
 	parms := ioutil.NopCloser(strings.NewReader(""))
 	req, err := http.NewRequest("GET", "https://www.qsc.zju.edu.cn/passport/v4/profile", parms)
@@ -118,6 +119,10 @@ func (c *LoginController) PostSignin() *web.JsonResult {
 	}
 
 	return render.BuildLoginSuccess(user, ref)
+}
+
+type LoginController struct {
+	Ctx iris.Context
 }
 
 // 退出登录

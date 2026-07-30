@@ -1,20 +1,29 @@
 Env: prod # 环境，线上环境：prod、测试环境：dev
-BaseUrl: bbs.qsc.com # 网站域名
+BaseUrl: https://www.qsc.zju.edu.cn/bbs2 # 完整站点地址，包含协议和访问前缀
 Port: 8082 # 端口
 LogFile: /data/logs/bbs-go.log # 日志文件
 ShowSql: false # 是否打印sql
 StaticPath: /data/www  # 根路径下的静态文件目录，可配置绝对路径
 
+# 生产配置只启用 Passport。生产构建不会编译或注册密码登录路由。
+LoginMethods:
+  passport: true
+  password: false
+
 # 对象存储
 MinIO:
-  Endpoint:
-  AccessKeyID: 
-  SecretAccessKey:
-  UserSSL: True
-  BucketLocation: 
-  
+  Endpoint: <minio-host:9000> # 只能写 host:port，不带协议
+  AccessKeyID: <对象存储访问密钥>
+  SecretAccessKey: <对象存储私钥>
+  UserSSL: false
+  BucketLocation: us-east-1
+
 # 数据库连接
 DB:
-  Url: username:password@tcp(localhost:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local
+  Url: <用户名>:<密码>@tcp(<数据库主机>:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local
   MaxIdleConns: 50
   MaxOpenConns: 200
+
+# 当前代码启动时要求 OldDB 可连接；没有旧库时可暂时指向主库
+OldDB:
+  Url: <用户名>:<密码>@tcp(<数据库主机>:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local
