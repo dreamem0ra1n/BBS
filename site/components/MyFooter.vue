@@ -8,13 +8,9 @@
       </div>
       <div>
         © 2026 Powered by
-        <a href="https://docs.bbs-go.com" target="_blank" class="light"
-          >BBS-GO</a
-        >
+        <a href="https://bbs-go.com/" target="_blank" class="light">BBS-GO</a>
         and Modified by
-        <a href="https://www.qsc.zju.edu.cn" target="_blank" class="light"
-          >QSC-tech</a
-        >
+        <nuxt-link to="/contributors" class="light">QSC-tech</nuxt-link>
       </div>
     </div>
   </footer>
