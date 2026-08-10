@@ -32,6 +32,9 @@ const emailVerifyExpireHour = 24
 
 var UserService = newUserService()
 
+// ErrNoSuchUser indicates that no user matches the supplied login identifiers.
+var ErrNoSuchUser = errors.New("NO_SUCH_USER")
+
 func newUserService() *userService {
 	return &userService{}
 }
@@ -251,7 +254,7 @@ func (s *userService) SignIn(email, username string) (*model.User, error) {
 	}
 
 	if user == nil {
-		return nil, errors.New("NO_SUCH_USER")
+		return nil, ErrNoSuchUser
 	}
 	if user.Status != constants.StatusOk {
 		return nil, errors.New("用户被禁用")
