@@ -1,26 +1,36 @@
 name: bbs-go-server
 
-on: [ push ]
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-
   build:
-    name: Build
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.17
-
-      - name: Get dependencies
-        run: |
-          cd server
-          go mod download
-
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - name: Download dependencies
+        working-directory: ./server
+        run: go mod download
+      - name: Test
+        working-directory: ./server
+        run: go test ./...
+      - name: Vet
+        working-directory: ./server
+        run: go vet ./...
       - name: Build
         working-directory: ./server
-        run: |
-          go build -v .
+        run: go build .
+      - name: Build with password login
+        working-directory: ./server
+        run: go build -tags passwordlogin .

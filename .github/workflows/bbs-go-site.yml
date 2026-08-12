@@ -1,26 +1,35 @@
 name: bbs-go-site
 
-on: [ push ]
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [ 16.x ]
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: site/package-lock.json
-      - name: npm install, build, and test
-        working-directory: ./site
+          node-version-file: .nvmrc
+          cache: yarn
+          cache-dependency-path: site/yarn.lock
+      - name: Enable Yarn
         run: |
-          npm install
-          npm run build --if-present
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+      - name: Install dependencies
+        working-directory: ./site
+        run: yarn install --frozen-lockfile
+      - name: Lint
+        working-directory: ./site
+        run: yarn lint
+      - name: Build
+        working-directory: ./site
+        run: yarn build
