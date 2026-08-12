@@ -75,6 +75,86 @@ func (s *commentService) Delete(id int64) error {
 	return repositories.CommentRepository.UpdateColumn(sqls.DB(), id, "status", constants.StatusDeleted)
 }
 
+func (s *commentService) CanManage(user *model.User, comment *model.Comment) bool {
+	if user == nil || comment == nil || comment.IsOldBBS {
+		return false
+	}
+	if user.Id == comment.UserId {
+		return true
+	}
+	if !user.IsAdminUserOrHigher() {
+		return false
+	}
+
+	entityType := comment.EntityType
+	entityId := comment.EntityId
+	for depth := 0; entityType == constants.EntityComment && depth < 10; depth++ {
+		parent := s.Get(entityId)
+		if parent == nil {
+			return false
+		}
+		entityType = parent.EntityType
+		entityId = parent.EntityId
+	}
+
+	if entityType == constants.EntityTopic {
+		topic := TopicService.Get(entityId)
+		return topic != nil && user.CanManageTopic(topic)
+	}
+	if entityType == constants.EntityArticle {
+		return user.IsAdminUserOrHigher()
+	}
+	return false
+}
+
+func (s *commentService) Edit(commentId, editorUserId int64, content string, imageList []model.ImageDTO) error {
+	content = strings.TrimSpace(content)
+	if strs.IsBlank(content) {
+		return errors.New("请输入评论内容")
+	}
+
+	imageListStr := ""
+	if len(imageList) > 0 {
+		var err error
+		imageListStr, err = jsons.ToStr(imageList)
+		if err != nil {
+			return err
+		}
+	}
+
+	return repositories.CommentRepository.Updates(sqls.DB(), commentId, map[string]interface{}{
+		"content":           content,
+		"image_list":        imageListStr,
+		"last_edit_user_id": editorUserId,
+		"last_edit_time":    dates.NowTimestamp(),
+	})
+}
+
+func (s *commentService) DeleteWithCounts(comment *model.Comment) error {
+	if comment == nil || comment.Status != constants.StatusOk {
+		return nil
+	}
+
+	err := sqls.DB().Transaction(func(tx *gorm.DB) error {
+		if err := repositories.CommentRepository.UpdateColumn(tx, comment.Id, "status", constants.StatusDeleted); err != nil {
+			return err
+		}
+		if comment.EntityType == constants.EntityTopic {
+			return tx.Model(&model.Topic{}).Where("id = ?", comment.EntityId).
+				UpdateColumn("comment_count", gorm.Expr("CASE WHEN comment_count > 0 THEN comment_count - 1 ELSE 0 END")).Error
+		}
+		if comment.EntityType == constants.EntityComment {
+			return tx.Model(&model.Comment{}).Where("id = ?", comment.EntityId).
+				UpdateColumn("comment_count", gorm.Expr("CASE WHEN comment_count > 0 THEN comment_count - 1 ELSE 0 END")).Error
+		}
+		return nil
+	})
+	if err == nil {
+		UserService.DecrCommentCount(comment.UserId)
+	}
+	return err
+}
+
 // Publish 发表评论
 func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*model.Comment, error) {
 	form.Content = strings.TrimSpace(form.Content)
@@ -86,6 +166,12 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 	}
 	if strs.IsBlank(form.Content) {
 		return nil, errors.New("请输入评论内容")
+	}
+	if form.EntityType == constants.EntityComment {
+		parent := s.Get(form.EntityId)
+		if parent == nil || parent.Status != constants.StatusOk {
+			return nil, errors.New("被回复的评论不存在或已被删除")
+		}
 	}
 
 	comment := &model.Comment{
@@ -163,12 +249,16 @@ func (s *commentService) GetComments(entityType string, entityId int64, cursor i
 	limit := 20
 	var cnd *sqls.Cnd
 	if ascOrder {
-		cnd = sqls.NewCnd().Eq("entity_type", entityType).Eq("entity_id", entityId).Eq("status", constants.StatusOk).Asc("id").Limit(limit)
+		cnd = sqls.NewCnd().Eq("entity_type", entityType).Eq("entity_id", entityId).
+			Where("(status = ? or (status = ? and comment_count > 0))", constants.StatusOk, constants.StatusDeleted).
+			Asc("id").Limit(limit)
 		if cursor > 0 {
 			cnd.Gt("id", cursor)
 		}
 	} else {
-		cnd = sqls.NewCnd().Eq("entity_type", entityType).Eq("entity_id", entityId).Eq("status", constants.StatusOk).Desc("id").Limit(limit)
+		cnd = sqls.NewCnd().Eq("entity_type", entityType).Eq("entity_id", entityId).
+			Where("(status = ? or (status = ? and comment_count > 0))", constants.StatusOk, constants.StatusDeleted).
+			Desc("id").Limit(limit)
 		if cursor > 0 {
 			cnd.Lt("id", cursor)
 		}

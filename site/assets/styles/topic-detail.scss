@@ -179,6 +179,16 @@
         color: #3273dc;
       }
     }
+
+    .topic-edit-record {
+      margin-top: 20px;
+      color: var(--text-color3);
+      font-size: 12px;
+
+      a {
+        color: var(--text-link-color);
+      }
+    }
   }
 
   .topic-tags {

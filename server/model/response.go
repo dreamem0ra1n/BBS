@@ -123,6 +123,8 @@ type TopicResponse struct {
 	LikeCount       int64               `json:"likeCount"`
 	Liked           bool                `json:"liked"`
 	CreateTime      int64               `json:"createTime"`
+	LastEditUser    *UserInfo           `json:"lastEditUser,omitempty"`
+	LastEditTime    int64               `json:"lastEditTime"`
 	Recommend       bool                `json:"recommend"`
 	RecommendTime   int64               `json:"recommendTime"`
 	Sticky          bool                `json:"sticky"`
@@ -146,6 +148,11 @@ type CommentResponse struct {
 	Replies      *web.CursorResult `json:"replies"`
 	Status       int               `json:"status"`
 	CreateTime   int64             `json:"createTime"`
+	RawContent   string            `json:"rawContent,omitempty"`
+	LastEditUser *UserInfo         `json:"lastEditUser,omitempty"`
+	LastEditTime int64             `json:"lastEditTime"`
+	CanEdit      bool              `json:"canEdit"`
+	CanDelete    bool              `json:"canDelete"`
 	IsOldBBS     bool              `gorm:"-" json:"isOldBBS" form:"-"`
 }
 

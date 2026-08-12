@@ -116,6 +116,12 @@ export default {
         this.results.push(item)
       }
     },
+    removeResult(item) {
+      const index = this.results.indexOf(item)
+      if (index !== -1) {
+        this.results.splice(index, 1)
+      }
+    },
   },
 }
 </script>

@@ -386,6 +386,24 @@ func (s *userService) IncrCommentCount(userId int64) int {
 	return commentCount
 }
 
+// DecrCommentCount comment_count - 1
+func (s *userService) DecrCommentCount(userId int64) int {
+	user := repositories.UserRepository.Get(sqls.DB(), userId)
+	if user == nil {
+		return 0
+	}
+	commentCount := user.CommentCount - 1
+	if commentCount < 0 {
+		commentCount = 0
+	}
+	if err := repositories.UserRepository.UpdateColumn(sqls.DB(), userId, "comment_count", commentCount); err != nil {
+		logrus.Error(err)
+	} else {
+		cache.UserCache.Invalidate(userId)
+	}
+	return commentCount
+}
+
 // SyncUserCount 同步用户计数
 func (s *userService) SyncUserCount() {
 	s.Scan(func(users []model.User) {

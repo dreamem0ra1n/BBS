@@ -127,7 +127,7 @@ func (c *TopicController) PostEditBy(topicId int64) *web.JsonResult {
 	if accessLv < -1 {
 		return web.JsonError(errors.New("invalid access level"))
 	}
-	err := services.TopicService.Edit(topicId, nodeId, tags, title, content, hideContent, accessLv)
+	err := services.TopicService.Edit(topicId, user.Id, nodeId, tags, title, content, hideContent, accessLv)
 	if err != nil {
 		return web.JsonError(err)
 	}

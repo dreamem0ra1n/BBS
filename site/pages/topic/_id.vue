@@ -94,6 +94,23 @@
                     <span>隐藏内容，请回复后查看</span>
                   </div>
                 </div>
+                <div
+                  v-if="topic.lastEditUser && topic.lastEditTime"
+                  class="topic-edit-record"
+                >
+                  本帖由
+                  <nuxt-link :to="'/user/' + topic.lastEditUser.id">
+                    {{ topic.lastEditUser.nickname }}
+                  </nuxt-link>
+                  于
+                  <time
+                    :datetime="
+                      topic.lastEditTime | formatDate('yyyy-MM-ddTHH:mm:ss')
+                    "
+                    >{{ topic.lastEditTime | formatDate }}</time
+                  >
+                  编辑
+                </div>
               </div>
 
               <!--节点、标签-->
@@ -181,6 +198,7 @@
               :no-comment="isOld"
               entity-type="topic"
               @created="commentCreated"
+              @deleted="commentDeleted"
               @reGain="reGain"
             />
           </div>
@@ -307,6 +325,9 @@ export default {
   methods: {
     commentCreated() {
       this.getHideContent()
+    },
+    commentDeleted() {
+      this.topic.commentCount = Math.max(0, this.topic.commentCount - 1)
     },
     async addFavorite(topicId) {
       if (this.topic.isOldBBS) {

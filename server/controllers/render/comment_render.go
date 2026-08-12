@@ -14,8 +14,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func BuildComment(comment *model.Comment) *model.CommentResponse {
-	return doBuildComment(comment, nil, true, true)
+func BuildComment(comment *model.Comment, currentUser *model.User) *model.CommentResponse {
+	return doBuildComment(comment, currentUser, true, true)
 }
 
 func BuildComments(comments []model.Comment, currentUser *model.User, isBuildReplies, isBuildQuote bool) []model.CommentResponse {
@@ -69,6 +69,17 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 	}
 	if !comment.IsOldBBS {
 		ret.User = BuildUserInfoDefaultIfNull(comment.UserId)
+		if comment.LastEditUserId > 0 && comment.LastEditTime > 0 {
+			ret.LastEditUser = BuildUserInfoDefaultIfNull(comment.LastEditUserId)
+			ret.LastEditTime = comment.LastEditTime
+		}
+		if services.CommentService.CanManage(currentUser, comment) {
+			ret.CanEdit = comment.Status == constants.StatusOk
+			ret.CanDelete = comment.Status == constants.StatusOk
+			if ret.CanEdit {
+				ret.RawContent = comment.Content
+			}
+		}
 		if comment.Status == constants.StatusOk {
 			if comment.ContentType == constants.ContentTypeMarkdown {
 				content := markdown.ToHTML(comment.Content)

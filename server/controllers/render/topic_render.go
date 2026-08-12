@@ -63,6 +63,10 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 	}
 	rsp.LastCommentTime = topic.LastCommentTime
 	rsp.CreateTime = topic.CreateTime
+	if topic.LastEditUserId > 0 && topic.LastEditTime > 0 {
+		rsp.LastEditUser = BuildUserInfoDefaultIfNull(topic.LastEditUserId)
+		rsp.LastEditTime = topic.LastEditTime
+	}
 	rsp.ViewCount = topic.ViewCount
 	rsp.CommentCount = topic.CommentCount
 	rsp.LikeCount = topic.LikeCount

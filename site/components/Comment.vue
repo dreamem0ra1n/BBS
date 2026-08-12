@@ -31,6 +31,7 @@
       :entity-type="entityType"
       :comments-page="commentsPage"
       @reply="reply"
+      @deleted="$emit('deleted')"
     />
   </div>
 </template>

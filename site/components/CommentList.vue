@@ -59,8 +59,19 @@
               />
             </div>
           </div>
+          <div
+            v-if="comment.lastEditUser && comment.lastEditTime"
+            class="comment-edit-record"
+          >
+            该帖由
+            <nuxt-link :to="'/user/' + comment.lastEditUser.id">
+              {{ comment.lastEditUser.nickname }}
+            </nuxt-link>
+            于 {{ comment.lastEditTime | formatDate }} 编辑
+          </div>
           <div class="comment-actions">
             <div
+              v-if="comment.status === 0"
               class="comment-action-item"
               :class="{ active: comment.liked }"
               @click="like(comment)"
@@ -70,6 +81,7 @@
               <span v-if="comment.likeCount > 0">{{ comment.likeCount }}</span>
             </div>
             <div
+              v-if="comment.status === 0"
               class="comment-action-item"
               :class="{ active: reply.commentId === comment.commentId }"
               @click="switchShowReply(comment)"
@@ -78,6 +90,20 @@
               <span>{{
                 reply.commentId === comment.commentId ? '取消评论' : '评论'
               }}</span>
+            </div>
+            <div
+              v-if="comment.canEdit"
+              class="comment-action-item"
+              @click="editComment(comment)"
+            >
+              <span>编辑</span>
+            </div>
+            <div
+              v-if="comment.canDelete"
+              class="comment-action-item"
+              @click="deleteComment(comment)"
+            >
+              <span>删除</span>
             </div>
           </div>
           <div
@@ -101,10 +127,16 @@
             :comment-id="comment.commentId"
             :data="comment.replies"
             @reply="onReply(comment, $event)"
+            @deleted="replyDeleted(comment)"
           />
         </div>
       </div>
     </load-more>
+    <comment-edit-dialog
+      :visible.sync="editVisible"
+      :comment="editingComment"
+      @updated="commentUpdated"
+    />
   </div>
 </template>
 
@@ -134,6 +166,8 @@ export default {
   data() {
     return {
       showReplyCommentId: 0,
+      editVisible: false,
+      editingComment: null,
       reply: {
         commentId: 0,
         value: {
@@ -160,6 +194,37 @@ export default {
       if (data) {
         this.$refs.commentsLoadMore.unshiftResults(data)
       }
+    },
+    editComment(comment) {
+      this.editingComment = comment
+      this.editVisible = true
+    },
+    commentUpdated(updated) {
+      Object.assign(this.editingComment, updated)
+    },
+    async deleteComment(comment) {
+      try {
+        await this.$confirm('是否确认删除该评论？')
+        await this.$axios.post(`/api/comment/delete/${comment.commentId}`)
+        if (comment.commentCount > 0) {
+          comment.status = 1
+          comment.content = '内容已删除'
+          comment.imageList = []
+          comment.canEdit = false
+          comment.canDelete = false
+        } else {
+          this.$refs.commentsLoadMore.removeResult(comment)
+        }
+        this.$emit('deleted')
+        this.$message.success('删除成功')
+      } catch (e) {
+        if (e !== 'cancel' && e !== 'close') {
+          this.$message.error('删除失败：' + (e.message || e))
+        }
+      }
+    },
+    replyDeleted(parent) {
+      parent.commentCount = Math.max(0, parent.commentCount - 1)
     },
     async like(comment) {
       try {
@@ -325,6 +390,16 @@ export default {
           &:not(:last-child) {
             margin-right: 16px;
           }
+        }
+      }
+
+      .comment-edit-record {
+        margin-top: 8px;
+        color: var(--text-color3);
+        font-size: 12px;
+
+        a {
+          color: var(--text-link-color);
         }
       }
 

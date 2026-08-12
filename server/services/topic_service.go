@@ -192,7 +192,7 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 }
 
 // 更新
-func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content, hideContent string, accessLv int) *web.CodeError {
+func (s *topicService) Edit(topicId, editorUserId, nodeId int64, tags []string, title, content, hideContent string, accessLv int) *web.CodeError {
 	if len(title) == 0 {
 		return web.NewErrorMsg("标题不能为空")
 	}
@@ -207,25 +207,20 @@ func (s *topicService) Edit(topicId, nodeId int64, tags []string, title, content
 	}
 
 	err := sqls.DB().Transaction(func(tx *gorm.DB) error {
-		var err error
-		if accessLv == -1 {
-			err = repositories.TopicRepository.Updates(sqls.DB(), topicId, map[string]interface{}{
-				"node_id":      nodeId,
-				"title":        title,
-				"content":      content,
-				"hide_content": hideContent,
-				// "access_lv":    accessLv,
-			})
-		} else {
-			err = repositories.TopicRepository.Updates(sqls.DB(), topicId, map[string]interface{}{
-				"node_id":      nodeId,
-				"title":        title,
-				"content":      content,
-				"hide_content": hideContent,
-				"access_lv":    accessLv,
-			})
+		columns := map[string]interface{}{
+			"node_id":           nodeId,
+			"title":             title,
+			"content":           content,
+			"hide_content":      hideContent,
+			"last_edit_user_id": editorUserId,
+			"last_edit_time":    dates.NowTimestamp(),
 		}
-		if err != nil {
+		if accessLv == -1 {
+			delete(columns, "access_lv")
+		} else {
+			columns["access_lv"] = accessLv
+		}
+		if err := repositories.TopicRepository.Updates(tx, topicId, columns); err != nil {
 			return err
 		}
 

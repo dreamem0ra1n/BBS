@@ -2,6 +2,7 @@ package api
 
 import (
 	"bbs-go/model"
+	"bbs-go/model/constants"
 	"bbs-go/pkg/errs"
 	"bbs-go/spam"
 	"fmt"
@@ -74,7 +75,48 @@ func (c *CommentController) PostCreate() *web.JsonResult {
 		return web.JsonError(err)
 	}
 
-	return web.JsonData(render.BuildComment(comment))
+	return web.JsonData(render.BuildComment(comment, user))
+}
+
+func (c *CommentController) PostEditBy(commentId int64) *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if err := services.UserService.CheckPostStatus(user); err != nil {
+		return web.JsonError(err)
+	}
+	comment := services.CommentService.Get(commentId)
+	if comment == nil || comment.Status != constants.StatusOk {
+		return web.JsonErrorMsg("评论不存在或已被删除")
+	}
+	if !services.CommentService.CanManage(user, comment) {
+		return web.JsonErrorMsg("无权限")
+	}
+	form := model.GetCreateCommentForm(c.Ctx)
+	if err := services.CommentService.Edit(commentId, user.Id, form.Content, form.ImageList); err != nil {
+		return web.JsonError(err)
+	}
+	services.OperateLogService.AddOperateLog(user.Id, constants.OpTypeUpdate, constants.EntityComment, commentId,
+		"", c.Ctx.Request())
+	return web.JsonData(render.BuildComment(services.CommentService.Get(commentId), user))
+}
+
+func (c *CommentController) PostDeleteBy(commentId int64) *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if err := services.UserService.CheckPostStatus(user); err != nil {
+		return web.JsonError(err)
+	}
+	comment := services.CommentService.Get(commentId)
+	if comment == nil || comment.Status == constants.StatusDeleted {
+		return web.JsonSuccess()
+	}
+	if !services.CommentService.CanManage(user, comment) {
+		return web.JsonErrorMsg("无权限")
+	}
+	if err := services.CommentService.DeleteWithCounts(comment); err != nil {
+		return web.JsonError(err)
+	}
+	services.OperateLogService.AddOperateLog(user.Id, constants.OpTypeDelete, constants.EntityComment, commentId,
+		"", c.Ctx.Request())
+	return web.JsonSuccess()
 }
 
 func (c *CommentController) PostLikeBy(commentId int64) *web.JsonResult {

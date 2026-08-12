@@ -41,7 +41,7 @@
       <div class="text-editor-btn">
         <span>Ctrl/⌘ + Enter</span>
         <button class="button is-success is-small" @click="doSubmit">
-          发布
+          {{ submitText }}
         </button>
       </div>
     </div>
@@ -60,6 +60,10 @@ export default {
     height: {
       type: Number,
       default: 120,
+    },
+    submitText: {
+      type: String,
+      default: '发布',
     },
     value: {
       type: Object,
