@@ -96,6 +96,7 @@
               class="comment-action-item"
               @click="editComment(comment)"
             >
+              <i class="iconfont icon-edit"></i>
               <span>编辑</span>
             </div>
             <div
@@ -103,6 +104,7 @@
               class="comment-action-item"
               @click="deleteComment(comment)"
             >
+              <i class="iconfont icon-delete"></i>
               <span>删除</span>
             </div>
           </div>
@@ -389,6 +391,10 @@ export default {
 
           &:not(:last-child) {
             margin-right: 16px;
+          }
+
+          .iconfont {
+            font-size: 13px;
           }
         }
       }

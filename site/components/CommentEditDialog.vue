@@ -3,6 +3,7 @@
     title="编辑评论"
     :visible.sync="dialogVisible"
     width="min(600px, 90%)"
+    custom-class="comment-edit-dialog"
     append-to-body
     @closed="close"
   >

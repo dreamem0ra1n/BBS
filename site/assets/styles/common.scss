@@ -297,15 +297,43 @@ $main-container-width: null; // 主栏目的宽度
   }
 }
 
-img[lazy="loading"] {
+.comment-edit-dialog {
+  background-color: var(--bg-color);
+
+  .el-dialog__header {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .el-dialog__title,
+  .el-dialog__headerbtn .el-dialog__close {
+    color: var(--text-color);
+  }
+
+  .el-dialog__body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+}
+
+.dark-mode .comment-edit-dialog {
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #e3e3e3 !important;
+
+    &:hover {
+      color: #fff !important;
+    }
+  }
+}
+
+img[lazy='loading'] {
   background-color: var(--bg-color2);
 }
 
-img[lazy="error"] {
+img[lazy='error'] {
   background-color: var(--bg-color2);
 }
 
-img[lazy="loaded"] {
+img[lazy='loaded'] {
   /* your style here */
 }
 
@@ -340,7 +368,7 @@ img[lazy="loaded"] {
 
   &:before,
   &:after {
-    content: "";
+    content: '';
     width: inherit;
     height: inherit;
     border-radius: 50%;
