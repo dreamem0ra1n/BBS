@@ -166,18 +166,15 @@
             v-for="role in editForm.roles"
             :key="role"
             closable
-            @close="() => cancelRole(editForm, role)"
             size="mini"
             style="margin-right: 3px"
+            @close="() => cancelRole(editForm, role)"
           >
             {{ role }}
           </el-tag>
           <el-button @click="() => showAddRole()">+</el-button>
           <div v-if="addRole">
-            <el-cascader
-              v-model="newRole"
-              :options="roleOptions"
-            ></el-cascader>
+            <el-cascader v-model="newRole" :options="roleOptions"></el-cascader>
             <el-button @click="() => addNewRole()">确认</el-button>
             <el-button @click="() => stopAddRole()">取消</el-button>
           </div>
@@ -252,7 +249,7 @@ export default {
   components: { ScoreLog, Avatar },
   data() {
     return {
-      _section: [],
+      sections: [],
       roleOptions: [
         {
           value: "高管",
@@ -326,10 +323,8 @@ export default {
     mainHeight(this);
     const me = this;
     this.axios.form("/api/admin/topic-node/list").then((data) => {
-      me._section = data.results
-        .filter(
-          (dep) => dep.name !== "通用" && dep.id !== 0 
-        )
+      me.sections = data.results
+        .filter((dep) => dep.name !== "通用" && dep.id !== 0)
         .map((dep) => {
           return {
             value: dep.id,
@@ -338,7 +333,7 @@ export default {
         });
       me.roleOptions.forEach((option) => {
         if (option.value === "高管") return;
-        option.children = me._section;
+        option.children = me.sections;
       });
       me.list();
     });
@@ -487,11 +482,9 @@ export default {
         return;
       }
       let role = this.newRole[0];
-      if (this.newRole.length == 2) role = role + "_" + this.newRole[1].toString();
-      if(this.editForm.roles)
-      this.editForm.roles.push(role);
-      else
-      this.editForm.roles=Object.assign([role])
+      if (this.newRole.length === 2) role = role + "_" + this.newRole[1].toString();
+      if (this.editForm.roles) this.editForm.roles.push(role);
+      else this.editForm.roles = Object.assign([role]);
       this.editForm.roles = Array.from(new Set(this.editForm.roles)); // 去重
       this.stopAddRole();
     },

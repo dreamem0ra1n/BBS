@@ -48,8 +48,8 @@
     <input
       ref="upload2"
       type="file"
-      @input="uploadFile"
       :styles="{ display: 'none' }"
+      @input="uploadFile"
     />
   </div>
 </template>

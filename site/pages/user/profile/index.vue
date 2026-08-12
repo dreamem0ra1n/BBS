@@ -205,18 +205,6 @@
 <script>
 export default {
   middleware: 'authenticated',
-  /* async asyncData({ $axios }) {
-    const user = await $axios.get('/api/user/current')
-    const form = { ...user }
-    return {
-      user,
-      form,
-    } 
-  }, */
-  mounted() {
-    this.reload()
-    this.user = this.$store.state.user.current
-  },
   data() {
     return {
       user: {},
@@ -237,6 +225,18 @@ export default {
     return {
       title: this.$siteTitle(this.user.nickname + ' - 个人资料'),
     }
+  },
+  /* async asyncData({ $axios }) {
+    const user = await $axios.get('/api/user/current')
+    const form = { ...user }
+    return {
+      user,
+      form,
+    }
+  }, */
+  mounted() {
+    this.reload()
+    this.user = this.$store.state.user.current
   },
   methods: {
     async submitForm() {

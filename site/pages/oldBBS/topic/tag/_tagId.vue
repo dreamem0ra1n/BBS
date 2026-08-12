@@ -4,17 +4,17 @@
       <div class="left-container">
         <div class="main-content no-padding no-bg topics-wrapper">
           <div class="topics-nav">
-            <old-nav :currentTag="tagId" :data="data" />
+            <old-nav :current-tag="tagId" :data="data" />
           </div>
           <div class="topics-main">
-            <old-tag-bar :tags="tags" :currTag="tagId" />
+            <old-tag-bar :tags="tags" :curr-tag="tagId" />
             <load-more
               v-if="topicsPage"
               v-slot="{ results }"
               :init-data="topicsPage"
               :url="'/api/topic/tag/topics?tagId=OLD' + tagId"
             >
-              <topic-list :topics="results" :isOld="true" />
+              <topic-list :topics="results" :is-old="true" />
             </load-more>
           </div>
         </div>

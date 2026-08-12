@@ -9,16 +9,14 @@
     </div>
 
     <template v-if="isLogin">
-      <template>
-        <comment-input
-          ref="input"
-          v-if="!noComment"
-          :mode="mode"
-          :entity-id="entityId"
-          :entity-type="entityType"
-          @created="commentCreated"
-        />
-      </template>
+      <comment-input
+        v-if="!noComment"
+        ref="input"
+        :mode="mode"
+        :entity-id="entityId"
+        :entity-type="entityType"
+        @created="commentCreated"
+      />
     </template>
     <div v-else class="comment-not-login">
       <div class="comment-login-div">

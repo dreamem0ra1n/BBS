@@ -296,12 +296,12 @@ export default {
             height: 62px;
             line-height: 72px;
             cursor: pointer;
+            object-fit: cover;
+            transition: all 0.5s ease-out 0.1s;
+
             &:not(:last-child) {
               margin-right: 8px;
             }
-
-            object-fit: cover;
-            transition: all 0.5s ease-out 0.1s;
 
             &:hover {
               transform: matrix(1.04, 0, 0, 1.04, 0, 0);
@@ -344,12 +344,12 @@ export default {
               height: 50px;
               line-height: 50px;
               cursor: pointer;
+              object-fit: cover;
+              transition: all 0.5s ease-out 0.1s;
+
               &:not(:last-child) {
                 margin-right: 4px;
               }
-
-              object-fit: cover;
-              transition: all 0.5s ease-out 0.1s;
 
               &:hover {
                 transform: matrix(1.04, 0, 0, 1.04, 0, 0);

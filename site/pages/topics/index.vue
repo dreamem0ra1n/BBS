@@ -1,6 +1,6 @@
 <template>
   <div class="topics-main">
-    <tag-bar :nodeId="0" />
+    <tag-bar :node-id="0" />
     <sticky-topics :node-id="0" />
     <load-more
       v-if="topicsPage"

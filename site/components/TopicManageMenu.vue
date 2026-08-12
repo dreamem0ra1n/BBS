@@ -39,13 +39,6 @@ export default {
       canDelete: false,
     }
   },
-  mounted() {
-    this.$axios
-      .get('/api/user/node_auth/' + this.topic.node.nodeId)
-      .then((res) => {
-        if (res.manage_lv >= 2) this.canDelete = true
-      })
-  },
   computed: {
     hasPermission() {
       return this.isTopicOwner || UserHelper.isAdmin(this.user)
@@ -62,6 +55,13 @@ export default {
     user() {
       return this.$store.state.user.current
     },
+  },
+  mounted() {
+    this.$axios
+      .get('/api/user/node_auth/' + this.topic.node.nodeId)
+      .then((res) => {
+        if (res.manage_lv >= 2) this.canDelete = true
+      })
   },
   methods: {
     async handleCommand(command) {

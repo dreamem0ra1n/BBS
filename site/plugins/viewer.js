@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import Viewer from 'v-viewer'
+import ViewerPlugin from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
 
-Vue.use(Viewer, {
+Vue.use(ViewerPlugin, {
   defaultOptions: {
     zIndex: 9999,
     navbar: false,

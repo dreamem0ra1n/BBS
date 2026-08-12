@@ -1,4 +1,4 @@
-FROM golang:1.17 AS dependencies
+FROM golang:1.25.12 AS dependencies
 WORKDIR /usr/src/app
 COPY go.mod go.sum ./
 RUN go env -w "GO111MODULE=on" \

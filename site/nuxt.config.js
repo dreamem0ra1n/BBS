@@ -63,7 +63,7 @@ export default {
    ** Router property -  https://nuxtjs.org/docs/2.x/features/file-system-routing#the-router-property
    */
   router: {
-    middleware: ['resetEnv','checkSession'],
+    middleware: ['resetEnv', 'checkSession'],
     base: '/bbs2',
   },
 
@@ -79,8 +79,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
-    //'@nuxtjs/pwa',
-    '@nuxtjs/eslint-module',
+    // '@nuxtjs/pwa',
     ['cookie-universal-nuxt', { alias: 'cookies' }],
   ],
 
@@ -104,8 +103,8 @@ export default {
   //  pwa: {
   //  manifest: {
   //  lang: 'en',
-  //},
-  //},
+  // },
+  // },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
@@ -115,11 +114,25 @@ export default {
         ? 'https://www.qsc.zju.edu.cn/bbs2/_nuxt/'
         : '',
     optimizeCSS: true,
-    extractCSS: true,
+    extractCSS: {
+      ignoreOrder: true,
+    },
+    loaders: {
+      scss: {
+        sassOptions: {
+          quietDeps: true,
+          silenceDeprecations: ['mixed-decls'],
+        },
+      },
+    },
     splitChunks: {
       layouts: true,
       pages: true,
       commons: true,
+    },
+    extend(config) {
+      config.performance.maxAssetSize = 1200000
+      config.performance.maxEntrypointSize = 1200000
     },
     babel: {
       plugins: [

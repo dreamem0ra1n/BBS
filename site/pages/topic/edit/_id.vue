@@ -52,9 +52,9 @@
         <div class="field">
           <div class="control">
             <tag-input
-              :nodeId="postForm.nodeId"
-              @setTag="setTag"
+              :node-id="postForm.nodeId"
               :tags="postForm.tags"
+              @setTag="setTag"
             />
           </div>
         </div>

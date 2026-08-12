@@ -1,5 +1,4 @@
 export default function HTMLDecode(text) {
-  const reg = /<[^>]+>/g
   try {
     let temp = document.createElement('div')
     temp.innerHTML = text

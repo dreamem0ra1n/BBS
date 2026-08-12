@@ -20,7 +20,7 @@ func parseIdStr(idStr string) (id int64, isOld bool) {
 	}
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		logrus.Errorf("bad id(%s): %s", isOld, err.Error())
+		logrus.Errorf("bad id(%t): %s", isOld, err.Error())
 		id = -1
 	}
 	return

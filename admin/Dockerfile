@@ -1,6 +1,8 @@
-FROM node:16.15.1-alpine
+FROM node:22-alpine
 WORKDIR /usr/src/app
-COPY . ./
-RUN npm install -g --registry=https://r.npm.taobao.org 
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --ignore-engines
 
-CMD ["npm", "run", "serve"]
+COPY . ./
+
+CMD ["yarn", "serve"]

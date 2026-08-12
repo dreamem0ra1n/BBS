@@ -1,11 +1,7 @@
 <template>
   <div class="select-tags">
     <div class="tags-container">
-      <div
-        v-for="tag in tags"
-        @click="chooseTag(tag.id)"
-        v-bind:key="tag.id + 'tag'"
-      >
+      <div v-for="tag in tags" :key="tag.id + 'tag'" @click="chooseTag(tag.id)">
         <div :class="tagClass(tag.id)">{{ tag.name }}</div>
       </div>
     </div>
@@ -19,15 +15,15 @@ export default {
       required: true,
     },
   },
-  async mounted() {
-    const result = await this.$axios.get('/api/tag/list/' + this.nodeId)
-    this.tags = result
-    this.currTag = this.$store.state.env.currentTag
-  },
   data() {
     return {
       tags: [],
     }
+  },
+  async mounted() {
+    const result = await this.$axios.get('/api/tag/list/' + this.nodeId)
+    this.tags = result
+    this.currTag = this.$store.state.env.currentTag
   },
   methods: {
     chooseTag(id) {

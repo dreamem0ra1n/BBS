@@ -1,11 +1,7 @@
 <template>
   <div class="select-tags">
     <div class="tags-container">
-      <div
-        v-for="tag in tags"
-        @click="goToTag(tag.fid)"
-        v-bind:key="tag.fid + 'tag'"
-      >
+      <div v-for="tag in tags" :key="tag.fid + 'tag'" @click="goToTag(tag.fid)">
         <div :class="tagClass(tag.fid)">{{ tag.fname }}</div>
       </div>
     </div>
@@ -20,7 +16,7 @@ export default {
     },
     currTag: {
       type: Number,
-      require: true,
+      required: true,
     },
   },
 

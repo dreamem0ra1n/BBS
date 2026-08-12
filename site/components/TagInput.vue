@@ -31,6 +31,23 @@ export default {
       default: () => [],
     },
   },
+  data() {
+    return {
+      allTag: [],
+      deps: [],
+      selectIndex: [],
+    }
+  },
+  computed: {
+    currentDepId() {
+      return this.nodeId
+    },
+  },
+  watch: {
+    nodeId() {
+      this.selectIndex = []
+    },
+  },
   async mounted() {
     try {
       this.deps = await this.$axios.get('/api/topic/nodes')
@@ -48,23 +65,6 @@ export default {
     } catch (e) {
       console.log(e)
     }
-  },
-  data() {
-    return {
-      allTag: [],
-      deps: [],
-      selectIndex: [],
-    }
-  },
-  watch: {
-    nodeId() {
-      this.selectIndex = []
-    },
-  },
-  computed: {
-    currentDepId() {
-      return this.nodeId
-    },
   },
   methods: {
     /**

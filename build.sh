@@ -1,8 +1,9 @@
 #!/bin/bash
 
 ### 构建要求
-### 1. go >= 1.13
-### 2. node >= 8
+### 1. go 1.25
+### 2. node 22
+### 3. yarn 1.22.22
 
 baseDir=`echo $PWD`
 serverDir=`echo $baseDir/server`
@@ -29,8 +30,8 @@ funcBuildServer() {
 funcBuildSite() {
     echo 'site module building...'
     cd $siteDir
-    npm install --registry=https://registry.npm.taobao.org
-    npm run build
+    yarn install --frozen-lockfile
+    yarn build
     echo 'site module building...finished'
 }
 

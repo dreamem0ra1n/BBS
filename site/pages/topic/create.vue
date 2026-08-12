@@ -62,7 +62,7 @@
 
         <div class="field">
           <div class="control">
-            <tag-input :nodeId="postForm.nodeId" @setTag="setTag" />
+            <tag-input :node-id="postForm.nodeId" @setTag="setTag" />
           </div>
         </div>
         <div class="field">
@@ -106,14 +106,6 @@ export default {
     const nodeId =
       (store.state.currentNodeId !== 0 ? store.state.currentNodeId : null) ??
       config.defaultNodeId
-    let currentNode = null
-    if (nodeId) {
-      try {
-        currentNode = await $axios.get('/api/topic/node?nodeId=' + nodeId)
-      } catch (e) {
-        console.error(e)
-      }
-    }
 
     const type = parseInt(query.type || 0) || 0
 

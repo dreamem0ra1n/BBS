@@ -143,11 +143,11 @@ func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord
 	bytes, err := globalMinioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
 
 	if err != nil {
-		logrus.Error("error happen when put object to minio: %s", err)
+		logrus.Errorf("error happen when put object to minio: %s", err)
 		return nil, err
 	}
 
-	logrus.Info("finish put object with %d bytes to minio", bytes)
+	logrus.Infof("finish put object with %d bytes to minio", bytes)
 
 	newFile := &model.FileRecord{
 		FileName:   fineName,
@@ -158,7 +158,7 @@ func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord
 
 	err = services.FileService.CreateRecord(newFile)
 	if err != nil {
-		logrus.Error("error happen when recording the file: %s", err)
+		logrus.Errorf("error happen when recording the file: %s", err)
 		return nil, err
 	}
 	return newFile, err

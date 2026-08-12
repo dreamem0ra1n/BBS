@@ -44,7 +44,7 @@
                   </div>
                 </div>
                 <div class="topic-header-right">
-                  <topic-manage-menu v-model="topic" v-if="!isOld" />
+                  <topic-manage-menu v-if="!isOld" v-model="topic" />
                 </div>
               </div>
 
@@ -130,7 +130,7 @@
               </div>
 
               <!-- 功能按钮 -->
-              <div class="topic-actions" v-if="!isOld">
+              <div v-if="!isOld" class="topic-actions">
                 <div class="action disabled">
                   <i class="action-icon iconfont icon-read" />
                   <div class="action-text">
@@ -178,7 +178,7 @@
               :comments-page="commentsPage"
               :comment-count="topic.commentCount"
               :mode="topic.type === 1 ? 'text' : 'markdown'"
-              :noComment="isOld"
+              :no-comment="isOld"
               entity-type="topic"
               @created="commentCreated"
               @reGain="reGain"

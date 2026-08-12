@@ -37,23 +37,17 @@
 
 - Linux
 - Docker 24+
-- Node.js `16.20.2`
+- Node.js `22.x`
 - Yarn `1.22.22`
 - `curl`、`awk`
 
-前端依赖较旧，建议使用 nvm：
+仓库根目录的 `.nvmrc` 固定了 Node 主版本，建议使用 nvm：
 
 ```bash
-nvm install 16.20.2
-nvm use 16.20.2
+nvm install
+nvm use
 node --version
 yarn --version
-```
-
-若当前 shell 没有加载 nvm，可以临时使用：
-
-```bash
-export PATH=/root/.nvm/versions/node/v16.20.2/bin:$PATH
 ```
 
 ### 2. 创建 Docker 网络
@@ -235,7 +229,7 @@ Now listening on: http://localhost:8082
 
 ### 8. 安装并启动 Site
 
-不要混用 Node 24。依赖下载证书报错时切换到 Yarn 官方 registry，不要关闭 TLS 校验：
+请使用 Node 22 和 Yarn 1.22.22。依赖下载证书报错时切换到 Yarn 官方 registry，不要关闭 TLS 校验：
 
 ```bash
 cd /root/BBS/site
@@ -246,14 +240,14 @@ yarn dev
 
 访问：`http://localhost:3000/bbs2/`。
 
-`package-lock.json found` 只是仓库同时存在 npm lockfile 的警告；本项目本地流程统一使用 Yarn 和 `yarn.lock`。
+前端依赖统一使用 Yarn 和各目录中的 `yarn.lock`；不要使用 npm 重新生成 `package-lock.json`。
 
 ### 9. 安装并启动 Admin
 
 另开终端：
 
 ```bash
-export PATH=/root/.nvm/versions/node/v16.20.2/bin:$PATH
+nvm use
 cd /root/BBS/admin
 yarn config set registry https://registry.yarnpkg.com
 yarn install --frozen-lockfile
@@ -319,7 +313,7 @@ MySQL 和 MinIO 数据分别保存在 `bbs-mysql-data`、`bbs-minio-data` volume
 
 ### 1. 准备运行环境
 
-安装 Docker 24+、Nginx、Node.js `16.20.2` 和 Yarn `1.22.22`，然后拉取代码：
+安装 Docker 24+、Nginx、Node.js `22.x` 和 Yarn `1.22.22`，然后拉取代码：
 
 ```bash
 git clone git@github.com:dreamem0ra1n/BBS.git /opt/bbs-neo

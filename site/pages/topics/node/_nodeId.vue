@@ -27,9 +27,6 @@ export default {
       topicsPage,
     }
   },
-  mounted() {
-    this.$store.commit('env/setCurrentNodeId', this.node.nodeId)
-  },
   head() {
     return {
       title: this.$siteTitle(this.node.name + ' - 话题'),
@@ -42,6 +39,9 @@ export default {
         { hid: 'keywords', name: 'keywords', content: this.$siteKeywords() },
       ],
     }
+  },
+  mounted() {
+    this.$store.commit('env/setCurrentNodeId', this.node.nodeId)
   },
 }
 </script>

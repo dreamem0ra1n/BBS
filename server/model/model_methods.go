@@ -137,12 +137,12 @@ func (u *User) GetUserAuthUnits() ([]*AuthUnit, error) {
 			roleArgv = -1
 		}
 		if err != nil {
-			logrus.Error("Error happen when split %s's roles!", u.Nickname)
+			logrus.Errorf("Error happen when split %s's roles!", u.Nickname)
 			return nil, err
 		}
 		au, err := GetAuthUnit(roleType, roleArgv)
 		if err != nil {
-			logrus.Error("Role %s not found!", roleType)
+			logrus.Errorf("Role %s not found!", roleType)
 			return nil, err
 		}
 		retAu = append(retAu, au)

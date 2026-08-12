@@ -4,18 +4,24 @@
   "description": "bbs-go documents",
   "main": "index.js",
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:dev": "CI=1 NO_UPDATE_NOTIFIER=1 NODE_OPTIONS=--openssl-legacy-provider vuepress dev docs",
+    "docs:build": "CI=1 NO_UPDATE_NOTIFIER=1 NODE_OPTIONS=--openssl-legacy-provider vuepress build docs"
   },
   "keywords": [
     "bbs-go"
   ],
   "author": "mlog1@qq.com",
   "license": "ISC",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=22 <23",
+    "yarn": "1.22.22"
+  },
   "devDependencies": {
-    "vuepress": "^1.7.1"
+    "vuepress": "^1.9.10"
   },
   "dependencies": {
-    "@vuepress/core": "^1.7.1"
+    "@vuepress/core": "^1.9.10"
   }
 }

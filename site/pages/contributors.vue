@@ -63,7 +63,7 @@ export default {
             {
               name: '晚自习',
               github: 'dreamem0ra1n',
-              avatar: require('~/assets/images/contributors/晚自习.jpg')
+              avatar: require('~/assets/images/contributors/晚自习.jpg'),
             },
             {
               name: 'token',

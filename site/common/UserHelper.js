@@ -1,4 +1,3 @@
-import axios from '~/plugins/axios'
 class UserHelper {
   hasRole(user, role) {
     if (!user || !user.roles || !user.roles.length) {

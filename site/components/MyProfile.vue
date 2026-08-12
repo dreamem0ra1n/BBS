@@ -8,9 +8,9 @@
     </div>
     <div class="widget-content stable">
       <div
-        class="str"
         v-for="(info, index) in infos"
         :key="index + info.attribute"
+        class="str"
       >
         <div class="slabel">{{ info.title }}</div>
         <div class="svalue">
