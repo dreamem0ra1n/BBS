@@ -5,7 +5,7 @@
     class="searchFormDiv"
     :class="{ 'input-focus': inputFocus, 'show-histories': showHistories }"
   >
-    <div class="search-input">
+    <form class="search-input" @submit.prevent="searchBoxOnEnter">
       <input
         v-model="keyword"
         name="q"
@@ -19,12 +19,11 @@
         @input="onInput"
         @keyup.down="changeSelect(1)"
         @keyup.up="changeSelect(-1)"
-        @keyup.enter="searchBoxOnEnter"
       />
-      <span>
+      <button type="submit" aria-label="搜索">
         <i class="iconfont icon-search" />
-      </span>
-    </div>
+      </button>
+    </form>
     <div class="histories">
       <ul>
         <li
@@ -72,6 +71,13 @@ export default {
       return this.allHistories
     },
   },
+  watch: {
+    '$route.query.q'(keyword) {
+      if (this.$route.path.startsWith('/search')) {
+        this.keyword = keyword || ''
+      }
+    },
+  },
   mounted() {
     this.keyword = this.$store.state.search.keyword
     this.loadAllHistories()
@@ -97,16 +103,23 @@ export default {
         return
       }
       this.addHistories()
-      try {
-        if (
-          window.location.pathname.includes('old') ||
-          window.location.pathname.includes('OLD')
-        ) {
-          this.$linkTo('/search/old?q=' + encodeURIComponent(this.keyword))
-        } else this.$linkTo('/search?q=' + encodeURIComponent(this.keyword))
-      } catch (e) {
-        console.log(e)
+
+      const old = this.$route.path.toLowerCase().includes('old')
+      const path = old ? '/search/old' : '/search'
+      if (
+        this.$route.path === path &&
+        this.$route.query.q === this.keyword &&
+        Number(this.$route.query.p || 1) === 1
+      ) {
+        this.$store.dispatch('search/initParams', {
+          keyword: this.keyword,
+          page: 1,
+        })
+        this.$store.dispatch(old ? 'search/searchOld' : 'search/searchTopic')
+        return
       }
+
+      this.$router.push({ path, query: { q: this.keyword } })
     },
     onFocus() {
       this.inputFocus = true
@@ -237,6 +250,14 @@ export default {
       &:focus {
         outline: none;
       }
+    }
+
+    button {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
     }
   }
 

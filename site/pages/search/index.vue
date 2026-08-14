@@ -49,6 +49,18 @@ export default {
       return this.$store.state.search.loading
     },
   },
+  watch: {
+    '$route.query': {
+      handler(query) {
+        this.keyword = query.q || ''
+        this.$store.dispatch('search/initParams', {
+          keyword: this.keyword,
+          page: query.p || 1,
+        })
+        this.searchTopic()
+      },
+    },
+  },
   mounted() {
     this.searchTopic()
   },
