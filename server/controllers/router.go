@@ -74,6 +74,7 @@ func Router() {
 		m.Party("/favorite").Handle(new(api.FavoriteController))
 		m.Party("/like").Handle(new(api.LikeController))
 		m.Party("/checkin").Handle(new(api.CheckinController))
+		m.Party("/stats").Handle(new(api.StatsController))
 		m.Party("/config").Handle(new(api.ConfigController))
 		m.Party("/link").Handle(new(api.LinkController))
 		m.Party("/captcha").Handle(new(api.CaptchaController))

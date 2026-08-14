@@ -21,6 +21,7 @@
         <check-in />
         <score-rank :score-rank="scoreRank" />
         <friend-links :links="links" />
+        <site-stats :stats="stats" />
       </div>
     </div>
   </section>
@@ -31,13 +32,14 @@ export default {
   async asyncData({ $axios, store }) {
     store.commit('env/setCurrentNodeId', 0) // 设置当前所在node
     try {
-      const [nodes, topicsPage, scoreRank, links] = await Promise.all([
+      const [nodes, topicsPage, scoreRank, links, stats] = await Promise.all([
         $axios.get('/api/topic/nodes'),
         $axios.get('/api/topic/topics'),
         $axios.get('/api/user/score/rank'),
         $axios.get('/api/link/toplinks'),
+        $axios.get('/api/stats/site'),
       ])
-      return { nodes, topicsPage, scoreRank, links }
+      return { nodes, topicsPage, scoreRank, links, stats }
     } catch (e) {
       console.error(e)
     }
