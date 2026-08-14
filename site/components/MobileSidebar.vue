@@ -23,6 +23,11 @@
           </div>
           <div class="sidebar-menus">
             <div class="sidebar-menu-item">
+              <p @click="doCheckIn">
+                {{ checkedIn ? '今日已签到' : '签到' }}
+              </p>
+            </div>
+            <div class="sidebar-menu-item">
               <nuxt-link :to="'/user/' + user.id">个人中心</nuxt-link>
             </div>
             <div class="sidebar-menu-item">
@@ -53,6 +58,11 @@
 <script>
 import UserHelper from '~/common/UserHelper'
 export default {
+  data() {
+    return {
+      checkedIn: false,
+    }
+  },
   computed: {
     show() {
       return this.$store.state.env.showMobileSidebar
@@ -71,9 +81,34 @@ export default {
       return config.siteNavs || []
     },
   },
+  watch: {
+    show(value) {
+      if (value && this.user) {
+        this.getCheckIn()
+      }
+    },
+  },
   methods: {
     login() {
       this.$toSignin()
+    },
+    async getCheckIn() {
+      try {
+        const checkIn = await this.$axios.get('/api/checkin/checkin')
+        this.checkedIn = Boolean(checkIn && checkIn.checkIn)
+      } catch (e) {
+        console.error(e)
+      }
+    },
+    async doCheckIn() {
+      if (this.checkedIn) return
+      try {
+        await this.$axios.post('/api/checkin/checkin')
+        this.checkedIn = true
+        this.$message.success('签到成功')
+      } catch (e) {
+        console.error(e)
+      }
     },
     async signout() {
       try {
