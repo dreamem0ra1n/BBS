@@ -186,6 +186,12 @@
                     <span>收藏</span>
                   </div>
                 </div>
+                <div class="action" @click="copyShareLink">
+                  <i class="action-icon iconfont icon-share" />
+                  <div class="action-text">
+                    <span>复制分享链接</span>
+                  </div>
+                </div>
               </div>
             </article>
 
@@ -373,6 +379,35 @@ export default {
           this.liked = true
           this.$message.error(e.message || e)
         }
+      }
+    },
+    async copyShareLink() {
+      const nodeName = this.topic.node?.name || '无节点'
+      const topicTitle = this.topic.title || '无标题'
+      const topicUrl = `https://www.qsc.zju.edu.cn/bbs2/topic/${this.topic.topicId}`
+      const shareText = `【${nodeName}】${topicTitle} ${topicUrl} 复制本链接，打开【QSCBBS】网页端，直接查看本帖！`
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(shareText)
+        } else {
+          const textarea = document.createElement('textarea')
+          textarea.value = shareText
+          textarea.setAttribute('readonly', '')
+          textarea.style.position = 'fixed'
+          textarea.style.opacity = '0'
+          document.body.appendChild(textarea)
+          textarea.select()
+          const copied = document.execCommand('copy')
+          document.body.removeChild(textarea)
+          if (!copied) {
+            throw new Error('浏览器不支持复制到剪贴板')
+          }
+        }
+        this.$message.success('分享链接已复制')
+      } catch (e) {
+        console.error(e)
+        this.$message.error('复制分享链接失败，请稍后重试')
       }
     },
     async getHideContent() {
