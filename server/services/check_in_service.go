@@ -113,14 +113,30 @@ func (s *checkInService) CheckIn(userId int64) error {
 		cache.UserCache.RefreshCheckInRank()
 		// 处理签到积分
 		config := SysConfigService.GetConfig()
-		if config.ScoreConfig.CheckInScore > 0 {
-			_ = UserService.IncrScore(userId, config.ScoreConfig.CheckInScore, constants.EntityCheckIn,
+		score := calculateCheckInScore(consecutiveDays, config.ScoreConfig)
+		if score > 0 {
+			_ = UserService.IncrScore(userId, score, constants.EntityCheckIn,
 				strconv.FormatInt(userId, 10), "签到"+strconv.Itoa(dayName))
 		} else {
 			logrus.Warn("签到积分未配置...")
 		}
 	}
 	return err
+}
+
+// calculateCheckInScore increases the reward with the consecutive day count,
+// capped by CheckInScoreMax. CheckInScore remains a fallback for old configs.
+func calculateCheckInScore(consecutiveDays int, config model.ScoreConfig) int {
+	if consecutiveDays <= 0 {
+		return 0
+	}
+	if config.CheckInScoreMax > 0 {
+		if consecutiveDays > config.CheckInScoreMax {
+			return config.CheckInScoreMax
+		}
+		return consecutiveDays
+	}
+	return config.CheckInScore
 }
 
 func (s *checkInService) GetByUserId(userId int64) *model.CheckIn {

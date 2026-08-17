@@ -122,12 +122,12 @@
                 placeholder="跟帖获得积分"
               />
             </el-form-item>
-            <el-form-item label="签到积分">
+            <el-form-item label="签到积分上限">
               <el-input-number
-                v-model="config.scoreConfig.checkInScore"
+                v-model="config.scoreConfig.checkInScoreMax"
                 :min="1"
                 type="text"
-                placeholder="签到获得积分"
+                placeholder="连续签到每日积分上限"
               />
             </el-form-item>
           </el-form>
@@ -205,6 +205,9 @@ export default {
       this.loading = true;
       try {
         this.config = await this.axios.get("/api/admin/sys-config/all");
+        if (this.config.scoreConfig && !this.config.scoreConfig.checkInScoreMax) {
+          this.config.scoreConfig.checkInScoreMax = this.config.scoreConfig.checkInScore || 1;
+        }
         this.nodes = await this.axios.get("/api/admin/topic-node/nodes");
       } catch (err) {
         this.$notify.error({ title: "错误", message: err.message });

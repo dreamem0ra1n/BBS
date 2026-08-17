@@ -51,7 +51,7 @@ export default {
           title: '现任维护/开发',
           members: [
             {
-              name: 'dreamem0ra1n',
+              name: '晚自习',
               github: 'dreamem0ra1n',
               avatar: require('~/assets/images/contributors/晚自习.jpg'),
             },

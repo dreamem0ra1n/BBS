@@ -10,7 +10,8 @@ type ActionLink struct {
 type ScoreConfig struct {
 	PostTopicScore   int `json:"postTopicScore"`   // 发帖获得积分
 	PostCommentScore int `json:"postCommentScore"` // 跟帖获得积分
-	CheckInScore     int `json:"checkInScore"`     // 签到积分
+	CheckInScore     int `json:"checkInScore"`     // 旧版固定签到积分（兼容旧配置）
+	CheckInScoreMax  int `json:"checkInScoreMax"`  // 连续签到每日积分上限
 }
 
 type LoginMethod struct {

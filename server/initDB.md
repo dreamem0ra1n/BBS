@@ -166,7 +166,7 @@ WHERE NOT EXISTS(SELECT * FROM `t_sys_config` WHERE `key` = 'tokenExpireDays');
 
 INSERT INTO t_sys_config (`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'scoreConfig',
-       '{"postTopicScore":1,"postCommentScore":1,"checkInScore":1}',
+       '{"postTopicScore":1,"postCommentScore":1,"checkInScore":1,"checkInScoreMax":7}',
        '积分配置',
        '积分配置',
        (UNIX_TIMESTAMP(now()) * 1000),
@@ -328,7 +328,7 @@ WHERE NOT EXISTS(SELECT * FROM `t_sys_config` WHERE `key` = 'tokenExpireDays');
 
 INSERT INTO t_sys_config (`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'scoreConfig',
-       '{"postTopicScore":1,"postCommentScore":1,"checkInScore":1}',
+       '{"postTopicScore":1,"postCommentScore":1,"checkInScore":1,"checkInScoreMax":7}',
        '积分配置',
        '积分配置',
        (UNIX_TIMESTAMP(now()) * 1000),
