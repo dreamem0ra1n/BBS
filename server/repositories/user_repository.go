@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web/params"
 	"gorm.io/gorm"
@@ -36,6 +38,13 @@ func (r *userRepository) Take(db *gorm.DB, where ...interface{}) *model.User {
 func (r *userRepository) Find(db *gorm.DB, cnd *sqls.Cnd) (list []model.User) {
 	cnd.Find(db, &list)
 	return
+}
+
+func (r *userRepository) FindRecentYearScoreRank(db *gorm.DB, now time.Time) []model.User {
+	return r.Find(db, sqls.NewCnd().
+		Gte("create_time", now.AddDate(-1, 0, 0).Unix()).
+		Desc("score").
+		Limit(10))
 }
 
 func (r *userRepository) FindOne(db *gorm.DB, cnd *sqls.Cnd) *model.User {

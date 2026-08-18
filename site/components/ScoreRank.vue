@@ -2,10 +2,28 @@
   <div v-if="scoreRank && scoreRank.length" class="widget">
     <div class="widget-header">
       <span class="widget-title">积分排行</span>
+      <span class="score-rank-tabs">
+        <button
+          type="button"
+          :class="{ active: activePeriod === 'all' }"
+          :disabled="loading"
+          @click="selectPeriod('all')"
+        >
+          历史总榜
+        </button>
+        <button
+          type="button"
+          :class="{ active: activePeriod === 'year' }"
+          :disabled="loading"
+          @click="selectPeriod('year')"
+        >
+          年度总榜
+        </button>
+      </span>
     </div>
     <div class="widget-content">
-      <ul class="score-rank">
-        <li v-for="user in scoreRank" :key="user.id">
+      <ul v-if="displayedScoreRank.length" class="score-rank">
+        <li v-for="user in displayedScoreRank" :key="user.id">
           <avatar :user="user" size="35" round />
           <div class="score-user-info">
             <nuxt-link :to="'/user/' + user.id" class="score-nickname">{{
@@ -22,6 +40,7 @@
           </div>
         </li>
       </ul>
+      <div v-else class="score-rank-empty">近一年暂无注册用户</div>
     </div>
   </div>
 </template>
@@ -36,10 +55,76 @@ export default {
       },
     },
   },
+  data() {
+    return {
+      activePeriod: 'all',
+      annualScoreRank: null,
+      loading: false,
+    }
+  },
+  computed: {
+    displayedScoreRank() {
+      return this.activePeriod === 'year'
+        ? this.annualScoreRank || []
+        : this.scoreRank
+    },
+  },
+  methods: {
+    async selectPeriod(period) {
+      if (period === this.activePeriod || this.loading) {
+        return
+      }
+      if (period === 'all') {
+        this.activePeriod = period
+        return
+      }
+      this.loading = true
+      try {
+        this.annualScoreRank = await this.$axios.get('/api/user/score/rank', {
+          params: { period: 'year' },
+        })
+        this.activePeriod = period
+      } catch (e) {
+        this.$message.error(e.message || '加载年度排行失败')
+      } finally {
+        this.loading = false
+      }
+    },
+  },
 }
 </script>
 
 <style scoped lang="scss">
+.score-rank-tabs {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 400;
+
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-color3);
+    cursor: pointer;
+
+    &.active {
+      color: var(--text-link-color);
+    }
+
+    &:disabled {
+      cursor: wait;
+    }
+  }
+}
+
+.score-rank-empty {
+  padding: 20px 0;
+  color: var(--text-color3);
+  font-size: 12px;
+  text-align: center;
+}
+
 .score-rank {
   li {
     display: flex;
