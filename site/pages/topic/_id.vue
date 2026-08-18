@@ -102,10 +102,13 @@
                   class="topic-gift-records"
                 >
                   <div class="topic-gift-title">
-                    <i class="iconfont icon-score" /> 赠米详情
+                    <span><i class="iconfont icon-score" /> 赠米详情</span>
+                    <span class="topic-gift-summary">
+                      共 {{ topic.gifts.length }} 人次 · {{ giftTotalScore }} 米
+                    </span>
                   </div>
                   <div
-                    v-for="gift in topic.gifts"
+                    v-for="gift in visibleGifts"
                     :key="gift.giftId"
                     class="topic-gift-record"
                   >
@@ -116,6 +119,19 @@
                     <span class="topic-gift-reason">“{{ gift.reason }}”</span>
                     <time>{{ gift.createTime | formatDate }}</time>
                   </div>
+                  <button
+                    v-if="topic.gifts.length > giftDisplayLimit"
+                    class="topic-gift-toggle"
+                    type="button"
+                    :aria-expanded="giftRecordsExpanded"
+                    @click="giftRecordsExpanded = !giftRecordsExpanded"
+                  >
+                    {{
+                      giftRecordsExpanded
+                        ? '收起赠米详情'
+                        : `展开全部（共 ${topic.gifts.length} 条）`
+                    }}
+                  </button>
                 </div>
                 <div
                   v-if="topic.lastEditUser && topic.lastEditTime"
@@ -352,6 +368,8 @@ export default {
       giftDialogVisible: false,
       gifting: false,
       giftBalance: null,
+      giftRecordsExpanded: false,
+      giftDisplayLimit: 3,
       giftForm: {
         score: 1,
         reason: '',
@@ -394,6 +412,20 @@ export default {
     },
     giftScoreMax() {
       return this.$store.state.config.config.scoreConfig?.giftScoreMax || 50
+    },
+    orderedGifts() {
+      return [...(this.topic.gifts || [])].reverse()
+    },
+    visibleGifts() {
+      return this.giftRecordsExpanded
+        ? this.orderedGifts
+        : this.orderedGifts.slice(0, this.giftDisplayLimit)
+    },
+    giftTotalScore() {
+      return (this.topic.gifts || []).reduce(
+        (total, gift) => total + gift.score,
+        0
+      )
     },
   },
   mounted() {

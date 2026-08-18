@@ -200,12 +200,22 @@
       font-size: 12px;
 
       .topic-gift-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
         margin-bottom: 6px;
         color: var(--text-color);
         font-weight: 700;
 
         .icon-score {
           color: #f0ad4e;
+        }
+
+        .topic-gift-summary {
+          color: var(--text-color3);
+          font-weight: 400;
+          white-space: nowrap;
         }
       }
 
@@ -233,6 +243,21 @@
       .topic-gift-reason {
         margin-left: 6px;
         color: var(--text-color);
+      }
+
+      .topic-gift-toggle {
+        display: block;
+        margin: 8px auto 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text-link-color);
+        cursor: pointer;
+        font-size: 12px;
+
+        &:hover {
+          color: var(--text-link-hover-color);
+        }
       }
     }
   }
