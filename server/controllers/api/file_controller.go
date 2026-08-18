@@ -67,6 +67,11 @@ func InitMinio(conf *config.Config) {
 }
 
 func (c *FileController) PostUpload() *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if err := services.UserService.CheckPostStatus(user); err != nil {
+		return web.JsonError(err)
+	}
+
 	file, info, err := c.Ctx.FormFile("file")
 
 	if err != nil {
