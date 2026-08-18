@@ -120,12 +120,18 @@
           <div class="field">
             <div class="control">
               <input
-                v-model="form.birthday"
+                v-model="birthdayInput"
                 class="input"
-                type="text"
+                type="date"
+                :max="today"
                 autocomplete="off"
-                placeholder="请输入生日"
+                @input="birthdayTouched = true"
               />
+              <p v-if="hasInvalidBirthday" class="help is-warning">
+                原已填写内容：{{
+                  originalBirthday
+                }}。格式不正确，生日通知无法发送；重新选择日期后将更新。
+              </p>
             </div>
           </div>
         </div>
@@ -208,6 +214,10 @@ export default {
   data() {
     return {
       user: {},
+      birthdayInput: '',
+      birthdayTouched: false,
+      originalBirthday: '',
+      today: '',
       form: {
         nickname: '',
         homePage: '',
@@ -226,6 +236,15 @@ export default {
       title: this.$siteTitle(this.user.nickname + ' - 个人资料'),
     }
   },
+  computed: {
+    hasInvalidBirthday() {
+      return (
+        !this.birthdayTouched &&
+        !!this.originalBirthday &&
+        !this.isValidBirthday(this.originalBirthday)
+      )
+    },
+  },
   /* async asyncData({ $axios }) {
     const user = await $axios.get('/api/user/current')
     const form = { ...user }
@@ -235,13 +254,20 @@ export default {
     }
   }, */
   mounted() {
+    this.today = this.formatDate(new Date())
     this.reload()
     this.user = this.$store.state.user.current
   },
   methods: {
     async submitForm() {
       try {
-        await this.$axios.post('/api/user/edit/' + this.user.id, this.form)
+        const birthday = this.birthdayTouched
+          ? this.birthdayInput
+          : this.originalBirthday
+        await this.$axios.post('/api/user/edit/' + this.user.id, {
+          ...this.form,
+          birthday,
+        })
         await this.reload()
         this.$message.success('资料修改成功')
       } catch (e) {
@@ -255,6 +281,27 @@ export default {
     onAvatarUpdateError(e) {
       this.$message.error('头像更新失败')
     },
+    formatDate(date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    },
+    isValidBirthday(value) {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+      if (!match) {
+        return false
+      }
+      const year = Number(match[1])
+      const month = Number(match[2])
+      const day = Number(match[3])
+      const date = new Date(year, month - 1, day)
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+      )
+    },
     async reload() {
       const _user = await this.$axios.get('/api/user/current')
       if (_user) {
@@ -263,6 +310,11 @@ export default {
         _user.position = _user.department + '-' + role
         this.$store.commit('user/setCurrent', _user)
         this.form = { ..._user }
+        this.originalBirthday = _user.birthday || ''
+        this.birthdayInput = this.isValidBirthday(this.originalBirthday)
+          ? this.originalBirthday
+          : ''
+        this.birthdayTouched = false
       }
     },
   },

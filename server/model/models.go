@@ -24,6 +24,7 @@ type User struct {
 	Realname         string         `gorm:"size:32;" json:"realname" form:"realname"`                         // 真实姓名
 	Major            string         `gorm:"size:64;" json:"major" form:"major"`                               // 专业
 	Birthday         string         `gorm:"size:32;" json:"birthday" form:"birthday"`
+	BirthdayYearSent int            `gorm:"not null;default:0" json:"-" form:"-"`
 	Department       string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
 	Mobile           string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话
 	Wechat           string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号

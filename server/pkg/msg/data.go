@@ -18,6 +18,7 @@ const (
 	TypeTopicDelete    Type = 5 // 话题被删除
 	TypeArticleComment Type = 6 // 收到文章评论
 	TypeTopicGift      Type = 7 // 话题收到赠米
+	TypeBirthday       Type = 8 // 收到生日祝福
 )
 
 type TopicLikeExtraData struct {

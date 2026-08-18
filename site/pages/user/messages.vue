@@ -40,7 +40,7 @@
               </strong>
             </div>
             <div class="content">
-              <div class="msg-attr message-quote">
+              <div v-if="message.quoteContent" class="msg-attr message-quote">
                 {{ message.quoteContent }}
               </div>
               <div class="msg-attr message-content">

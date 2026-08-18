@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"bbs-go/pkg/sitemap"
+	"time"
 
 	"github.com/robfig/cron"
 	"github.com/sirupsen/logrus"
@@ -11,6 +12,12 @@ import (
 
 func Start() {
 	c := cron.New()
+
+	// 启动时补发当天祝福，之后每天定时发送。
+	go services.BirthdayService.SendNotices(time.Now())
+	addCronFunc(c, "0 5 0 * * *", func() {
+		services.BirthdayService.SendNotices(time.Now())
+	})
 
 	// Generate RSS
 	addCronFunc(c, "@every 30m", func() {

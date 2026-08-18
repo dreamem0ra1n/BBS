@@ -7,6 +7,7 @@ import (
 	"bbs-go/pkg/validate"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/common/strs"
@@ -104,6 +105,9 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	})
 	if err != nil {
 		return web.JsonError(err)
+	}
+	if birthday != user.Birthday {
+		go services.BirthdayService.SendNotice(user.Id, time.Now())
 	}
 	return web.JsonSuccess()
 }
