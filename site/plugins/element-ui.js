@@ -15,6 +15,8 @@ import {
   Notification,
   Select,
   Option,
+  Input,
+  InputNumber,
 } from 'element-ui'
 
 Vue.use(Dialog)
@@ -26,6 +28,8 @@ Vue.use(DropdownItem)
 Vue.use(Progress)
 Vue.use(Select)
 Vue.use(Option)
+Vue.use(Input)
+Vue.use(InputNumber)
 
 Vue.use(Loading.directive)
 

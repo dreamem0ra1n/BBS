@@ -17,11 +17,18 @@ const (
 	TypeTopicRecommend Type = 4 // 话题被设为推荐
 	TypeTopicDelete    Type = 5 // 话题被删除
 	TypeArticleComment Type = 6 // 收到文章评论
+	TypeTopicGift      Type = 7 // 话题收到赠米
 )
 
 type TopicLikeExtraData struct {
 	TopicId    int64 `json:"topicId"`
 	LikeUserId int64 `json:"likeUserId"`
+}
+
+type TopicGiftExtraData struct {
+	TopicId int64 `json:"topicId"`
+	GiftId  int64 `json:"giftId"`
+	Score   int   `json:"score"`
 }
 
 type TopicFavoriteExtraData struct {

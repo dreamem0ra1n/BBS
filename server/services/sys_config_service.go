@@ -238,6 +238,9 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 			logrus.Warn("积分配置错误", err)
 		}
 	}
+	if scoreConfig.GiftScoreMax <= 0 || scoreConfig.GiftScoreMax > maxGiftScoreMax {
+		scoreConfig.GiftScoreMax = defaultGiftScoreMax
+	}
 
 	var (
 		defaultNodeId      = numbers.ToInt64(defaultNodeIdStr)
@@ -269,6 +272,14 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 		CreateCommentEmailVerified: createCommentEmailVerified,
 		EnableHideContent:          enableHideContent,
 	}
+}
+
+func (s *sysConfigService) GetGiftScoreMax() int {
+	maxScore := s.GetConfig().ScoreConfig.GiftScoreMax
+	if maxScore <= 0 || maxScore > maxGiftScoreMax {
+		return defaultGiftScoreMax
+	}
+	return maxScore
 }
 
 func (s *sysConfigService) GetInt(key string) int {

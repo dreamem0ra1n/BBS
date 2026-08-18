@@ -134,6 +134,8 @@ func (s *messageService) SendEmailNotice(t *model.Message) {
 		emailTitle = siteTitle + " - 话题被删除"
 	} else if msgType == msg.TypeArticleComment {
 		emailTitle = siteTitle + " - 收到文章评论"
+	} else if msgType == msg.TypeTopicGift {
+		emailTitle = siteTitle + " - 收到赠米"
 	}
 
 	var from *model.User

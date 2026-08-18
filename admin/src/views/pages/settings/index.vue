@@ -130,6 +130,15 @@
                 placeholder="连续签到每日积分上限"
               />
             </el-form-item>
+            <el-form-item label="单次赠米上限">
+              <el-input-number
+                v-model="config.scoreConfig.giftScoreMax"
+                :min="1"
+                :max="50"
+                type="text"
+                placeholder="单次赠米数量上限"
+              />
+            </el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="反作弊配置" name="spamConfigTab">
@@ -207,6 +216,9 @@ export default {
         this.config = await this.axios.get("/api/admin/sys-config/all");
         if (this.config.scoreConfig && !this.config.scoreConfig.checkInScoreMax) {
           this.config.scoreConfig.checkInScoreMax = this.config.scoreConfig.checkInScore || 1;
+        }
+        if (this.config.scoreConfig && !this.config.scoreConfig.giftScoreMax) {
+          this.config.scoreConfig.giftScoreMax = 50;
         }
         this.nodes = await this.axios.get("/api/admin/topic-node/nodes");
       } catch (err) {

@@ -12,7 +12,32 @@ import (
 )
 
 func BuildTopic(user *model.User, topic *model.Topic) *model.TopicResponse {
-	return _buildTopic(user, topic, true)
+	rsp := _buildTopic(user, topic, true)
+	if rsp != nil && !topic.IsOldBBS {
+		rsp.Gifts = BuildTopicGifts(services.TopicGiftService.FindByTopicId(topic.Id))
+	}
+	return rsp
+}
+
+func BuildTopicGift(gift *model.TopicGift) *model.TopicGiftResponse {
+	if gift == nil {
+		return nil
+	}
+	return &model.TopicGiftResponse{
+		GiftId: gift.Id, User: BuildUserInfoDefaultIfNull(gift.UserId), Score: gift.Score,
+		Reason: gift.Reason, CreateTime: gift.CreateTime,
+	}
+}
+
+func BuildTopicGifts(gifts []model.TopicGift) []model.TopicGiftResponse {
+	if len(gifts) == 0 {
+		return nil
+	}
+	responses := make([]model.TopicGiftResponse, 0, len(gifts))
+	for index := range gifts {
+		responses = append(responses, *BuildTopicGift(&gifts[index]))
+	}
+	return responses
 }
 
 func BuildSimpleTopic(user *model.User, topic *model.Topic) *model.TopicResponse {

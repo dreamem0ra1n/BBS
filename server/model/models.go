@@ -8,7 +8,7 @@ import (
 var Models = []interface{}{
 	&User{}, &UserToken{}, &Tag{}, &Article{}, &ArticleTag{}, &Comment{}, &Favorite{}, &Topic{}, &TopicNode{},
 	&TopicTag{}, &UserLike{}, &Message{}, &SysConfig{}, &Link{}, &ThirdAccount{},
-	&UserScoreLog{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &UserFollow{}, &UserFeed{},
+	&UserScoreLog{}, &TopicGift{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &UserFollow{}, &UserFeed{},
 }
 
 type Model struct {
@@ -247,6 +247,17 @@ type UserScoreLog struct {
 	Type        int    `json:"type" form:"type"`                                                        // 类型(增加、减少)
 	Score       int    `json:"score" form:"score"`                                                      // 积分
 	CreateTime  int64  `json:"createTime" form:"createTime"`                                            // 创建时间
+}
+
+// 帖子赠米记录
+type TopicGift struct {
+	Model
+	TopicId   int64  `gorm:"not null;index:idx_topic_gift_topic_id" json:"topicId" form:"topicId"`    // 话题编号
+	UserId    int64  `gorm:"not null;index:idx_topic_gift_user_id" json:"userId" form:"userId"`       // 赠米用户编号
+	ReceiverId int64 `gorm:"not null;index:idx_topic_gift_receiver_id" json:"receiverId" form:"receiverId"` // 接收用户编号
+	Score     int    `gorm:"not null" json:"score" form:"score"`                                      // 赠米数量
+	Reason    string `gorm:"not null;size:64" json:"reason" form:"reason"`                            // 赠米理由
+	CreateTime int64 `gorm:"not null;index:idx_topic_gift_create_time" json:"createTime" form:"createTime"` // 创建时间
 }
 
 // 操作日志

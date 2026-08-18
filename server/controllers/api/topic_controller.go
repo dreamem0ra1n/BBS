@@ -221,6 +221,21 @@ func (c *TopicController) PostLikeBy(topicId int64) *web.JsonResult {
 	return web.JsonSuccess()
 }
 
+// 赠米
+func (c *TopicController) PostGiftBy(topicId int64) *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if user == nil {
+		return web.JsonError(errs.NotLogin)
+	}
+	score := params.FormValueIntDefault(c.Ctx, "score", 0)
+	reason := params.FormValue(c.Ctx, "reason")
+	gift, err := services.TopicGiftService.Gift(user.Id, topicId, score, reason)
+	if err != nil {
+		return web.JsonError(err)
+	}
+	return web.JsonData(render.BuildTopicGift(gift))
+}
+
 // 点赞用户
 func (c *TopicController) GetRecentlikesBy(topicId int64) *web.JsonResult {
 	likes := services.UserLikeService.Recent(constants.EntityTopic, topicId, 5)

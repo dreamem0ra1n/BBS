@@ -24,6 +24,9 @@
                     >
                   </div>
                   <div class="topic-meta">
+                    <span v-if="!isOld" class="meta-item">
+                      浏览 {{ topic.viewCount }}
+                    </span>
                     <span class="meta-item">
                       发布于
                       <time
@@ -95,6 +98,26 @@
                   </div>
                 </div>
                 <div
+                  v-if="topic.gifts && topic.gifts.length"
+                  class="topic-gift-records"
+                >
+                  <div class="topic-gift-title">
+                    <i class="iconfont icon-score" /> 赠米详情
+                  </div>
+                  <div
+                    v-for="gift in topic.gifts"
+                    :key="gift.giftId"
+                    class="topic-gift-record"
+                  >
+                    <nuxt-link :to="'/user/' + gift.user.id">
+                      {{ gift.user.nickname }}
+                    </nuxt-link>
+                    赠米 <strong>{{ gift.score }}</strong>
+                    <span class="topic-gift-reason">“{{ gift.reason }}”</span>
+                    <time>{{ gift.createTime | formatDate }}</time>
+                  </div>
+                </div>
+                <div
                   v-if="topic.lastEditUser && topic.lastEditTime"
                   class="topic-edit-record"
                 >
@@ -148,13 +171,14 @@
 
               <!-- 功能按钮 -->
               <div v-if="!isOld" class="topic-actions">
-                <div class="action disabled">
-                  <i class="action-icon iconfont icon-read" />
+                <div
+                  class="action"
+                  :class="{ disabled: ownTopic }"
+                  @click="openGiftDialog"
+                >
+                  <i class="action-icon iconfont icon-score" />
                   <div class="action-text">
-                    <span>浏览</span>
-                    <span v-if="topic.viewCount > 0" class="action-text">
-                      ({{ topic.viewCount }})
-                    </span>
+                    <span>赠米</span>
                   </div>
                 </div>
                 <div
@@ -194,6 +218,46 @@
                 </div>
               </div>
             </article>
+
+            <el-dialog
+              title="给本帖赠米"
+              :visible.sync="giftDialogVisible"
+              width="min(440px, 90%)"
+              custom-class="topic-gift-dialog"
+              append-to-body
+            >
+              <div class="topic-gift-form">
+                <label>赠米数量</label>
+                <el-input-number
+                  v-model="giftForm.score"
+                  :min="1"
+                  :max="giftScoreMax"
+                  :step="1"
+                  step-strictly
+                />
+                <div class="topic-gift-tip">
+                  单次可赠 1-{{ giftScoreMax }} 米，当前可用
+                  {{ giftBalance }} 米
+                </div>
+                <label>赠米理由</label>
+                <el-input
+                  v-model.trim="giftForm.reason"
+                  maxlength="15"
+                  show-word-limit
+                  placeholder="请输入赠米理由"
+                />
+              </div>
+              <span slot="footer">
+                <el-button @click="giftDialogVisible = false">取消</el-button>
+                <el-button
+                  type="primary"
+                  :loading="gifting"
+                  @click="submitGift"
+                >
+                  确认赠米
+                </el-button>
+              </span>
+            </el-dialog>
 
             <!-- 评论 -->
             <comment
@@ -285,6 +349,13 @@ export default {
   data() {
     return {
       hideContent: null,
+      giftDialogVisible: false,
+      gifting: false,
+      giftBalance: null,
+      giftForm: {
+        score: 1,
+        reason: '',
+      },
     }
   },
   head() {
@@ -317,6 +388,12 @@ export default {
     },
     ascOrder() {
       return this.$store.state.env.ascOrder
+    },
+    ownTopic() {
+      return this.user && this.user.id === this.topic.user.id
+    },
+    giftScoreMax() {
+      return this.$store.state.config.config.scoreConfig?.giftScoreMax || 50
     },
   },
   mounted() {
@@ -357,6 +434,61 @@ export default {
       } catch (e) {
         console.error(e)
         this.$message.error('收藏失败：' + (e.message || e))
+      }
+    },
+    openGiftDialog() {
+      if (!this.user) {
+        this.$msgSignIn()
+        return
+      }
+      if (this.ownTopic) {
+        this.$message.warning('不能给自己创建的话题赠米')
+        return
+      }
+      if (this.giftBalance === null) {
+        this.giftBalance = this.user.score
+      }
+      this.giftForm = {
+        score: Math.min(Math.max(1, this.giftForm.score), this.giftScoreMax),
+        reason: '',
+      }
+      this.giftDialogVisible = true
+    },
+    async submitGift() {
+      const reason = this.giftForm.reason.trim()
+      if (!reason) {
+        this.$message.warning('请输入赠米理由')
+        return
+      }
+      if ([...reason].length > 15) {
+        this.$message.warning('赠米理由不能超过15个字')
+        return
+      }
+      if (this.gifting) {
+        return
+      }
+      this.gifting = true
+      try {
+        const gift = await this.$axios.post(
+          `/api/topic/gift/${this.topic.topicId}`,
+          {
+            score: this.giftForm.score,
+            reason,
+          }
+        )
+        this.topic.gifts = this.topic.gifts || []
+        this.topic.gifts.push(gift)
+        this.giftBalance -= gift.score
+        this.giftDialogVisible = false
+        this.$message.success('赠米成功')
+      } catch (e) {
+        if (e.errorCode === 1) {
+          this.$msgSignIn()
+        } else {
+          this.$message.error(e.message || e)
+        }
+      } finally {
+        this.gifting = false
       }
     },
     async like(topic) {

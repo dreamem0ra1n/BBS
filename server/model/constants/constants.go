@@ -36,6 +36,7 @@ const (
 	EntityComment = "comment"
 	EntityUser    = "user"
 	EntityCheckIn = "checkIn"
+	EntityTopicGift = "topicGift"
 )
 
 const (

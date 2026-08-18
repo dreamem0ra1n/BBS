@@ -12,6 +12,7 @@ type ScoreConfig struct {
 	PostCommentScore int `json:"postCommentScore"` // 跟帖获得积分
 	CheckInScore     int `json:"checkInScore"`     // 旧版固定签到积分（兼容旧配置）
 	CheckInScoreMax  int `json:"checkInScoreMax"`  // 连续签到每日积分上限
+	GiftScoreMax     int `json:"giftScoreMax"`     // 单次赠米上限
 }
 
 type LoginMethod struct {

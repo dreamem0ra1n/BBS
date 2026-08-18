@@ -121,6 +121,7 @@ type TopicResponse struct {
 	ViewCount       int64               `json:"viewCount"`
 	CommentCount    int64               `json:"commentCount"`
 	LikeCount       int64               `json:"likeCount"`
+	Gifts           []TopicGiftResponse `json:"gifts"`
 	Liked           bool                `json:"liked"`
 	CreateTime      int64               `json:"createTime"`
 	LastEditUser    *UserInfo           `json:"lastEditUser,omitempty"`
@@ -130,6 +131,14 @@ type TopicResponse struct {
 	Sticky          bool                `json:"sticky"`
 	StickyTime      int64               `json:"stickyTime"`
 	IsOldBBS        bool                `gorm:"-" json:"isOldBBS" form:"-"`
+}
+
+type TopicGiftResponse struct {
+	GiftId     int64     `json:"giftId"`
+	User       *UserInfo `json:"user"`
+	Score      int       `json:"score"`
+	Reason     string    `json:"reason"`
+	CreateTime int64     `json:"createTime"`
 }
 
 // CommentResponse 评论返回数据

@@ -35,6 +35,9 @@
               <span v-if="message.title" class="msg-title">
                 {{ message.title }}
               </span>
+              <strong v-if="giftScore(message)" class="msg-gift-score">
+                {{ giftScore(message) }}
+              </strong>
             </div>
             <div class="content">
               <div class="msg-attr message-quote">
@@ -81,6 +84,18 @@ export default {
     return {
       title: this.$siteTitle('消息'),
     }
+  },
+  methods: {
+    giftScore(message) {
+      if (message.type !== 7 || !message.extraData) {
+        return null
+      }
+      try {
+        return JSON.parse(message.extraData).score || null
+      } catch {
+        return null
+      }
+    },
   },
 }
 </script>
@@ -129,6 +144,11 @@ export default {
         span.msg-title {
           font-size: 16px;
           font-weight: 700;
+        }
+
+        .msg-gift-score {
+          color: #f0ad4e;
+          font-size: 16px;
         }
       }
 

@@ -75,7 +75,8 @@ func getMessageDetailUrl(t *model.Message) string {
 		}
 	} else if msgType == msg.TypeTopicLike ||
 		msgType == msg.TypeTopicFavorite ||
-		msgType == msg.TypeTopicRecommend {
+		msgType == msg.TypeTopicRecommend ||
+		msgType == msg.TypeTopicGift {
 		topicId := gjson.Get(t.ExtraData, "topicId")
 		if topicId.Exists() && topicId.Int() > 0 {
 			return bbsurls.TopicUrl(topicId.Int())
