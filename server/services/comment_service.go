@@ -82,6 +82,17 @@ func (s *commentService) CanManage(user *model.User, comment *model.Comment) boo
 	if user.Id == comment.UserId {
 		return true
 	}
+	return s.canModerate(user, comment)
+}
+
+func (s *commentService) CanDelete(user *model.User, comment *model.Comment) bool {
+	if user == nil || comment == nil || comment.IsOldBBS {
+		return false
+	}
+	return s.canModerate(user, comment)
+}
+
+func (s *commentService) canModerate(user *model.User, comment *model.Comment) bool {
 	if !user.IsAdminUserOrHigher() {
 		return false
 	}

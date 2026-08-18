@@ -108,7 +108,7 @@ func (c *CommentController) PostDeleteBy(commentId int64) *web.JsonResult {
 	if comment == nil || comment.Status == constants.StatusDeleted {
 		return web.JsonSuccess()
 	}
-	if !services.CommentService.CanManage(user, comment) {
+	if !services.CommentService.CanDelete(user, comment) {
 		return web.JsonErrorMsg("无权限")
 	}
 	if err := services.CommentService.DeleteWithCounts(comment); err != nil {

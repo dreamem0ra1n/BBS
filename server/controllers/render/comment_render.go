@@ -75,11 +75,11 @@ func doBuildComment(comment *model.Comment, currentUser *model.User, isBuildRepl
 		}
 		if services.CommentService.CanManage(currentUser, comment) {
 			ret.CanEdit = comment.Status == constants.StatusOk
-			ret.CanDelete = comment.Status == constants.StatusOk
 			if ret.CanEdit {
 				ret.RawContent = comment.Content
 			}
 		}
+		ret.CanDelete = comment.Status == constants.StatusOk && services.CommentService.CanDelete(currentUser, comment)
 		if comment.Status == constants.StatusOk {
 			if comment.ContentType == constants.ContentTypeMarkdown {
 				content := markdown.ToHTML(comment.Content)
