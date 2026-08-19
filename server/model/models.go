@@ -9,6 +9,7 @@ var Models = []interface{}{
 	&User{}, &UserToken{}, &Tag{}, &Article{}, &ArticleTag{}, &Comment{}, &Favorite{}, &Topic{}, &TopicNode{},
 	&TopicTag{}, &UserLike{}, &Message{}, &SysConfig{}, &Link{}, &ThirdAccount{},
 	&UserScoreLog{}, &TopicGift{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &UserFollow{}, &UserFeed{},
+	&UserNotificationSetting{},
 }
 
 type Model struct {
@@ -214,6 +215,18 @@ type Message struct {
 	ExtraData    string `gorm:"type:text" json:"extraData" form:"extraData"`                     // 扩展数据
 	Status       int    `gorm:"not null" json:"status" form:"status"`                            // 状态：0：未读、1：已读
 	CreateTime   int64  `json:"createTime" form:"createTime"`                                    // 创建时间
+}
+
+// UserNotificationSetting 用户外部通知设置
+type UserNotificationSetting struct {
+	Model
+	UserId          int64  `gorm:"not null;uniqueIndex" json:"userId" form:"userId"`
+	DingTalkEnabled bool   `gorm:"not null;default:false" json:"dingTalkEnabled" form:"dingTalkEnabled"`
+	DingTalkWebhook string `gorm:"type:text" json:"-" form:"-"`
+	DingTalkSecret  string `gorm:"size:512" json:"-" form:"-"`
+	DingTalkKeyword string `gorm:"size:64" json:"dingTalkKeyword" form:"dingTalkKeyword"`
+	CreateTime      int64  `gorm:"not null" json:"createTime" form:"createTime"`
+	UpdateTime      int64  `gorm:"not null" json:"updateTime" form:"updateTime"`
 }
 
 // 系统配置

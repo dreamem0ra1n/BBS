@@ -112,6 +112,43 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	return web.JsonSuccess()
 }
 
+func (c *UserController) GetDingtalkSettings() *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if user == nil {
+		return web.JsonError(errs.NotLogin)
+	}
+	return web.JsonData(services.UserNotificationSettingService.GetDingTalkSettings(user.Id))
+}
+
+func (c *UserController) PostDingtalkSettings() *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if user == nil {
+		return web.JsonError(errs.NotLogin)
+	}
+	input := services.DingTalkSettingsInput{
+		Enabled:     strings.EqualFold(params.FormValue(c.Ctx, "enabled"), "true"),
+		Webhook:     params.FormValue(c.Ctx, "webhook"),
+		Secret:      params.FormValue(c.Ctx, "secret"),
+		Keyword:     params.FormValue(c.Ctx, "keyword"),
+		ClearSecret: strings.EqualFold(params.FormValue(c.Ctx, "clearSecret"), "true"),
+	}
+	if err := services.UserNotificationSettingService.UpdateDingTalkSettings(user.Id, input); err != nil {
+		return web.JsonError(err)
+	}
+	return web.JsonData(services.UserNotificationSettingService.GetDingTalkSettings(user.Id))
+}
+
+func (c *UserController) PostDingtalkTest() *web.JsonResult {
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if user == nil {
+		return web.JsonError(errs.NotLogin)
+	}
+	if err := services.MessageService.SendDingTalkTest(user.Id); err != nil {
+		return web.JsonError(err)
+	}
+	return web.JsonSuccess()
+}
+
 // 修改头像
 func (c *UserController) PostUpdateAvatar() *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)

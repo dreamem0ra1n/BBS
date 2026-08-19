@@ -5,9 +5,13 @@ import (
 	"bbs-go/model"
 	"bbs-go/model/constants"
 	"bbs-go/pkg/bbsurls"
+	"bbs-go/pkg/dingtalk"
 	"bbs-go/pkg/email"
 	"bbs-go/pkg/msg"
 	"bbs-go/repositories"
+	"errors"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/mlogclub/simple/common/dates"
 	"github.com/mlogclub/simple/common/jsons"
@@ -99,8 +103,102 @@ func (s *messageService) SendMsg(from, to int64, msgType msg.Type,
 	if err := s.Create(t); err != nil {
 		logrus.Error(err)
 	} else {
-		s.SendEmailNotice(t)
+		s.SendExternalNotices(t)
 	}
+}
+
+func (s *messageService) SendExternalNotices(t *model.Message) {
+	s.SendEmailNotice(t)
+	s.SendDingTalkNoticeAsync(t)
+}
+
+func (s *messageService) SendDingTalkNoticeAsync(t *model.Message) {
+	go func() {
+		if err := s.SendDingTalkNotice(t); err != nil {
+			logrus.WithField("userId", t.UserId).Error(err)
+		}
+	}()
+}
+
+func (s *messageService) SendDingTalkNotice(t *model.Message) error {
+	if t == nil {
+		return nil
+	}
+	setting := UserNotificationSettingService.GetByUserId(t.UserId)
+	if setting == nil || !setting.DingTalkEnabled {
+		return nil
+	}
+	title := strings.TrimSpace(t.Title)
+	if title == "" {
+		title = "新消息提醒"
+	}
+	title = strings.NewReplacer("\r", " ", "\n", " ").Replace(title)
+	displayTitle, markdownTitle := buildDingTalkTitle(t.FromId, title)
+	if setting.DingTalkKeyword != "" {
+		displayTitle = setting.DingTalkKeyword + " " + displayTitle
+		markdownTitle = setting.DingTalkKeyword + " " + markdownTitle
+	}
+	siteTitle := cache.SysConfigCache.GetValue(constants.SysConfigSiteTitle)
+	markdown := "### " + markdownTitle
+	if strings.TrimSpace(t.Content) != "" {
+		markdown += "\n\n" + t.Content
+	}
+	if strings.TrimSpace(t.QuoteContent) != "" {
+		markdown += "\n\n> " + strings.ReplaceAll(t.QuoteContent, "\n", "\n> ")
+	}
+	markdown += "\n\n[点击前往 " + siteTitle + " 查看详情](" + bbsurls.AbsUrl("/user/messages") + ")"
+	return dingtalk.Send(setting.DingTalkWebhook, setting.DingTalkSecret, dingtalk.Message{
+		Title: displayTitle,
+		Text:  truncateDingTalkText(markdown, 12000),
+	})
+}
+
+func buildDingTalkTitle(fromId int64, title string) (displayTitle, markdownTitle string) {
+	if fromId <= 0 {
+		displayTitle = "系统通知：" + title
+		return displayTitle, displayTitle
+	}
+	from := cache.UserCache.Get(fromId)
+	if from == nil || strings.TrimSpace(from.Nickname) == "" {
+		displayTitle = "用户通知：" + title
+		return displayTitle, displayTitle
+	}
+	nickname := strings.NewReplacer("\r", " ", "\n", " ").Replace(strings.TrimSpace(from.Nickname))
+	displayTitle = nickname + " " + title
+	markdownTitle = "[" + escapeDingTalkMarkdownText(nickname) + "](" + bbsurls.UserUrl(fromId) + ") " + title
+	return displayTitle, markdownTitle
+}
+
+func escapeDingTalkMarkdownText(value string) string {
+	value = strings.NewReplacer(
+		"\\", "\\\\",
+		"[", "\\[",
+		"]", "\\]",
+	).Replace(value)
+	return value
+}
+
+func (s *messageService) SendDingTalkTest(userId int64) error {
+	setting := UserNotificationSettingService.GetByUserId(userId)
+	if setting == nil || strings.TrimSpace(setting.DingTalkWebhook) == "" {
+		return errors.New("请先保存钉钉 Webhook")
+	}
+	title := "钉钉机器人测试通知"
+	if setting.DingTalkKeyword != "" {
+		title = setting.DingTalkKeyword + " " + title
+	}
+	return dingtalk.Send(setting.DingTalkWebhook, setting.DingTalkSecret, dingtalk.Message{
+		Title: title,
+		Text:  "### " + title + "\n\n配置成功，之后的站内消息会发送到这个机器人。",
+	})
+}
+
+func truncateDingTalkText(value string, maxRunes int) string {
+	if utf8.RuneCountInString(value) <= maxRunes {
+		return value
+	}
+	runes := []rune(value)
+	return string(runes[:maxRunes-1]) + "…"
 }
 
 // SendEmailNotice 发送邮件通知

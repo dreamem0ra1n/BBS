@@ -136,7 +136,7 @@ func (s *topicGiftService) Gift(userId, topicId int64, score int, reason string)
 
 	cache.UserCache.Invalidate(userId)
 	cache.UserCache.Invalidate(topic.UserId)
-	MessageService.SendEmailNotice(notification)
+	MessageService.SendExternalNotices(notification)
 	return gift, nil
 }
 

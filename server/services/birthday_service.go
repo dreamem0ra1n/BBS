@@ -74,13 +74,22 @@ func (s *birthdayService) sendNotice(user *model.User, now time.Time) error {
 		CreateTime: dates.NowTimestamp(),
 	}
 
-	return sqls.DB().Transaction(func(tx *gorm.DB) error {
+	created := false
+	err = sqls.DB().Transaction(func(tx *gorm.DB) error {
 		result := tx.Model(&model.User{}).
 			Where("id = ? AND birthday_year_sent < ?", user.Id, now.Year()).
 			UpdateColumn("birthday_year_sent", now.Year())
 		if result.Error != nil || result.RowsAffected == 0 {
 			return result.Error
 		}
-		return repositories.MessageRepository.Create(tx, notification)
+		if err = repositories.MessageRepository.Create(tx, notification); err != nil {
+			return err
+		}
+		created = true
+		return nil
 	})
+	if err == nil && created {
+		MessageService.SendDingTalkNoticeAsync(notification)
+	}
+	return err
 }

@@ -11,6 +11,7 @@ RUN GOOS=linux GOARCH=amd64 go build -tags passwordlogin -o /usr/src/app/bbs-go 
 
 FROM busybox:latest AS runtime
 WORKDIR /
+COPY --from=dependencies /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 EXPOSE 8082
 CMD ["/bbs-go"]
 

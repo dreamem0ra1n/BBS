@@ -65,6 +65,13 @@ type UserProfile struct {
 	Qq              string   `json:"qq" form:"qq"`                 // QQ号
 }
 
+type DingTalkSettingsResponse struct {
+	Enabled           bool   `json:"enabled"`
+	WebhookConfigured bool   `json:"webhookConfigured"`
+	SecretConfigured  bool   `json:"secretConfigured"`
+	Keyword           string `json:"keyword"`
+}
+
 type TagResponse struct {
 	NodeId  int    `json:"nodeId"`
 	TagId   int64  `json:"tagId"`
