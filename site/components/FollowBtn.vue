@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!isCurrentUser">
     <button
       class="button follow-btn"
       :class="{ 'is-followed': followed }"
@@ -28,11 +28,17 @@ export default {
     user() {
       return this.$store.state.user.current
     },
+    isCurrentUser() {
+      return this.user && this.user.id === this.userId
+    },
   },
   methods: {
     async follow() {
       if (!this.user) {
         this.$msgSignIn()
+        return
+      }
+      if (this.isCurrentUser) {
         return
       }
       try {

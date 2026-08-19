@@ -3,7 +3,9 @@
     <div class="widget-header">
       <span>个人资料</span>
       <div class="slot">
-        <nuxt-link to="/user/profile">编辑资料</nuxt-link>
+        <nuxt-link v-if="isCurrentUser" to="/user/profile">
+          编辑资料
+        </nuxt-link>
       </div>
     </div>
     <div class="widget-content stable">
@@ -55,7 +57,8 @@ export default {
   },
   computed: {
     isCurrentUser() {
-      return this.user.id === this.$store.state.user.id
+      const current = this.$store.state.user.current
+      return current && this.user.id === current.id
     },
   },
 }

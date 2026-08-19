@@ -10,6 +10,7 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/mlogclub/simple/common/dates"
 	"github.com/mlogclub/simple/sqls"
+	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
 	"gorm.io/gorm"
 )
@@ -73,9 +74,7 @@ func (s *userFollowService) Delete(id int64) {
 
 func (s *userFollowService) Follow(userId, otherId int64) error {
 	if userId == otherId {
-		// 自己关注自己，不进行处理。
-		// return web.NewErrorMsg("自己不能关注自己")
-		return nil
+		return web.NewErrorMsg("自己不能关注自己")
 	}
 
 	if s.IsFollowed(userId, otherId) {
