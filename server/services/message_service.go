@@ -85,6 +85,17 @@ func (s *messageService) MarkRead(userId int64) {
 		userId, msg.StatusUnread)
 }
 
+func (s *messageService) MarkReadByTypes(userId int64, messageTypes []int) {
+	if len(messageTypes) == 0 {
+		s.MarkRead(userId)
+		return
+	}
+	sqls.DB().Model(&model.Message{}).
+		Where("user_id = ? and status = ?", userId, msg.StatusUnread).
+		Where("type in ?", messageTypes).
+		UpdateColumn("status", msg.StatusHaveRead)
+}
+
 // SendMsg 发送消息
 func (s *messageService) SendMsg(from, to int64, msgType msg.Type,
 	title, content, quoteContent string, extraData interface{}) {

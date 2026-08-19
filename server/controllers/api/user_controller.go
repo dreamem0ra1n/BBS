@@ -288,20 +288,47 @@ func (c *UserController) GetMsgrecent() *web.JsonResult {
 func (c *UserController) GetMessages() *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)
 	page := params.FormValueIntDefault(c.Ctx, "page", 1)
+	category := strings.ToLower(strings.TrimSpace(params.FormValue(c.Ctx, "category")))
 
 	// 用户必须登录
 	if user == nil {
 		return web.JsonError(errs.NotLogin)
 	}
 
-	messages, paging := services.MessageService.FindPageByCnd(sqls.NewCnd().
+	messageTypes := getMessageTypesByCategory(category)
+	cnd := sqls.NewCnd().
 		Eq("user_id", user.Id).
-		Page(page, 20).Desc("id"))
+		Page(page, 20).Desc("id")
+	if len(messageTypes) > 0 {
+		cnd.In("type", messageTypes)
+	}
+	messages, paging := services.MessageService.FindPageByCnd(cnd)
 
-	// 全部标记为已读
-	services.MessageService.MarkRead(user.Id)
+	services.MessageService.MarkReadByTypes(user.Id, messageTypes)
 
 	return web.JsonPageData(render.BuildMessages(messages), paging)
+}
+
+func getMessageTypesByCategory(category string) []int {
+	switch category {
+	case "system":
+		return []int{
+			int(msg.TypeTopicRecommend),
+			int(msg.TypeTopicDelete),
+			int(msg.TypeTopicGift),
+			int(msg.TypeBirthday),
+		}
+	case "like":
+		return []int{int(msg.TypeTopicLike)}
+	case "reply":
+		return []int{
+			int(msg.TypeTopicComment),
+			int(msg.TypeCommentReply),
+			int(msg.TypeArticleComment),
+		}
+	default:
+		return nil
+	}
 }
 
 // 用户积分记录

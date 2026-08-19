@@ -8,6 +8,19 @@
     </div>
 
     <div class="widget-content">
+      <div class="tabs is-toggle is-small message-filter">
+        <ul>
+          <li
+            v-for="category in messageCategories"
+            :key="category.value"
+            :class="{ 'is-active': activeCategory === category.value }"
+          >
+            <nuxt-link :to="categoryLink(category.value)">
+              {{ category.label }}
+            </nuxt-link>
+          </li>
+        </ul>
+      </div>
       <ul v-if="messagesPage && messagesPage.results" class="message-list">
         <li
           v-for="message in messagesPage.results"
@@ -56,25 +69,47 @@
         </li>
       </ul>
       <div v-else class="notification is-primary">暂无消息</div>
-      <pagination :page="messagesPage.page" url-prefix="/user/messages?p=" />
+      <pagination :page="messagesPage.page" :url-prefix="paginationUrlPrefix" />
     </div>
   </div>
 </template>
 
 <script>
+const messageCategories = [
+  { value: 'all', label: '全部' },
+  { value: 'system', label: '系统' },
+  { value: 'like', label: '点赞' },
+  { value: 'reply', label: '回复' },
+]
+
+function normalizeCategory(value) {
+  return messageCategories.some((category) => category.value === value)
+    ? value
+    : 'all'
+}
+
 export default {
   layout: 'ucenter',
   middleware: 'authenticated',
   async asyncData({ $axios, query }) {
+    const activeCategory = normalizeCategory(query.category)
     const [messagesPage] = await Promise.all([
-      $axios.get('/api/user/messages?page=' + (query.p || 1)),
+      $axios.get('/api/user/messages', {
+        params: {
+          page: query.p || 1,
+          category: activeCategory,
+        },
+      }),
     ])
     return {
       messagesPage,
+      activeCategory,
     }
   },
   data() {
     return {
+      messageCategories,
+      activeCategory: 'all',
       messages: [],
       cursor: 0,
       hasMore: true,
@@ -85,7 +120,22 @@ export default {
       title: this.$siteTitle('消息'),
     }
   },
+  computed: {
+    paginationUrlPrefix() {
+      if (this.activeCategory === 'all') {
+        return '/user/messages?p='
+      }
+      return `/user/messages?category=${this.activeCategory}&p=`
+    },
+  },
+  watchQuery: ['category', 'p'],
   methods: {
+    categoryLink(category) {
+      if (category === 'all') {
+        return { path: '/user/messages' }
+      }
+      return { path: '/user/messages', query: { category } }
+    },
     giftScore(message) {
       if (message.type !== 7 || !message.extraData) {
         return null
@@ -101,6 +151,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.message-filter {
+  margin-bottom: 0.75rem;
+}
+
 .message-list {
   li.message-item {
     padding: 8px 0;
