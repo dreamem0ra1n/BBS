@@ -3,6 +3,7 @@ package repositories
 import (
 	"time"
 
+	"github.com/mlogclub/simple/common/dates"
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web/params"
 	"gorm.io/gorm"
@@ -42,7 +43,8 @@ func (r *userRepository) Find(db *gorm.DB, cnd *sqls.Cnd) (list []model.User) {
 
 func (r *userRepository) FindRecentYearScoreRank(db *gorm.DB, now time.Time) []model.User {
 	return r.Find(db, sqls.NewCnd().
-		Gte("create_time", now.AddDate(-1, 0, 0).Unix()).
+		Gte("create_time", dates.Timestamp(now.AddDate(-1, 0, 0))).
+		Lt("create_time", dates.Timestamp(now.Add(time.Millisecond))).
 		Desc("score").
 		Limit(10))
 }

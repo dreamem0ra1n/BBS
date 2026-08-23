@@ -358,7 +358,7 @@ func (c *UserController) GetScorelogs() *web.JsonResult {
 // 积分排行
 func (c *UserController) GetScoreRank() *web.JsonResult {
 	var users []model.User
-	if params.FormValueDefault(c.Ctx, "period", "") == "year" {
+	if c.Ctx.URLParam("period") == "year" {
 		users = cache.UserCache.GetAnnualScoreRank()
 	} else {
 		users = cache.UserCache.GetScoreRank()
