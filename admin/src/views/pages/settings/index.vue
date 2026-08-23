@@ -141,6 +141,80 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
+        <el-tab-pane label="生日随机祝福" name="birthdayBlessingTab">
+          <el-form label-width="160px">
+            <el-form-item label="开启生日随机祝福">
+              <el-switch
+                v-model="config.birthdayRandomBlessing"
+                @change="onBirthdayBlessingChange"
+              />
+            </el-form-item>
+          </el-form>
+          <template v-if="config.birthdayRandomBlessing">
+            <el-form :inline="true" :model="blessingFilters">
+              <el-form-item
+                ><el-input v-model="blessingFilters.nickname" placeholder="昵称"
+              /></el-form-item>
+              <el-form-item
+                ><el-input v-model="blessingFilters.department" placeholder="部门"
+              /></el-form-item>
+              <el-form-item
+                ><el-input v-model="blessingFilters.content" placeholder="内容"
+              /></el-form-item>
+              <el-form-item
+                ><el-button type="primary" @click="loadBlessings">查询</el-button></el-form-item
+              >
+              <el-form-item
+                ><el-button type="primary" @click="blessingImportVisible = true"
+                  >导入</el-button
+                ></el-form-item
+              >
+              <el-form-item
+                ><el-button type="primary" @click="blessingBatchVisible = true"
+                  >批量导入</el-button
+                ></el-form-item
+              >
+              <el-form-item
+                ><el-button
+                  type="danger"
+                  :disabled="!selectedBlessings.length"
+                  @click="deleteBlessings"
+                  >删除</el-button
+                ></el-form-item
+              >
+            </el-form>
+            <el-table
+              :data="blessingResults"
+              border
+              stripe
+              @selection-change="selectedBlessings = $event"
+            >
+              <el-table-column type="selection" width="55" />
+              <el-table-column prop="nickname" label="昵称" width="160" />
+              <el-table-column prop="department" label="部门" width="180" />
+              <el-table-column prop="content" label="内容" />
+            </el-table>
+            <el-pagination
+              :current-page="blessingPage.page"
+              :page-size="blessingPage.limit"
+              :total="blessingPage.total"
+              layout="total, sizes, prev, pager, next, jumper"
+              :page-sizes="[20, 50, 100]"
+              @current-change="
+                (page) => {
+                  blessingPage.page = page;
+                  loadBlessings();
+                }
+              "
+              @size-change="
+                (limit) => {
+                  blessingPage.limit = limit;
+                  loadBlessings();
+                }
+              "
+            />
+          </template>
+        </el-tab-pane>
         <el-tab-pane label="反作弊配置" name="spamConfigTab">
           <el-form label-width="160px">
             <el-form-item label="发帖验证码">
@@ -188,6 +262,33 @@
       <div style="text-align: right">
         <el-button :loading="loading" type="primary" @click="save"> 保存配置 </el-button>
       </div>
+
+      <el-dialog :visible.sync="blessingImportVisible" title="导入生日祝福">
+        <el-form label-width="80px">
+          <el-form-item label="昵称"
+            ><el-input v-model="blessingImportForm.nickname"
+          /></el-form-item>
+          <el-form-item label="部门"
+            ><el-input v-model="blessingImportForm.department"
+          /></el-form-item>
+          <el-form-item label="内容"
+            ><el-input v-model="blessingImportForm.content" type="textarea"
+          /></el-form-item>
+        </el-form>
+        <div slot="footer">
+          <el-button @click="blessingImportVisible = false">取消</el-button
+          ><el-button type="primary" @click="importBlessing">提交</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog :visible.sync="blessingBatchVisible" title="批量导入生日祝福">
+        <p>CSV 每行三列：昵称、部门、内容；支持内容中的逗号和引号。</p>
+        <input type="file" accept=".csv,text/csv" @change="readBlessingCsv" />
+        <el-input v-model="blessingBatchData" type="textarea" :rows="10" />
+        <div slot="footer">
+          <el-button @click="blessingBatchVisible = false">取消</el-button
+          ><el-button type="primary" @click="batchImportBlessings">提交</el-button>
+        </div>
+      </el-dialog>
     </div>
   </section>
 </template>
@@ -204,6 +305,14 @@ export default {
       autocompleteTags: [],
       autocompleteTagLoading: false,
       nodes: [],
+      blessingFilters: { nickname: "", department: "", content: "" },
+      blessingResults: [],
+      blessingPage: { page: 1, limit: 20, total: 0 },
+      selectedBlessings: [],
+      blessingImportVisible: false,
+      blessingBatchVisible: false,
+      blessingImportForm: { nickname: "", department: "", content: "" },
+      blessingBatchData: "",
     };
   },
   mounted() {
@@ -221,6 +330,7 @@ export default {
           this.config.scoreConfig.giftScoreMax = 50;
         }
         this.nodes = await this.axios.get("/api/admin/topic-node/nodes");
+        if (this.config.birthdayRandomBlessing) this.loadBlessings();
       } catch (err) {
         this.$notify.error({ title: "错误", message: err.message });
       } finally {
@@ -240,6 +350,51 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    onBirthdayBlessingChange(enabled) {
+      if (enabled) this.loadBlessings();
+    },
+    async loadBlessings() {
+      if (!this.config.birthdayRandomBlessing) return;
+      const data = await this.axios.form("/api/admin/birthday-blessing/list", {
+        ...this.blessingFilters,
+        page: this.blessingPage.page,
+        limit: this.blessingPage.limit,
+      });
+      this.blessingResults = data.results;
+      this.blessingPage = data.page;
+    },
+    async importBlessing() {
+      await this.axios.form("/api/admin/birthday-blessing/import", this.blessingImportForm);
+      this.blessingImportVisible = false;
+      this.blessingImportForm = { nickname: "", department: "", content: "" };
+      this.loadBlessings();
+    },
+    async batchImportBlessings() {
+      await this.axios.form("/api/admin/birthday-blessing/batch-import", {
+        data: this.blessingBatchData,
+      });
+      this.blessingBatchVisible = false;
+      this.blessingBatchData = "";
+      this.loadBlessings();
+    },
+    readBlessingCsv(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.blessingBatchData = reader.result;
+      };
+      reader.readAsText(file, "UTF-8");
+      event.target.value = "";
+    },
+    async deleteBlessings() {
+      await this.$confirm("确定删除选中的祝福吗？", "提示", { type: "warning" });
+      await this.axios.form("/api/admin/birthday-blessing/delete", {
+        ids: this.selectedBlessings.map((item) => item.id).join(","),
+      });
+      this.selectedBlessings = [];
+      this.loadBlessings();
     },
     addNav() {
       if (!this.config.siteNavs) {

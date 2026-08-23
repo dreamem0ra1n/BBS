@@ -137,6 +137,52 @@
         </div>
       </div>
 
+      <div
+        v-if="
+          birthdayBlessingAvailable &&
+          (hasBirthday || form.birthdayBlessingNotifyAvailable)
+        "
+        class="field is-horizontal"
+      >
+        <div class="field-label is-normal">
+          <label class="label">生日祝福</label>
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div v-if="hasBirthday" class="control">
+              <label class="notification-checkbox">
+                <input
+                  v-model="form.birthdayBlessingEnabled"
+                  class="notification-checkbox-input"
+                  type="checkbox"
+                />
+                <span class="notification-checkbox-box" aria-hidden="true" />
+                <span>生日祝福附带随机潮人的留言</span>
+              </label>
+            </div>
+            <div
+              v-if="form.birthdayBlessingNotifyAvailable"
+              class="control birthday-blessing-control"
+            >
+              <label class="notification-checkbox">
+                <input
+                  v-model="form.birthdayBlessingNotifyEnabled"
+                  class="notification-checkbox-input"
+                  type="checkbox"
+                />
+                <span class="notification-checkbox-box" aria-hidden="true" />
+                <span>
+                  自身祝福被收到时接收通知
+                  <small class="secondary-setting-note">
+                    （仅在后台有对应数据时有效）
+                  </small>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="field is-horizontal">
         <div class="field-label is-normal">
           <label class="label">手机号</label>
@@ -336,6 +382,9 @@ export default {
         description: '',
         major: '',
         birthday: '',
+        birthdayBlessingEnabled: false,
+        birthdayBlessingNotifyEnabled: false,
+        birthdayBlessingNotifyAvailable: false,
         mobile: '',
         wechat: '',
         qq: '',
@@ -349,6 +398,14 @@ export default {
     }
   },
   computed: {
+    birthdayBlessingAvailable() {
+      return !!(this.$store.state.config.config || {}).birthdayRandomBlessing
+    },
+    hasBirthday() {
+      return !!(this.birthdayTouched
+        ? this.birthdayInput
+        : this.originalBirthday)
+    },
     hasInvalidBirthday() {
       return (
         !this.birthdayTouched &&
@@ -473,6 +530,15 @@ export default {
 <style lang="scss" scoped>
 .ding-talk-settings {
   margin-top: 0.75rem;
+}
+
+.control + .birthday-blessing-control {
+  margin-top: 0.75rem;
+}
+
+.secondary-setting-note {
+  color: #999;
+  font-size: 12px;
 }
 
 .ding-talk-control {

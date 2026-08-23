@@ -48,4 +48,5 @@ type SysConfigResponse struct {
 	CreateArticleEmailVerified bool         `json:"createArticleEmailVerified"`
 	CreateCommentEmailVerified bool         `json:"createCommentEmailVerified"`
 	EnableHideContent          bool         `json:"enableHideContent"`
+	BirthdayRandomBlessing     bool         `json:"birthdayRandomBlessing"`
 }

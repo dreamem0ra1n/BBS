@@ -9,7 +9,7 @@ var Models = []interface{}{
 	&User{}, &UserToken{}, &Tag{}, &Article{}, &ArticleTag{}, &Comment{}, &Favorite{}, &Topic{}, &TopicNode{},
 	&TopicTag{}, &UserLike{}, &Message{}, &SysConfig{}, &Link{}, &ThirdAccount{},
 	&UserScoreLog{}, &TopicGift{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &UserFollow{}, &UserFeed{},
-	&UserNotificationSetting{},
+	&UserNotificationSetting{}, &BirthdayBlessing{}, &BirthdayBlessingHistory{},
 }
 
 type Model struct {
@@ -18,33 +18,35 @@ type Model struct {
 
 type User struct {
 	Model
-	Username         sql.NullString `gorm:"size:32;unique;" json:"username" form:"username"`                  // 学号（同时作为用户名）
-	Email            sql.NullString `gorm:"size:128;unique;" json:"email" form:"email"`                       // 邮箱
-	EmailVerified    bool           `gorm:"not null;default:false" json:"emailVerified" form:"emailVerified"` // 邮箱是否验证
-	Nickname         string         `gorm:"size:16;" json:"nickname" form:"nickname"`                         // 昵称
-	Realname         string         `gorm:"size:32;" json:"realname" form:"realname"`                         // 真实姓名
-	Major            string         `gorm:"size:64;" json:"major" form:"major"`                               // 专业
-	Birthday         string         `gorm:"size:32;" json:"birthday" form:"birthday"`
-	BirthdayYearSent int            `gorm:"not null;default:0" json:"-" form:"-"`
-	Department       string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
-	Mobile           string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话
-	Wechat           string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
-	Qq               string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
-	Avatar           string         `gorm:"type:text" json:"avatar" form:"avatar"`                              // 头像
-	BackgroundImage  string         `gorm:"type:text" json:"backgroundImage" form:"backgroundImage"`            // 个人中心背景图片
-	Password         string         `gorm:"size:512" json:"password" form:"password"`                           // 密码
-	HomePage         string         `gorm:"size:1024" json:"homePage" form:"homePage"`                          // 个人主页
-	Description      string         `gorm:"type:text" json:"description" form:"description"`                    // 个人描述
-	Score            int            `gorm:"not null;index:idx_user_score" json:"score" form:"score"`            // 积分
-	Status           int            `gorm:"index:idx_user_status;not null" json:"status" form:"status"`         // 状态
-	TopicCount       int            `gorm:"not null" json:"topicCount" form:"topicCount"`                       // 帖子数量
-	CommentCount     int            `gorm:"not null" json:"commentCount" form:"commentCount"`                   // 跟帖数量
-	FollowCount      int            `gorm:"not null" json:"followCount" form:"followCount"`                     // 关注数量
-	FansCount        int            `gorm:"not null" json:"fansCount" form:"fansCount"`                         // 粉丝数量
-	Roles            string         `gorm:"type:text" json:"roles" form:"roles"`                                // 角色
-	ForbiddenEndTime int64          `gorm:"not null;default:0" json:"forbiddenEndTime" form:"forbiddenEndTime"` // 禁言结束时间
-	CreateTime       int64          `json:"createTime" form:"createTime"`                                       // 创建时间
-	UpdateTime       int64          `json:"updateTime" form:"updateTime"`                                       // 更新时间
+	Username                      sql.NullString `gorm:"size:32;unique;" json:"username" form:"username"`                  // 学号（同时作为用户名）
+	Email                         sql.NullString `gorm:"size:128;unique;" json:"email" form:"email"`                       // 邮箱
+	EmailVerified                 bool           `gorm:"not null;default:false" json:"emailVerified" form:"emailVerified"` // 邮箱是否验证
+	Nickname                      string         `gorm:"size:16;" json:"nickname" form:"nickname"`                         // 昵称
+	Realname                      string         `gorm:"size:32;" json:"realname" form:"realname"`                         // 真实姓名
+	Major                         string         `gorm:"size:64;" json:"major" form:"major"`                               // 专业
+	Birthday                      string         `gorm:"size:32;" json:"birthday" form:"birthday"`
+	BirthdayBlessingEnabled       bool           `gorm:"not null;default:false" json:"birthdayBlessingEnabled" form:"birthdayBlessingEnabled"`
+	BirthdayBlessingNotifyEnabled bool           `gorm:"not null;default:false" json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`
+	BirthdayYearSent              int            `gorm:"not null;default:0" json:"-" form:"-"`
+	Department                    string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
+	Mobile                        string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话
+	Wechat                        string         `gorm:"size:64;" json:"wechat" form:"wechat"`                               // 微信号
+	Qq                            string         `gorm:"size:32;" json:"qq" form:"qq"`                                       // QQ号
+	Avatar                        string         `gorm:"type:text" json:"avatar" form:"avatar"`                              // 头像
+	BackgroundImage               string         `gorm:"type:text" json:"backgroundImage" form:"backgroundImage"`            // 个人中心背景图片
+	Password                      string         `gorm:"size:512" json:"password" form:"password"`                           // 密码
+	HomePage                      string         `gorm:"size:1024" json:"homePage" form:"homePage"`                          // 个人主页
+	Description                   string         `gorm:"type:text" json:"description" form:"description"`                    // 个人描述
+	Score                         int            `gorm:"not null;index:idx_user_score" json:"score" form:"score"`            // 积分
+	Status                        int            `gorm:"index:idx_user_status;not null" json:"status" form:"status"`         // 状态
+	TopicCount                    int            `gorm:"not null" json:"topicCount" form:"topicCount"`                       // 帖子数量
+	CommentCount                  int            `gorm:"not null" json:"commentCount" form:"commentCount"`                   // 跟帖数量
+	FollowCount                   int            `gorm:"not null" json:"followCount" form:"followCount"`                     // 关注数量
+	FansCount                     int            `gorm:"not null" json:"fansCount" form:"fansCount"`                         // 粉丝数量
+	Roles                         string         `gorm:"type:text" json:"roles" form:"roles"`                                // 角色
+	ForbiddenEndTime              int64          `gorm:"not null;default:0" json:"forbiddenEndTime" form:"forbiddenEndTime"` // 禁言结束时间
+	CreateTime                    int64          `json:"createTime" form:"createTime"`                                       // 创建时间
+	UpdateTime                    int64          `json:"updateTime" form:"updateTime"`                                       // 更新时间
 }
 
 type UserToken struct {
@@ -229,6 +231,23 @@ type UserNotificationSetting struct {
 	UpdateTime      int64  `gorm:"not null" json:"updateTime" form:"updateTime"`
 }
 
+// BirthdayBlessing 生日随机祝福留言
+type BirthdayBlessing struct {
+	Model
+	Nickname   string `gorm:"size:32;index:idx_birthday_blessing_nickname" json:"nickname" form:"nickname"`
+	Department string `gorm:"size:64;index:idx_birthday_blessing_department" json:"department" form:"department"`
+	Content    string `gorm:"type:text;not null" json:"content" form:"content"`
+	CreateTime int64  `gorm:"not null" json:"createTime" form:"createTime"`
+}
+
+// BirthdayBlessingHistory 记录用户已经收到过的生日随机祝福，避免后续年份重复。
+type BirthdayBlessingHistory struct {
+	Model
+	UserId     int64 `gorm:"not null;uniqueIndex:idx_birthday_blessing_history_user_item" json:"userId" form:"userId"`
+	BlessingId int64 `gorm:"not null;uniqueIndex:idx_birthday_blessing_history_user_item" json:"blessingId" form:"blessingId"`
+	CreateTime int64 `gorm:"not null" json:"createTime" form:"createTime"`
+}
+
 // 系统配置
 type SysConfig struct {
 	Model
@@ -266,12 +285,12 @@ type UserScoreLog struct {
 // 帖子赠米记录
 type TopicGift struct {
 	Model
-	TopicId   int64  `gorm:"not null;index:idx_topic_gift_topic_id" json:"topicId" form:"topicId"`    // 话题编号
-	UserId    int64  `gorm:"not null;index:idx_topic_gift_user_id" json:"userId" form:"userId"`       // 赠米用户编号
-	ReceiverId int64 `gorm:"not null;index:idx_topic_gift_receiver_id" json:"receiverId" form:"receiverId"` // 接收用户编号
-	Score     int    `gorm:"not null" json:"score" form:"score"`                                      // 赠米数量
-	Reason    string `gorm:"not null;size:64" json:"reason" form:"reason"`                            // 赠米理由
-	CreateTime int64 `gorm:"not null;index:idx_topic_gift_create_time" json:"createTime" form:"createTime"` // 创建时间
+	TopicId    int64  `gorm:"not null;index:idx_topic_gift_topic_id" json:"topicId" form:"topicId"`          // 话题编号
+	UserId     int64  `gorm:"not null;index:idx_topic_gift_user_id" json:"userId" form:"userId"`             // 赠米用户编号
+	ReceiverId int64  `gorm:"not null;index:idx_topic_gift_receiver_id" json:"receiverId" form:"receiverId"` // 接收用户编号
+	Score      int    `gorm:"not null" json:"score" form:"score"`                                            // 赠米数量
+	Reason     string `gorm:"not null;size:64" json:"reason" form:"reason"`                                  // 赠米理由
+	CreateTime int64  `gorm:"not null;index:idx_topic_gift_create_time" json:"createTime" form:"createTime"` // 创建时间
 }
 
 // 操作日志

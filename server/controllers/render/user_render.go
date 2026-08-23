@@ -77,19 +77,21 @@ func BuildUserProfile(user *model.User) *model.UserProfile {
 	}
 	roles := strings.Split(user.Roles, ",")
 	ret := &model.UserProfile{
-		UserDetail:      *BuildUserDetail(user),
-		Roles:           roles,
-		Email:           user.Email.String,
-		EmailVerified:   user.EmailVerified,
-		PasswordSet:     len(user.Password) > 0,
-		BackgroundImage: user.BackgroundImage,
-		Realname:        user.Realname,
-		Major:           user.Major,
-		Birthday:        user.Birthday,
-		Department:      user.Department,
-		Mobile:          user.Mobile,
-		Wechat:          user.Wechat,
-		Qq:              user.Qq,
+		UserDetail:                    *BuildUserDetail(user),
+		Roles:                         roles,
+		Email:                         user.Email.String,
+		EmailVerified:                 user.EmailVerified,
+		PasswordSet:                   len(user.Password) > 0,
+		BackgroundImage:               user.BackgroundImage,
+		Realname:                      user.Realname,
+		Major:                         user.Major,
+		Birthday:                      user.Birthday,
+		Department:                    user.Department,
+		Mobile:                        user.Mobile,
+		Wechat:                        user.Wechat,
+		Qq:                            user.Qq,
+		BirthdayBlessingEnabled:       user.BirthdayBlessingEnabled,
+		BirthdayBlessingNotifyEnabled: user.BirthdayBlessingNotifyEnabled,
 	}
 	return ret
 }

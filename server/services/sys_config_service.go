@@ -184,6 +184,11 @@ func (s *sysConfigService) IsEnableHideContent() bool {
 	return strs.EqualsIgnoreCase(value, "true") || strs.EqualsIgnoreCase(value, "1")
 }
 
+func (s *sysConfigService) IsBirthdayRandomBlessingEnabled() bool {
+	value := cache.SysConfigCache.GetValue(constants.SysConfigBirthdayRandomBlessing)
+	return strs.EqualsIgnoreCase(value, "true") || strs.EqualsIgnoreCase(value, "1")
+}
+
 func (s *sysConfigService) GetSiteNavs() []model.ActionLink {
 	siteNavs := cache.SysConfigCache.GetValue(constants.SysConfigSiteNavs)
 	var siteNavsArr []model.ActionLink
@@ -216,6 +221,7 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 		createArticleEmailVerified = s.IsCreateArticleEmailVerified()
 		createCommentEmailVerified = s.IsCreateCommentEmailVerified()
 		enableHideContent          = s.IsEnableHideContent()
+		birthdayRandomBlessing     = s.IsBirthdayRandomBlessingEnabled()
 	)
 
 	var siteKeywordsArr []string
@@ -271,6 +277,7 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 		CreateArticleEmailVerified: createArticleEmailVerified,
 		CreateCommentEmailVerified: createCommentEmailVerified,
 		EnableHideContent:          enableHideContent,
+		BirthdayRandomBlessing:     birthdayRandomBlessing,
 	}
 }
 

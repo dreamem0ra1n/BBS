@@ -30,7 +30,9 @@ type UserController struct {
 func (c *UserController) GetCurrent() *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)
 	if user != nil {
-		return web.JsonData(render.BuildUserProfile(user))
+		profile := render.BuildUserProfile(user)
+		profile.BirthdayBlessingNotifyAvailable = services.BirthdayBlessingService.ExistsByNickname(user.Nickname)
+		return web.JsonData(profile)
 	}
 	return web.JsonSuccess()
 }
@@ -89,19 +91,25 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	mobile := params.FormValue(c.Ctx, "mobile")
 	wechat := params.FormValue(c.Ctx, "wechat")
 	qq := params.FormValue(c.Ctx, "qq")
+	birthdayBlessingEnabled := services.SysConfigService.IsBirthdayRandomBlessingEnabled() && strings.EqualFold(params.FormValue(c.Ctx, "birthdayBlessingEnabled"), "true")
+	birthdayBlessingNotifyEnabled := services.SysConfigService.IsBirthdayRandomBlessingEnabled() &&
+		services.BirthdayBlessingService.ExistsByNickname(user.Nickname) &&
+		strings.EqualFold(params.FormValue(c.Ctx, "birthdayBlessingNotifyEnabled"), "true")
 
 	if len(homePage) > 0 && validate.IsURL(homePage) != nil {
 		return web.JsonErrorMsg("个人主页地址错误")
 	}
 
 	err := services.UserService.Updates(user.Id, map[string]interface{}{
-		"home_page":   homePage,
-		"description": description,
-		"major":       major,
-		"birthday":    birthday,
-		"mobile":      mobile,
-		"wechat":      wechat,
-		"qq":          qq,
+		"home_page":                        homePage,
+		"description":                      description,
+		"major":                            major,
+		"birthday":                         birthday,
+		"mobile":                           mobile,
+		"wechat":                           wechat,
+		"qq":                               qq,
+		"birthday_blessing_enabled":        birthdayBlessingEnabled,
+		"birthday_blessing_notify_enabled": birthdayBlessingNotifyEnabled,
 	})
 	if err != nil {
 		return web.JsonError(err)

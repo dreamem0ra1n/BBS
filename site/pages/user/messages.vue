@@ -56,9 +56,7 @@
               <div v-if="message.quoteContent" class="msg-attr message-quote">
                 {{ message.quoteContent }}
               </div>
-              <div class="msg-attr message-content">
-                {{ message.content }}
-              </div>
+              <div class="msg-attr message-content" v-text="message.content" />
               <div v-if="message.detailUrl" class="msg-attr message-show-more">
                 <a :href="message.detailUrl" target="_blank"
                   >点击查看详情&gt;&gt;</a
@@ -218,6 +216,7 @@ export default {
         .message-content {
           font-size: 15px;
           color: var(--text-color);
+          white-space: pre-line;
         }
 
         .message-quote {

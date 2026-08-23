@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"bbs-go/model"
@@ -23,7 +24,8 @@ var BirthdayService = newBirthdayService()
 type birthdayService struct{}
 
 type birthdayExtraData struct {
-	Year int `json:"birthdayYear"`
+	Year       int   `json:"birthdayYear"`
+	BlessingId int64 `json:"blessingId,omitempty"`
 }
 
 func newBirthdayService() *birthdayService {
@@ -62,19 +64,28 @@ func (s *birthdayService) sendNotice(user *model.User, now time.Time) error {
 		return nil
 	}
 	age := now.Year() - birthday.Year()
+	content := fmt.Sprintf("亲爱的潮人 %s ：今天是你%d岁的生日，求是潮BBS祝你生日快乐！愿你永远有大步向前的勇气，永远有一颗真诚的心，也祝你学习进步，工作顺利。但更重要的是，我们希望你身体健康，无忧无虑。浪潮不息，求是潮BBS永远是你的港湾，每朵浪花我们都记念于心^_^", user.Nickname, age)
+	var blessing *model.BirthdayBlessing
+	if user.BirthdayBlessingEnabled && SysConfigService.IsBirthdayRandomBlessingEnabled() {
+		blessing = BirthdayBlessingService.RandomForUser(user.Id, user.Department)
+		if blessing != nil {
+			content += fmt.Sprintf("\n\n来自潮人 %s 的留言：%s", blessing.Nickname, blessing.Content)
+		}
+	}
 
 	notification := &model.Message{
 		FromId:     0,
 		UserId:     user.Id,
 		Title:      "生日快乐！",
-		Content:    fmt.Sprintf("亲爱的潮人 %s ：今天是你%d岁的生日，求是潮BBS祝你生日快乐！愿你永远有大步向前的勇气，永远有一颗真诚的心，也祝你学习进步，工作顺利。但更重要的是，我们希望你身体健康，无忧无虑。浪潮不息，求是潮BBS永远是你的港湾，每朵浪花我们都记念于心^_^", user.Nickname, age),
+		Content:    content,
 		Type:       int(msg.TypeBirthday),
-		ExtraData:  jsons.ToJsonStr(birthdayExtraData{Year: now.Year()}),
+		ExtraData:  jsons.ToJsonStr(birthdayExtraData{Year: now.Year(), BlessingId: blessingId(blessing)}),
 		Status:     msg.StatusUnread,
 		CreateTime: dates.NowTimestamp(),
 	}
 
 	created := false
+	var blessingNotifications []*model.Message
 	err = sqls.DB().Transaction(func(tx *gorm.DB) error {
 		result := tx.Model(&model.User{}).
 			Where("id = ? AND birthday_year_sent < ?", user.Id, now.Year()).
@@ -85,11 +96,65 @@ func (s *birthdayService) sendNotice(user *model.User, now time.Time) error {
 		if err = repositories.MessageRepository.Create(tx, notification); err != nil {
 			return err
 		}
+		if blessing != nil {
+			if err = tx.Create(&model.BirthdayBlessingHistory{UserId: user.Id, BlessingId: blessing.Id, CreateTime: dates.NowTimestamp()}).Error; err != nil {
+				return err
+			}
+			blessingNotifications, err = s.createBlessingReceivedNotifications(tx, user, blessing)
+			if err != nil {
+				return err
+			}
+		}
 		created = true
 		return nil
 	})
 	if err == nil && created {
 		MessageService.SendDingTalkNoticeAsync(notification)
+		for _, blessingNotification := range blessingNotifications {
+			MessageService.SendDingTalkNoticeAsync(blessingNotification)
+		}
 	}
 	return err
+}
+
+func (s *birthdayService) createBlessingReceivedNotifications(tx *gorm.DB, receiver *model.User, blessing *model.BirthdayBlessing) ([]*model.Message, error) {
+	nickname := strings.TrimSpace(blessing.Nickname)
+	if nickname == "" {
+		return nil, nil
+	}
+	var blessingAuthors []model.User
+	if err := tx.Where(
+		"nickname = ? AND birthday_blessing_notify_enabled = ? AND status = ?",
+		nickname,
+		true,
+		constants.StatusOk,
+	).Find(&blessingAuthors).Error; err != nil {
+		return nil, err
+	}
+
+	now := dates.NowTimestamp()
+	notifications := make([]*model.Message, 0, len(blessingAuthors))
+	for index := range blessingAuthors {
+		notification := &model.Message{
+			FromId:     0,
+			UserId:     blessingAuthors[index].Id,
+			Title:      "生日祝福已送达",
+			Content:    fmt.Sprintf("%s收到了你的生日祝福！^_^", receiver.Nickname),
+			Type:       int(msg.TypeBirthday),
+			Status:     msg.StatusUnread,
+			CreateTime: now,
+		}
+		if err := repositories.MessageRepository.Create(tx, notification); err != nil {
+			return nil, err
+		}
+		notifications = append(notifications, notification)
+	}
+	return notifications, nil
+}
+
+func blessingId(blessing *model.BirthdayBlessing) int64 {
+	if blessing == nil {
+		return 0
+	}
+	return blessing.Id
 }

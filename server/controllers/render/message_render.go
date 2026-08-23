@@ -53,6 +53,9 @@ func BuildMessages(messages []model.Message) []model.MessageResponse {
 // getMessageDetailUrl 查看消息详情链接地址
 func getMessageDetailUrl(t *model.Message) string {
 	msgType := msg.Type(t.Type)
+	if msgType == msg.TypeBirthday {
+		return ""
+	}
 	// logrus.Info("debug: ", msgType)
 	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply {
 		entityType := gjson.Get(t.ExtraData, "entityType")

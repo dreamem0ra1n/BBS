@@ -27,15 +27,16 @@ const (
 	SysConfigCreateTopicEmailVerified   = "createTopicEmailVerified"   // 发话题需要邮箱认证
 	SysConfigCreateArticleEmailVerified = "createArticleEmailVerified" // 发话题需要邮箱认证
 	SysConfigCreateCommentEmailVerified = "createCommentEmailVerified" // 发话题需要邮箱认证
+	SysConfigBirthdayRandomBlessing     = "birthdayRandomBlessing"     // 是否启用生日随机祝福
 )
 
 // EntityType
 const (
-	EntityArticle = "article"
-	EntityTopic   = "topic"
-	EntityComment = "comment"
-	EntityUser    = "user"
-	EntityCheckIn = "checkIn"
+	EntityArticle   = "article"
+	EntityTopic     = "topic"
+	EntityComment   = "comment"
+	EntityUser      = "user"
+	EntityCheckIn   = "checkIn"
 	EntityTopicGift = "topicGift"
 )
 
