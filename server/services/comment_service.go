@@ -51,6 +51,18 @@ func (s *commentService) FindPageByCnd(cnd *sqls.Cnd) (list []model.Comment, pag
 	return repositories.CommentRepository.FindPageByCnd(sqls.DB(), cnd)
 }
 
+func (s *commentService) FindUserCommentsPage(userId int64, page int, ascOrder bool) ([]model.Comment, *sqls.Paging) {
+	cnd := sqls.NewCnd().Eq("user_id", userId).
+		Where("status = ? or status = ?", constants.StatusOk, constants.StatusDeleted).
+		Page(page, 20)
+	if ascOrder {
+		cnd.Asc("id")
+	} else {
+		cnd.Desc("id")
+	}
+	return s.FindPageByCnd(cnd)
+}
+
 func (s *commentService) Count(cnd *sqls.Cnd) int64 {
 	return repositories.CommentRepository.Count(sqls.DB(), cnd)
 }

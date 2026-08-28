@@ -260,14 +260,24 @@ func (c *UserController) GetFavorites() *web.JsonResult {
 		return web.JsonError(errs.NotLogin)
 	}
 
+	userId := params.FormValueInt64Default(c.Ctx, "userId", user.Id)
+	if userId <= 0 {
+		userId = user.Id
+	}
+	if page := params.FormValueIntDefault(c.Ctx, "page", 0); page > 0 {
+		favorites, paging := services.FavoriteService.FindPageByCnd(sqls.NewCnd().
+			Eq("user_id", userId).Page(page, 20).Desc("id"))
+		return web.JsonPageData(render.BuildFavorites(favorites), paging)
+	}
+
 	// 查询列表
 	limit := 20
 	var favorites []model.Favorite
 	if cursor > 0 {
 		favorites = services.FavoriteService.Find(sqls.NewCnd().Where("user_id = ? and id < ?",
-			user.Id, cursor).Desc("id").Limit(20))
+			userId, cursor).Desc("id").Limit(20))
 	} else {
-		favorites = services.FavoriteService.Find(sqls.NewCnd().Where("user_id = ?", user.Id).Desc("id").Limit(limit))
+		favorites = services.FavoriteService.Find(sqls.NewCnd().Where("user_id = ?", userId).Desc("id").Limit(limit))
 	}
 
 	hasMore := false

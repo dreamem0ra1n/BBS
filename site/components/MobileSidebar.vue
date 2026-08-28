@@ -31,7 +31,9 @@
               <nuxt-link :to="'/user/' + user.id">个人中心</nuxt-link>
             </div>
             <div class="sidebar-menu-item">
-              <nuxt-link class="sidebar-menu-item" to="/user/favorites"
+              <nuxt-link
+                class="sidebar-menu-item"
+                :to="{ path: '/user/' + user.id, query: { tab: 'favorites' } }"
                 >我的收藏</nuxt-link
               >
             </div>

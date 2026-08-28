@@ -173,6 +173,8 @@ type CommentResponse struct {
 	CanEdit      bool              `json:"canEdit"`
 	CanDelete    bool              `json:"canDelete"`
 	IsOldBBS     bool              `gorm:"-" json:"isOldBBS" form:"-"`
+	EntityTitle string `json:"entityTitle,omitempty"`
+	EntityUrl   string `json:"entityUrl,omitempty"`
 }
 
 // 收藏返回数据

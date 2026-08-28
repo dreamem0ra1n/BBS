@@ -60,6 +60,18 @@ func (c *CommentController) GetReplies() *web.JsonResult {
 	return web.JsonCursorData(render.BuildComments(comments, currentUser, false, true), strconv.FormatInt(cursor, 10), hasMore)
 }
 
+func (c *CommentController) GetUserComments() *web.JsonResult {
+	userId, err := params.FormValueInt64(c.Ctx, "userId")
+	if err != nil || userId <= 0 {
+		return web.JsonErrorMsg("用户不存在")
+	}
+	page := params.FormValueIntDefault(c.Ctx, "page", 1)
+	ascOrder := params.FormValueIntDefault(c.Ctx, "asc_order", 0) != 0
+	comments, paging := services.CommentService.FindUserCommentsPage(userId, page, ascOrder)
+	currentUser := services.UserTokenService.GetCurrent(c.Ctx)
+	return web.JsonPageData(render.BuildUserComments(comments, currentUser), paging)
+}
+
 func (c *CommentController) PostCreate() *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)
 	if err := services.UserService.CheckPostStatus(user); err != nil {

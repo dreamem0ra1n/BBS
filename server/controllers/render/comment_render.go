@@ -3,6 +3,7 @@ package render
 import (
 	"bbs-go/model"
 	"bbs-go/model/constants"
+	"bbs-go/pkg/bbsurls"
 	"bbs-go/pkg/markdown"
 	"bbs-go/services"
 	"encoding/json"
@@ -16,6 +17,47 @@ import (
 
 func BuildComment(comment *model.Comment, currentUser *model.User) *model.CommentResponse {
 	return doBuildComment(comment, currentUser, true, true)
+}
+
+func BuildUserComments(comments []model.Comment, currentUser *model.User) []model.CommentResponse {
+	if len(comments) == 0 {
+		return nil
+	}
+	results := make([]model.CommentResponse, 0, len(comments))
+	for _, comment := range comments {
+		item := doBuildComment(&comment, currentUser, false, true)
+		if item == nil {
+			continue
+		}
+		entityType, entityID, title := comment.EntityType, comment.EntityId, ""
+		for entityType == constants.EntityComment {
+			parent := services.CommentService.Get(entityID)
+			if parent == nil {
+				break
+			}
+			entityType, entityID = parent.EntityType, parent.EntityId
+		}
+		switch entityType {
+		case constants.EntityTopic:
+			topic := services.TopicService.Get(entityID)
+			if topic != nil {
+				title = topic.Title
+				item.EntityUrl = bbsurls.TopicUrl(entityID)
+			}
+		case constants.EntityArticle:
+			article := services.ArticleService.Get(entityID)
+			if article != nil {
+				title = article.Title
+				item.EntityUrl = bbsurls.ArticleUrl(entityID)
+			}
+		}
+		if item.EntityUrl != "" {
+			item.EntityUrl += "#comment-" + strconv.FormatInt(comment.Id, 10)
+		}
+		item.EntityTitle = title
+		results = append(results, *item)
+	}
+	return results
 }
 
 func BuildComments(comments []model.Comment, currentUser *model.User, isBuildReplies, isBuildQuote bool) []model.CommentResponse {

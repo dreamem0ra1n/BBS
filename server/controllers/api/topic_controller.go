@@ -264,6 +264,11 @@ func (c *TopicController) GetUserTopics() *web.JsonResult {
 	}
 	cursor := params.FormValueInt64Default(c.Ctx, "cursor", 0)
 	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if page := params.FormValueIntDefault(c.Ctx, "page", 0); page > 0 {
+		topics, paging := services.TopicService.FindPageByCnd(sqls.NewCnd().
+			Eq("user_id", userId).Eq("status", constants.StatusOk).Page(page, 20).Desc("id"))
+		return web.JsonPageData(render.BuildSimpleTopics(topics, user), paging)
+	}
 	topics, cursor, hasMore := services.TopicService.GetUserTopics(userId, cursor)
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }

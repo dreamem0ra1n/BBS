@@ -36,11 +36,13 @@
             </div>
           </div>
         </li>
-        <li v-if="hasMore" class="favorite-item more">
-          <a @click="list">查看更多&gt;&gt;</a>
-        </li>
       </ul>
       <div v-else class="notification is-primary">暂无收藏</div>
+      <pagination
+        v-if="favoritesPage"
+        :page="favoritesPage.page"
+        url-prefix="/user/favorites?p="
+      />
     </div>
   </div>
 </template>
@@ -48,36 +50,19 @@
 <script>
 export default {
   layout: 'ucenter',
-  data() {
-    return {
-      favorites: [],
-      cursor: 0,
-      hasMore: true,
-    }
+  middleware: 'authenticated',
+  async asyncData({ $axios, query }) {
+    const favoritesPage = await $axios.get('/api/user/favorites', {
+      params: { page: query.p || 1 },
+    })
+    return { favoritesPage, favorites: favoritesPage.results || [] }
   },
   head() {
     return {
       title: this.$siteTitle('收藏'),
     }
   },
-  mounted() {
-    this.list()
-  },
-  methods: {
-    async list() {
-      const ret = await this.$axios.get('/api/user/favorites', {
-        params: {
-          cursor: this.cursor,
-        },
-      })
-      if (ret.results && ret.results.length) {
-        this.favorites = this.favorites.concat(ret.results)
-      } else {
-        this.hasMore = false
-      }
-      this.cursor = ret.cursor
-    },
-  },
+  watchQuery: ['p'],
 }
 </script>
 
@@ -97,15 +82,6 @@ export default {
 
     &:not(:last-child) {
       border-bottom: 1px solid var(--border-color);
-    }
-
-    &.more {
-      text-align: center;
-
-      a {
-        font-size: 15px;
-        font-weight: bold;
-      }
     }
 
     .favorite-title {

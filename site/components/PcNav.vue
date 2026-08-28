@@ -55,7 +55,10 @@
               <nuxt-link class="navbar-item" :to="'/user/' + user.id">
                 <i class="iconfont icon-username" />&nbsp;个人中心
               </nuxt-link>
-              <nuxt-link class="navbar-item" to="/user/favorites">
+              <nuxt-link
+                class="navbar-item"
+                :to="{ path: '/user/' + user.id, query: { tab: 'favorites' } }"
+              >
                 <i class="iconfont icon-favorites" />&nbsp;我的收藏
               </nuxt-link>
               <nuxt-link class="navbar-item" to="/user/profile">
