@@ -16,7 +16,7 @@
       >
         <div class="slabel">{{ info.title }}</div>
         <div class="svalue">
-          {{ String(user[info.attribute]) }}
+          {{ displayValue(info.attribute) }}
         </div>
       </div>
 
@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import UserHelper from '~/common/UserHelper'
+
 export default {
   name: 'MyProfile',
   props: {
@@ -59,6 +61,15 @@ export default {
     isCurrentUser() {
       const current = this.$store.state.user.current
       return current && this.user.id === current.id
+    },
+  },
+  methods: {
+    displayValue(attribute) {
+      const value =
+        attribute === 'position'
+          ? UserHelper.getPosition(this.user)
+          : this.user[attribute]
+      return value == null ? '' : String(value)
     },
   },
 }

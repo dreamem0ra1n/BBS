@@ -49,7 +49,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <div>{{ form.position }}</div>
+              <div>{{ position }}</div>
             </div>
           </div>
         </div>
@@ -356,6 +356,8 @@
 </template>
 
 <script>
+import UserHelper from '~/common/UserHelper'
+
 export default {
   middleware: 'authenticated',
   data() {
@@ -398,6 +400,9 @@ export default {
     }
   },
   computed: {
+    position() {
+      return UserHelper.getPosition(this.form)
+    },
     birthdayBlessingAvailable() {
       return !!(this.$store.state.config.config || {}).birthdayRandomBlessing
     },
@@ -499,9 +504,6 @@ export default {
         this.$axios.get('/api/user/dingtalk/settings'),
       ])
       if (_user) {
-        const pattern = _user.roles[0].split('_')
-        const role = pattern[0]
-        _user.position = _user.department + '-' + role
         this.$store.commit('user/setCurrent', _user)
         this.user = _user
         this.form = { ..._user }

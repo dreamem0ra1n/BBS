@@ -65,6 +65,11 @@ export default {
       )
     },
   },
+  watch: {
+    user(user) {
+      this.localUser = Object.assign({}, user)
+    },
+  },
   methods: {
     forbidden(days) {
       const me = this

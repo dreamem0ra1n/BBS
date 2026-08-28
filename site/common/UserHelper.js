@@ -1,4 +1,21 @@
 class UserHelper {
+  getPosition(user) {
+    if (!user) {
+      return ''
+    }
+    if (typeof user.position === 'string' && user.position.trim()) {
+      return user.position
+    }
+    const department =
+      typeof user.department === 'string' ? user.department.trim() : ''
+    const firstRole =
+      Array.isArray(user.roles) && typeof user.roles[0] === 'string'
+        ? user.roles[0]
+        : ''
+    const role = firstRole.split('_')[0].trim()
+    return [department, role].filter(Boolean).join('-')
+  }
+
   hasRole(user, role) {
     if (!user || !user.roles || !user.roles.length) {
       return false

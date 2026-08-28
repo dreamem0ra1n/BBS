@@ -148,9 +148,6 @@ export default {
     let user
     try {
       user = await $axios.get('/api/user/' + params.userId)
-      const pattern = user.roles[0].split('_')
-      const role = pattern[0]
-      user.position = user.department + '-' + role
     } catch (err) {
       console.log(err)
       error({

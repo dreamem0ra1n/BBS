@@ -33,11 +33,6 @@ export const actions = {
       ...credentials,
     })
 
-    if (!res.user.position) {
-      const pattern = res.user.roles[0].split('_')
-      const role = pattern[0]
-      res.user.position = res.user.department + '-' + role
-    }
     context.commit('setCurrent', res.user)
     context.commit('setUserToken', res.token)
     const config = context.rootState.config.config
