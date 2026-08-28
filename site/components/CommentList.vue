@@ -12,7 +12,12 @@
       }"
       url="/api/comment/comments"
     >
-      <div v-for="comment in results" :key="comment.commentId" class="comment">
+      <div
+        v-for="comment in results"
+        :id="commentAnchorId(comment.commentId)"
+        :key="comment.commentId"
+        class="comment"
+      >
         <div class="comment-item-left">
           <avatar :user="comment.user" size="40" round has-border />
         </div>
@@ -177,6 +182,7 @@ export default {
           imageList: [],
         },
       },
+      hashScrolled: false,
     }
   },
   computed: {
@@ -190,8 +196,39 @@ export default {
       return this.$store.state.env.ascOrder
     },
   },
+  mounted() {
+    this.scrollToHashComment()
+  },
   methods: {
     HTMLDecode,
+    commentAnchorId(commentId) {
+      return `comment-${commentId}`
+    },
+    async scrollToHashComment() {
+      if (typeof window === 'undefined' || this.hashScrolled) {
+        return
+      }
+      const match = window.location.hash.match(/^#comment-(\d+)$/)
+      if (!match) {
+        return
+      }
+
+      const targetId = this.commentAnchorId(match[1])
+      const loadMore = this.$refs.commentsLoadMore
+      for (let attempt = 0; attempt < 100; attempt++) {
+        await this.$nextTick()
+        const target = document.getElementById(targetId)
+        if (target) {
+          this.hashScrolled = true
+          target.scrollIntoView({ block: 'center' })
+          return
+        }
+        if (!loadMore || !loadMore.hasMore || loadMore.loading) {
+          return
+        }
+        await loadMore.loadMore()
+      }
+    },
     append(data) {
       if (data) {
         this.$refs.commentsLoadMore.unshiftResults(data)

@@ -2,6 +2,7 @@
   <div class="replies">
     <div
       v-for="comment in replies.results"
+      :id="`comment-${comment.commentId}`"
       :key="comment.commentId"
       class="comment"
     >

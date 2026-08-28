@@ -6,6 +6,7 @@ import (
 	"bbs-go/pkg/bbsurls"
 	"bbs-go/pkg/msg"
 	"bbs-go/repositories"
+	"strconv"
 
 	"github.com/mlogclub/simple/sqls"
 	"github.com/tidwall/gjson"
@@ -60,21 +61,14 @@ func getMessageDetailUrl(t *model.Message) string {
 	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply {
 		entityType := gjson.Get(t.ExtraData, "entityType")
 		entityId := gjson.Get(t.ExtraData, "entityId")
+		commentId := gjson.Get(t.ExtraData, "commentId").Int()
 		// logrus.Info("debug: ", entityId, entityType.String())
 		if entityType.String() == constants.EntityArticle {
-			return bbsurls.ArticleUrl(entityId.Int())
+			return appendCommentAnchor(bbsurls.ArticleUrl(entityId.Int()), commentId)
 		} else if entityType.String() == constants.EntityTopic {
-			return bbsurls.TopicUrl(entityId.Int())
+			return appendCommentAnchor(bbsurls.TopicUrl(entityId.Int()), commentId)
 		} else if entityType.String() == constants.EntityComment {
-			commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
-				"SELECT * FROM t_comment WHERE id = ?",
-				entityId.Int(),
-			)
-			if commentResults == nil {
-				return bbsurls.AbsUrl("/user/messages")
-			} else {
-				return bbsurls.TopicUrl(commentResults[0].EntityId)
-			}
+			return getCommentDetailUrl(entityId.Int(), commentId)
 		}
 	} else if msgType == msg.TypeTopicLike ||
 		msgType == msg.TypeTopicFavorite ||
@@ -83,6 +77,38 @@ func getMessageDetailUrl(t *model.Message) string {
 		topicId := gjson.Get(t.ExtraData, "topicId")
 		if topicId.Exists() && topicId.Int() > 0 {
 			return bbsurls.TopicUrl(topicId.Int())
+		}
+	}
+	return bbsurls.AbsUrl("/user/messages")
+}
+
+func appendCommentAnchor(detailUrl string, commentId int64) string {
+	if commentId <= 0 {
+		return detailUrl
+	}
+	return detailUrl + "#comment-" + strconv.FormatInt(commentId, 10)
+}
+
+func getCommentDetailUrl(commentId, targetCommentId int64) string {
+	for depth := 0; depth < 10 && commentId > 0; depth++ {
+		commentResults := repositories.CommentRepository.FindBySql(sqls.DB(),
+			"SELECT * FROM t_comment WHERE id = ?",
+			commentId,
+		)
+		if len(commentResults) == 0 {
+			return bbsurls.AbsUrl("/user/messages")
+		}
+
+		comment := commentResults[0]
+		switch comment.EntityType {
+		case constants.EntityArticle:
+			return appendCommentAnchor(bbsurls.ArticleUrl(comment.EntityId), targetCommentId)
+		case constants.EntityTopic:
+			return appendCommentAnchor(bbsurls.TopicUrl(comment.EntityId), targetCommentId)
+		case constants.EntityComment:
+			commentId = comment.EntityId
+		default:
+			return bbsurls.AbsUrl("/user/messages")
 		}
 	}
 	return bbsurls.AbsUrl("/user/messages")
