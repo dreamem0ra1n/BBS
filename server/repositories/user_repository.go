@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"bbs-go/model"
+	"bbs-go/model/constants"
 )
 
 var UserRepository = newUserRepository()
@@ -41,12 +42,62 @@ func (r *userRepository) Find(db *gorm.DB, cnd *sqls.Cnd) (list []model.User) {
 	return
 }
 
-func (r *userRepository) FindRecentYearScoreRank(db *gorm.DB, now time.Time) []model.User {
+func (r *userRepository) FindNewbieScoreRank(db *gorm.DB, now time.Time) []model.User {
 	return r.Find(db, sqls.NewCnd().
 		Gte("create_time", dates.Timestamp(now.AddDate(-1, 0, 0))).
 		Lt("create_time", dates.Timestamp(now.Add(time.Millisecond))).
 		Desc("score").
 		Limit(10))
+}
+
+func (r *userRepository) FindRecentYearScoreRank(db *gorm.DB, now time.Time) []model.User {
+	return r.FindNewbieScoreRank(db, now)
+}
+
+func (r *userRepository) FindAnnualScoreRank(db *gorm.DB, now time.Time) []model.User {
+	start := dates.Timestamp(now.AddDate(-1, 0, 0))
+	end := dates.Timestamp(now.Add(time.Millisecond))
+
+	type scoreTotal struct {
+		UserId int64
+		Score  int
+	}
+	var totals []scoreTotal
+	if err := db.Model(&model.UserScoreLog{}).
+		Select("user_id, SUM(score) AS score").
+		Where("type = ? AND create_time >= ? AND create_time < ?", constants.ScoreTypeIncr, start, end).
+		Group("user_id").
+		Order("score DESC").
+		Order("user_id ASC").
+		Limit(10).
+		Scan(&totals).Error; err != nil {
+		return nil
+	}
+	if len(totals) == 0 {
+		return []model.User{}
+	}
+
+	ids := make([]int64, 0, len(totals))
+	for _, total := range totals {
+		ids = append(ids, total.UserId)
+	}
+	var users []model.User
+	if err := db.Where("id IN ?", ids).Find(&users).Error; err != nil {
+		return nil
+	}
+	usersById := make(map[int64]model.User, len(users))
+	for _, user := range users {
+		usersById[user.Id] = user
+	}
+
+	ranked := make([]model.User, 0, len(totals))
+	for _, total := range totals {
+		if user, ok := usersById[total.UserId]; ok {
+			user.Score = total.Score
+			ranked = append(ranked, user)
+		}
+	}
+	return ranked
 }
 
 func (r *userRepository) FindOne(db *gorm.DB, cnd *sqls.Cnd) *model.User {

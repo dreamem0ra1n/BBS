@@ -1,15 +1,15 @@
 <template>
-  <div v-if="scoreRank && scoreRank.length" class="widget">
+  <div v-if="scoreRank" class="widget">
     <div class="widget-header">
       <span class="widget-title">积分排行</span>
       <span class="score-rank-tabs">
         <button
           type="button"
-          :class="{ active: activePeriod === 'all' }"
+          :class="{ active: activePeriod === 'newbie' }"
           :disabled="loading"
-          @click="selectPeriod('all')"
+          @click="selectPeriod('newbie')"
         >
-          历史总榜
+          萌新榜
         </button>
         <button
           type="button"
@@ -17,7 +17,15 @@
           :disabled="loading"
           @click="selectPeriod('year')"
         >
-          年度总榜
+          年榜
+        </button>
+        <button
+          type="button"
+          :class="{ active: activePeriod === 'all' }"
+          :disabled="loading"
+          @click="selectPeriod('all')"
+        >
+          总榜
         </button>
       </span>
     </div>
@@ -40,7 +48,7 @@
           </div>
         </li>
       </ul>
-      <div v-else class="score-rank-empty">近一年暂无注册用户</div>
+      <div v-else class="score-rank-empty">暂无榜单数据</div>
     </div>
   </div>
 </template>
@@ -57,15 +65,19 @@ export default {
   },
   data() {
     return {
-      activePeriod: 'all',
+      activePeriod: 'newbie',
       annualScoreRank: null,
+      allScoreRank: null,
       loading: false,
     }
   },
   computed: {
     displayedScoreRank() {
-      return this.activePeriod === 'year'
-        ? this.annualScoreRank || []
+      if (this.activePeriod === 'year') {
+        return this.annualScoreRank || []
+      }
+      return this.activePeriod === 'all'
+        ? this.allScoreRank || []
         : this.scoreRank
     },
   },
@@ -74,18 +86,30 @@ export default {
       if (period === this.activePeriod || this.loading) {
         return
       }
-      if (period === 'all') {
+      if (period === 'newbie') {
+        this.activePeriod = period
+        return
+      }
+      if (
+        (period === 'year' && this.annualScoreRank) ||
+        (period === 'all' && this.allScoreRank)
+      ) {
         this.activePeriod = period
         return
       }
       this.loading = true
       try {
-        this.annualScoreRank = await this.$axios.get('/api/user/score/rank', {
-          params: { period: 'year' },
+        const scoreRank = await this.$axios.get('/api/user/score/rank', {
+          params: { period },
         })
+        if (period === 'year') {
+          this.annualScoreRank = scoreRank
+        } else {
+          this.allScoreRank = scoreRank
+        }
         this.activePeriod = period
       } catch (e) {
-        this.$message.error(e.message || '加载年度排行失败')
+        this.$message.error(e.message || '加载榜单失败')
       } finally {
         this.loading = false
       }

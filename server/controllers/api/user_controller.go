@@ -368,10 +368,13 @@ func (c *UserController) GetScorelogs() *web.JsonResult {
 // 积分排行
 func (c *UserController) GetScoreRank() *web.JsonResult {
 	var users []model.User
-	if c.Ctx.URLParam("period") == "year" {
+	switch c.Ctx.URLParam("period") {
+	case "year":
 		users = cache.UserCache.GetAnnualScoreRank()
-	} else {
+	case "all":
 		users = cache.UserCache.GetScoreRank()
+	default:
+		users = cache.UserCache.GetNewbieScoreRank()
 	}
 	var results []*model.UserInfo
 	for _, user := range users {

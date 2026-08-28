@@ -15,6 +15,7 @@ import (
 type userCache struct {
 	cache                cache.LoadingCache
 	scoreRankCache       cache.LoadingCache
+	newbieScoreRankCache cache.LoadingCache
 	annualScoreRankCache cache.LoadingCache
 	checkInRankCache     cache.LoadingCache
 }
@@ -45,9 +46,17 @@ func newUserCache() *userCache {
 			cache.WithMaximumSize(10),
 			cache.WithRefreshAfterWrite(10*time.Minute),
 		),
+		newbieScoreRankCache: cache.NewLoadingCache(
+			func(key cache.Key) (value cache.Value, e error) {
+				value = repositories.UserRepository.FindNewbieScoreRank(sqls.DB(), time.Now())
+				return
+			},
+			cache.WithMaximumSize(3),
+			cache.WithRefreshAfterWrite(10*time.Minute),
+		),
 		annualScoreRankCache: cache.NewLoadingCache(
 			func(key cache.Key) (value cache.Value, e error) {
-				value = repositories.UserRepository.FindRecentYearScoreRank(sqls.DB(), time.Now())
+				value = repositories.UserRepository.FindAnnualScoreRank(sqls.DB(), time.Now())
 				return
 			},
 			cache.WithMaximumSize(3),
@@ -83,6 +92,14 @@ func (c *userCache) Invalidate(userId int64) {
 
 func (c *userCache) GetScoreRank() []model.User {
 	val, err := c.scoreRankCache.Get("data")
+	if err != nil {
+		return nil
+	}
+	return val.([]model.User)
+}
+
+func (c *userCache) GetNewbieScoreRank() []model.User {
+	val, err := c.newbieScoreRankCache.Get("data")
 	if err != nil {
 		return nil
 	}
