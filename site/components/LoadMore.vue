@@ -78,9 +78,7 @@ export default {
           cursor: this.cursor,
         })
         if (this.method === 'POST') {
-          ret = await this.$axios.post(this.url, {
-            params: _params,
-          })
+          ret = await this.$axios.post(this.url, _params)
         } else {
           ret = await this.$axios.get(this.url, {
             params: _params,

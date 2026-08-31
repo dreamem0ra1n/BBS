@@ -13,6 +13,11 @@
               <span>推荐</span>
             </div>
           </nuxt-link>
+          <nuxt-link to="/topics/node/feed">
+            <div class="node-item" :class="{ active: currentNodeId === -2 }">
+              <span>关注</span>
+            </div>
+          </nuxt-link>
         </div>
         <div v-for="(row, index) in rows" :key="index" class="nodes-row">
           <div v-if="row && row.length" class="nodes-row">

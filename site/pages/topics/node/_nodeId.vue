@@ -1,12 +1,13 @@
 <template>
   <div class="topics-main">
     <tag-bar :node-id="node.nodeId" />
+    <topic-sort :value="sort" />
     <sticky-topics :node-id="node.nodeId" />
     <load-more
       v-if="topicsPage"
       v-slot="{ results }"
       :init-data="topicsPage"
-      :url="'/api/topic/topics?nodeId=' + node.nodeId"
+      :url="'/api/topic/topics?nodeId=' + node.nodeId + '&sort=' + sort"
     >
       <topic-list :topics="results" />
     </load-more>
@@ -15,16 +16,18 @@
 
 <script>
 export default {
-  async asyncData({ $axios, params, store }) {
+  async asyncData({ $axios, params, store, query }) {
     const nodeId = parseInt(params.nodeId)
+    const sort = query.sort === 'create' ? 'create' : 'comment'
     store.commit('env/setCurrentNodeId', nodeId) // 设置当前所在node
     const [node, topicsPage] = await Promise.all([
       $axios.get('/api/topic/node?nodeId=' + nodeId),
-      $axios.get('/api/topic/topics?nodeId=' + nodeId),
+      $axios.get('/api/topic/topics', { params: { nodeId, sort } }),
     ])
     return {
       node,
       topicsPage,
+      sort,
     }
   },
   head() {
@@ -40,6 +43,7 @@ export default {
       ],
     }
   },
+  watchQuery: ['sort'],
   mounted() {
     this.$store.commit('env/setCurrentNodeId', this.node.nodeId)
   },

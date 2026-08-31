@@ -1,10 +1,11 @@
 <template>
   <div class="topics-main">
+    <topic-sort :value="sort" />
     <load-more
       v-if="topicsPage"
       v-slot="{ results }"
       :init-data="topicsPage"
-      url="/api/topic/topics?recommend=true"
+      :url="'/api/topic/topics?recommend=true&sort=' + sort"
     >
       <topic-list :topics="results" />
     </load-more>
@@ -13,13 +14,14 @@
 
 <script>
 export default {
-  async asyncData({ $axios, store }) {
+  async asyncData({ $axios, store, query }) {
     store.commit('env/setCurrentNodeId', -1) // 设置当前所在node
     try {
+      const sort = query.sort === 'create' ? 'create' : 'comment'
       const [topicsPage] = await Promise.all([
-        $axios.get('/api/topic/topics?recommend=true'),
+        $axios.get('/api/topic/topics', { params: { recommend: true, sort } }),
       ])
-      return { topicsPage }
+      return { topicsPage, sort }
     } catch (e) {
       console.error(e)
     }
@@ -37,6 +39,7 @@ export default {
       ],
     }
   },
+  watchQuery: ['sort'],
 }
 </script>
 

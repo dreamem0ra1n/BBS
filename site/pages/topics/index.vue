@@ -1,12 +1,13 @@
 <template>
   <div class="topics-main">
     <tag-bar :node-id="0" />
+    <topic-sort :value="sort" />
     <sticky-topics :node-id="0" />
     <load-more
       v-if="topicsPage"
       v-slot="{ results }"
       :init-data="topicsPage"
-      url="/api/topic/topics"
+      :url="'/api/topic/topics?sort=' + sort"
     >
       <topic-list :topics="results" />
     </load-more>
@@ -15,11 +16,14 @@
 
 <script>
 export default {
-  async asyncData({ $axios, store }) {
+  async asyncData({ $axios, store, query }) {
     try {
       store.commit('env/setCurrentNodeId', 0) // 设置当前所在node
-      const [topicsPage] = await Promise.all([$axios.get('/api/topic/topics')])
-      return { topicsPage }
+      const sort = query.sort === 'create' ? 'create' : 'comment'
+      const [topicsPage] = await Promise.all([
+        $axios.get('/api/topic/topics', { params: { sort } }),
+      ])
+      return { topicsPage, sort }
     } catch (e) {
       console.error(e)
     }
@@ -37,6 +41,7 @@ export default {
       ],
     }
   },
+  watchQuery: ['sort'],
 }
 </script>
 

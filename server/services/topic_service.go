@@ -276,22 +276,23 @@ func (s *topicService) GetTopicTags(topicId int64) []model.Tag {
 }
 
 // GetTopics 获取帖子分页列表
-func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool) (topics []model.Topic, nextCursor int64, hasMore bool) {
+func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool, sort string) (topics []model.Topic, nextCursor int64, hasMore bool) {
 	limit := 20
+	sortColumn := topicSortColumn(sort)
 	cnd := sqls.NewCnd()
 	if nodeId > 0 {
 		cnd.Eq("node_id", nodeId)
 	}
 	if cursor > 0 {
-		cnd.Lt("last_comment_time", cursor)
+		cnd.Lt(sortColumn, cursor)
 	}
 	if recommend {
 		cnd.Eq("recommend", true)
 	}
-	cnd.Eq("status", constants.StatusOk).Desc("last_comment_time").Limit(limit)
+	cnd.Eq("status", constants.StatusOk).Desc(sortColumn).Limit(limit)
 	topics = repositories.TopicRepository.Find(sqls.DB(), cnd)
 	if len(topics) > 0 {
-		nextCursor = topics[len(topics)-1].LastCommentTime
+		nextCursor = topicSortCursor(topics[len(topics)-1], sortColumn)
 		hasMore = len(topics) >= limit
 	} else {
 		nextCursor = cursor
@@ -300,36 +301,42 @@ func (s *topicService) GetTopics(nodeId, cursor int64, recommend bool) (topics [
 }
 
 // 根据 NodeId 和 tag 指定标签下话题列表
-func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64) (topics []model.Topic, nextCursor int64, hasMore bool) {
+func (s *topicService) GetTopicsByNodeIdAndTag(tagId, nodeId, cursor int64, sort string) (topics []model.Topic, nextCursor int64, hasMore bool) {
 	topics = []model.Topic{}
 	limit := 20
+	sortColumn := topicSortColumn(sort)
+	query := "SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b ON a.id = b.topic_id WHERE a.status = ? AND a.node_id = ? AND b.tag_id = ?"
+	queryParams := []interface{}{constants.StatusOk, nodeId, tagId}
 
 	if cursor > 0 {
-		sqls.DB().
-			Raw("SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.status = 0 AND a.node_id = ? AND b.tag_id = ? AND a.last_comment_time < ?",
-				nodeId,
-				tagId,
-				cursor).
-			Order("last_comment_time DESC").
-			Limit(limit).
-			Scan(&topics)
-	} else {
-		sqls.DB().
-			Raw("SELECT a.* FROM t_topic a LEFT JOIN t_topic_tag b on a.id = b.topic_id WHERE a.status = 0 AND a.node_id = ? AND b.tag_id = ?",
-				nodeId,
-				tagId).
-			Order("last_comment_time DESC").
-			Limit(limit).
-			Scan(&topics)
+		query += " AND a." + sortColumn + " < ?"
+		queryParams = append(queryParams, cursor)
 	}
+	query += " ORDER BY a." + sortColumn + " DESC, a.id DESC LIMIT ?"
+	queryParams = append(queryParams, limit)
+	sqls.DB().Raw(query, queryParams...).Scan(&topics)
 
 	if len(topics) > 0 {
-		nextCursor = topics[len(topics)-1].LastCommentTime
+		nextCursor = topicSortCursor(topics[len(topics)-1], sortColumn)
 		hasMore = len(topics) >= limit
 	} else {
 		nextCursor = cursor
 	}
 	return
+}
+
+func topicSortColumn(sort string) string {
+	if sort == "create" {
+		return "create_time"
+	}
+	return "last_comment_time"
+}
+
+func topicSortCursor(topic model.Topic, sortColumn string) int64 {
+	if sortColumn == "create_time" {
+		return topic.CreateTime
+	}
+	return topic.LastCommentTime
 }
 
 // 指定标签下话题列表

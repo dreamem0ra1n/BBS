@@ -279,9 +279,10 @@ func (c *TopicController) GetTopics() *web.JsonResult {
 		cursor       = params.FormValueInt64Default(c.Ctx, "cursor", 0)
 		nodeId       = params.FormValueInt64Default(c.Ctx, "nodeId", 0)
 		recommend, _ = params.FormValueBool(c.Ctx, "recommend")
+		sort          = params.FormValue(c.Ctx, "sort")
 		user         = services.UserTokenService.GetCurrent(c.Ctx)
 	)
-	topics, cursor, hasMore := services.TopicService.GetTopics(nodeId, cursor, recommend)
+	topics, cursor, hasMore := services.TopicService.GetTopics(nodeId, cursor, recommend, sort)
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 
@@ -291,6 +292,7 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 		cursor       = params.FormValueInt64Default(c.Ctx, "cursor", 0)
 		nodeId, err1 = params.FormValueInt64(c.Ctx, "nodeId")
 		tagId, err2  = params.FormValueInt64(c.Ctx, "tagId")
+		sort          = params.FormValue(c.Ctx, "sort")
 		user         = services.UserTokenService.GetCurrent(c.Ctx)
 	)
 	if err1 != nil {
@@ -299,7 +301,7 @@ func (c *TopicController) PostTopicsnt() *web.JsonResult {
 	if err2 != nil {
 		return web.JsonError(err2)
 	}
-	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor)
+	topics, cursor, hasMore := services.TopicService.GetTopicsByNodeIdAndTag(tagId, nodeId, cursor, sort)
 	return web.JsonCursorData(render.BuildSimpleTopics(topics, user), strconv.FormatInt(cursor, 10), hasMore)
 }
 

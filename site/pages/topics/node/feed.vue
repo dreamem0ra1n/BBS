@@ -1,14 +1,20 @@
 <template>
   <div class="topics-main">
-    <sticky-topics :node-id="-2" />
     <load-more
-      v-if="topicsPage"
+      v-if="user && topicsPage"
       v-slot="{ results }"
       :init-data="topicsPage"
       url="/api/feed/topics"
     >
-      <topic-list :topics="results" />
+      <topic-list v-if="results.length" :topics="results" />
+      <div v-else class="feed-empty">暂无关注用户发布的帖子</div>
     </load-more>
+    <div v-else-if="!user" class="feed-empty">
+      登录后即可查看你关注的用户发布的帖子
+      <button class="button is-primary is-small" @click="$toSignin()">
+        去登录
+      </button>
+    </div>
   </div>
 </template>
 
@@ -18,7 +24,6 @@ export default {
     store.commit('env/setCurrentNodeId', -2) // 设置当前所在node
     let topicsPage
     try {
-      // TODO 这里没登陆，或者没有数据的时候页面上要显示相应的引导内容
       if (store.state.user.current) {
         topicsPage = await $axios.get('/api/feed/topics')
       }
@@ -48,4 +53,16 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.feed-empty {
+  padding: 32px 16px;
+  border-radius: 3px;
+  background: var(--bg-color);
+  color: var(--text-color3);
+  text-align: center;
+
+  .button {
+    margin-left: 10px;
+  }
+}
+</style>

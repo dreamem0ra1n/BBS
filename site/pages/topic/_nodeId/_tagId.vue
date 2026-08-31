@@ -6,13 +6,14 @@
           <div class="topics-nav"><topics-nav :nodes="nodes" /></div>
           <div class="topics-main">
             <tag-bar :node-id="node.nodeId" />
+            <topic-sort :value="sort" />
             <sticky-topics :node-id="node.nodeId" />
             <load-more
               v-if="topicsPage"
               v-slot="{ results }"
               :init-data="topicsPage"
               :url="'/api/topic/topicsnt'"
-              :params="{ nodeId: node.nodeId, tagId: tag.tagId }"
+              :params="{ nodeId: node.nodeId, tagId: tag.tagId, sort }"
               :method="'POST'"
             >
               <topic-list :topics="results" />
@@ -32,9 +33,10 @@
 
 <script>
 export default {
-  async asyncData({ $axios, params, store }) {
+  async asyncData({ $axios, params, store, query }) {
     const nodeId = parseInt(params.nodeId)
     const tagId = parseInt(params.tagId)
+    const sort = query.sort === 'create' ? 'create' : 'comment'
     store.commit('env/setCurrentNodeId', +nodeId) // 设置当前所在node
     store.commit('env/setCurrentTag', +tagId)
     const [node, topicsPage, tag, scoreRank, links, nodes] = await Promise.all([
@@ -43,6 +45,7 @@ export default {
         cursor: 0,
         nodeId,
         tagId,
+        sort,
       }),
       $axios.get('/api/tag/' + tagId),
       $axios.get('/api/user/score/rank'),
@@ -56,6 +59,7 @@ export default {
       scoreRank,
       links,
       nodes,
+      sort,
     }
   },
   head() {
@@ -71,6 +75,7 @@ export default {
       ],
     }
   },
+  watchQuery: ['sort'],
 }
 </script>
 
