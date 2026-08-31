@@ -67,7 +67,11 @@ func (s *birthdayService) sendNotice(user *model.User, now time.Time) error {
 	content := fmt.Sprintf("亲爱的潮人 %s ：今天是你%d岁的生日，求是潮BBS祝你生日快乐！愿你永远有大步向前的勇气，永远有一颗真诚的心，也祝你学习进步，工作顺利。但更重要的是，我们希望你身体健康，无忧无虑。浪潮不息，求是潮BBS永远是你的港湾，每朵浪花我们都记念于心^_^", user.Nickname, age)
 	var blessing *model.BirthdayBlessing
 	if user.BirthdayBlessingEnabled && SysConfigService.IsBirthdayRandomBlessingEnabled() {
-		blessing = BirthdayBlessingService.RandomForUser(user.Id, user.Department)
+		blessing = BirthdayBlessingService.RandomForUser(
+			user.Id,
+			user.Department,
+			user.BirthdayBlessingPreferSameDepartment,
+		)
 		if blessing != nil {
 			content += fmt.Sprintf("\n\n来自潮人 %s 的留言：%s", blessing.Nickname, blessing.Content)
 		}

@@ -91,6 +91,7 @@ func BuildUserProfile(user *model.User) *model.UserProfile {
 		Wechat:                        user.Wechat,
 		Qq:                            user.Qq,
 		BirthdayBlessingEnabled:       user.BirthdayBlessingEnabled,
+		BirthdayBlessingPreferSameDepartment: user.BirthdayBlessingPreferSameDepartment,
 		BirthdayBlessingNotifyEnabled: user.BirthdayBlessingNotifyEnabled,
 	}
 	return ret

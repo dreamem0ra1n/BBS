@@ -42,7 +42,7 @@ func (s *birthdayBlessingService) Random(department string) *model.BirthdayBless
 	return &items[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(items))]
 }
 
-func (s *birthdayBlessingService) RandomForUser(userId int64, department string) *model.BirthdayBlessing {
+func (s *birthdayBlessingService) RandomForUser(userId int64, department string, preferSameDepartment bool) *model.BirthdayBlessing {
 	items := repositories.BirthdayBlessingRepository.Find(sqls.DB(), sqls.NewCnd())
 	if len(items) == 0 {
 		return nil
@@ -62,14 +62,17 @@ func (s *birthdayBlessingService) RandomForUser(userId int64, department string)
 	if len(available) == 0 {
 		return nil
 	}
-	departmentItems := make([]model.BirthdayBlessing, 0, len(available))
-	for _, item := range available {
-		if item.Department == department {
-			departmentItems = append(departmentItems, item)
+	normalizedDepartment := strings.TrimSpace(department)
+	if preferSameDepartment && normalizedDepartment != "" {
+		departmentItems := make([]model.BirthdayBlessing, 0, len(available))
+		for _, item := range available {
+			if strings.TrimSpace(item.Department) == normalizedDepartment {
+				departmentItems = append(departmentItems, item)
+			}
 		}
-	}
-	if len(departmentItems) > 0 {
-		available = departmentItems
+		if len(departmentItems) > 0 {
+			available = departmentItems
+		}
 	}
 	return &available[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(available))]
 }

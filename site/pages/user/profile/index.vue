@@ -235,6 +235,7 @@ export default {
         major: '',
         birthday: '',
         birthdayBlessingEnabled: false,
+        birthdayBlessingPreferSameDepartment: false,
         birthdayBlessingNotifyEnabled: false,
         birthdayBlessingNotifyAvailable: false,
         mobile: '',

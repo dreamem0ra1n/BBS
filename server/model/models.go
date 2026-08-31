@@ -26,6 +26,7 @@ type User struct {
 	Major                         string         `gorm:"size:64;" json:"major" form:"major"`                               // 专业
 	Birthday                      string         `gorm:"size:32;" json:"birthday" form:"birthday"`
 	BirthdayBlessingEnabled       bool           `gorm:"not null;default:false" json:"birthdayBlessingEnabled" form:"birthdayBlessingEnabled"`
+	BirthdayBlessingPreferSameDepartment bool    `gorm:"not null;default:false" json:"birthdayBlessingPreferSameDepartment" form:"birthdayBlessingPreferSameDepartment"`
 	BirthdayBlessingNotifyEnabled bool           `gorm:"not null;default:false" json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`
 	BirthdayYearSent              int            `gorm:"not null;default:0" json:"-" form:"-"`
 	Department                    string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门

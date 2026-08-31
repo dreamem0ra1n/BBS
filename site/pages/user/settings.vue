@@ -36,6 +36,20 @@
                 </label>
               </div>
               <div
+                v-if="hasBirthday && form.birthdayBlessingEnabled"
+                class="control birthday-blessing-control"
+              >
+                <label class="notification-checkbox">
+                  <input
+                    v-model="form.birthdayBlessingPreferSameDepartment"
+                    class="notification-checkbox-input"
+                    type="checkbox"
+                  />
+                  <span class="notification-checkbox-box" aria-hidden="true" />
+                  <span>优先接收同部门</span>
+                </label>
+              </div>
+              <div
                 v-if="form.birthdayBlessingNotifyAvailable"
                 class="control birthday-blessing-control"
               >
@@ -200,6 +214,7 @@ export default {
       form: {
         birthday: '',
         birthdayBlessingEnabled: false,
+        birthdayBlessingPreferSameDepartment: false,
         birthdayBlessingNotifyEnabled: false,
         birthdayBlessingNotifyAvailable: false,
       },
