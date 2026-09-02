@@ -49,6 +49,12 @@
 <script>
 export default {
   props: {
+    value: {
+      type: Array,
+      default() {
+        return []
+      },
+    },
     accept: {
       type: String,
       default: 'image/*',
@@ -115,6 +121,15 @@ export default {
           this.previewFiles.map((item) => {
             item.progress = 100
           }) // 增加 deleted progress 属性
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
+    value: {
+      handler(value) {
+        if (value !== this.fileList) {
+          this.fileList = value ? [...value] : []
         }
       },
       deep: true,

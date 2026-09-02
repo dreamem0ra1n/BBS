@@ -10,6 +10,7 @@ var Models = []interface{}{
 	&TopicTag{}, &UserLike{}, &Message{}, &SysConfig{}, &Link{}, &ThirdAccount{},
 	&UserScoreLog{}, &TopicGift{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &UserFollow{}, &UserFeed{},
 	&UserNotificationSetting{}, &BirthdayBlessing{}, &BirthdayBlessingHistory{},
+	&FileRecord{},
 }
 
 type Model struct {
@@ -353,8 +354,16 @@ type UserFeed struct {
 // 文件存储记录
 type FileRecord struct {
 	Model
-	FileName   string `gorm:"not null;" json:"file_name" form:"file_name"`
-	FileUUID   string `gorm:"not null;unique" json:"file_id" form:"file_id"`
-	FileSize   int64  `gorm:"not null;" json:"file_size" form:"file_size"`
-	BucketName string `gorm:"not null;" json:"bucket_name" form:"bucket_name"`
+	FileName    string `gorm:"size:256;not null;" json:"file_name" form:"file_name"`
+	FileUUID    string `gorm:"size:128;not null;unique" json:"file_id" form:"file_id"`
+	FileSize    int64  `gorm:"not null;" json:"file_size" form:"file_size"`
+	BucketName  string `gorm:"size:32;not null;" json:"bucket_name" form:"bucket_name"`
+	ObjectName  string `gorm:"size:512;default:''" json:"object_name" form:"object_name"`
+	ContentType string `gorm:"size:128;default:''" json:"content_type" form:"content_type"`
+	UserId      int64  `gorm:"index:idx_file_user_id;not null;default:0" json:"user_id" form:"user_id"`
+	TopicId     int64  `gorm:"index:idx_file_topic_id;not null;default:0" json:"topic_id" form:"topic_id"`
+	CommentId   int64  `gorm:"index:idx_file_comment_id;not null;default:0" json:"comment_id" form:"comment_id"`
+	SourceType  string `gorm:"size:32;index:idx_file_source_type;not null;default:unattached" json:"source_type" form:"source_type"`
+	Managed     bool   `gorm:"index:idx_file_managed;not null;default:false" json:"managed" form:"managed"`
+	CreateTime  int64  `gorm:"index:idx_file_create_time;not null;default:0" json:"create_time" form:"create_time"`
 }

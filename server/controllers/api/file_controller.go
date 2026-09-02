@@ -9,7 +9,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "image/png"
@@ -86,7 +89,7 @@ func (c *FileController) PostUpload() *web.JsonResult {
 		return web.JsonErrorMsg("文件不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
 	}
 
-	newFile, err := putFile(file, info.Filename, fileSize)
+	newFile, err := putFile(file, info.Filename, fileSize, user.Id)
 
 	if err != nil {
 		logrus.Error("error happen when upload files: ", err)
@@ -112,18 +115,29 @@ func (c *FileController) PostUploadImg() *web.JsonResult {
 		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
 	}
 
-	record, err := putFile(file, header.Filename, header.Size)
+	sourceType := strings.TrimSpace(c.Ctx.FormValue("source"))
+	record, err := putFile(file, header.Filename, header.Size, user.Id, sourceType)
 	if err != nil {
 		return web.JsonError(err)
 	}
 
 	host := config.Instance.BaseUrl
-	url := fmt.Sprintf("%s/api/file/download/%s#", host, record.FileUUID)
+	url := fmt.Sprintf("%s/api/file/preview/%s#", host, record.FileUUID)
 
 	return web.NewEmptyRspBuilder().Put("url", url).JsonResult()
 }
 
 func (c *FileController) GetDownloadBy(fileId string) {
+	c.serveFile(fileId, false)
+}
+
+// GetPreviewBy serves a file inline so browsers and the MinIO-style admin
+// file list can preview images and other browser-supported formats.
+func (c *FileController) GetPreviewBy(fileId string) {
+	c.serveFile(fileId, true)
+}
+
+func (c *FileController) serveFile(fileId string, inline bool) {
 
 	if fileId == "" {
 		logrus.Error("empty fileId!")
@@ -131,21 +145,46 @@ func (c *FileController) GetDownloadBy(fileId string) {
 		return
 	}
 
-	object, fileName, err := getFile(fileId)
+	object, fileRecord, err := getFile(fileId)
 	if err != nil {
 		c.Ctx.StatusCode(400)
 		return
 	}
 
-	c.Ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
-	c.Ctx.ServeContent(object, fileName, time.Now())
+	if inline {
+		c.Ctx.Header("Content-Type", previewContentType(fileRecord))
+		c.Ctx.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", fileRecord.FileName))
+	} else {
+		c.Ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileRecord.FileName))
+	}
+	c.Ctx.ServeContent(object, fileRecord.FileName, time.Now())
 	object.Close()
 }
 
-func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord, error) {
+func putFile(file io.Reader, fineName string, fileSize int64, userId int64, sourceTypes ...string) (*model.FileRecord, error) {
+	sourceType := "unattached"
+	if len(sourceTypes) > 0 {
+		switch sourceTypes[0] {
+		case "avatar", "background", "node_logo", "link_logo":
+			sourceType = sourceTypes[0]
+		}
+	}
 	fileUUID := uuid.New().String()
+	ext := strings.ToLower(filepath.Ext(fineName))
+	if len(ext) > 16 {
+		ext = ""
+	}
+	contentType := mime.TypeByExtension(ext)
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+	prefix := "file"
+	if strings.HasPrefix(contentType, "image/") {
+		prefix = "image"
+	}
+	objectName := prefix + "/" + time.Now().Format("2006/0102") + "/" + fileUUID + ext
 
-	bytes, err := globalMinioClient.PutObject(bucketName, fileUUID, file, fileSize, minio.PutObjectOptions{ContentType: "application/octet-stream"})
+	bytes, err := globalMinioClient.PutObject(bucketName, objectName, file, fileSize, minio.PutObjectOptions{ContentType: contentType})
 
 	if err != nil {
 		logrus.Errorf("error happen when put object to minio: %s", err)
@@ -155,10 +194,16 @@ func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord
 	logrus.Infof("finish put object with %d bytes to minio", bytes)
 
 	newFile := &model.FileRecord{
-		FileName:   fineName,
-		FileUUID:   fileUUID,
-		FileSize:   fileSize,
-		BucketName: bucketName,
+		FileName:    fineName,
+		FileUUID:    fileUUID,
+		FileSize:    fileSize,
+		BucketName:  bucketName,
+		ObjectName:  objectName,
+		ContentType: contentType,
+		UserId:      userId,
+		SourceType:  sourceType,
+		Managed:     true,
+		CreateTime:  time.Now().UnixMilli(),
 	}
 
 	err = services.FileService.CreateRecord(newFile)
@@ -169,24 +214,54 @@ func putFile(file io.Reader, fineName string, fileSize int64) (*model.FileRecord
 	return newFile, err
 }
 
-func getFile(fileId string) (*minio.Object, string, error) {
+func getFile(fileId string) (*minio.Object, *model.FileRecord, error) {
 	fileRecord := repositories.FileRepository.GetByUUID(sqls.DB(), fileId)
 
 	if fileRecord == nil {
 		logrus.Error("no such file")
-		return nil, "", errors.New("no such file")
+		return nil, nil, errors.New("no such file")
 	}
 
 	object, err := globalMinioClient.GetObject(
 		fileRecord.BucketName,
-		fileRecord.FileUUID,
+		objectName(fileRecord),
 		minio.GetObjectOptions{},
 	)
 
 	if err != nil {
 		logrus.Error(fmt.Sprintf("error happen when get object from minio: %s", err))
-		return nil, "", errors.New("error happen when get object from minio")
+		return nil, nil, errors.New("error happen when get object from minio")
 	}
 
-	return object, fileRecord.FileName, nil
+	return object, fileRecord, nil
+}
+
+func objectName(fileRecord *model.FileRecord) string {
+	if fileRecord.ObjectName != "" {
+		return fileRecord.ObjectName
+	}
+	// Records created before object names were introduced used the UUID as key.
+	return fileRecord.FileUUID
+}
+
+func previewContentType(fileRecord *model.FileRecord) string {
+	if fileRecord.ContentType != "" {
+		return fileRecord.ContentType
+	}
+	contentType := mime.TypeByExtension(filepath.Ext(fileRecord.FileName))
+	if contentType == "" {
+		return "application/octet-stream"
+	}
+	return contentType
+}
+
+func deleteObject(fileRecord *model.FileRecord) error {
+	return globalMinioClient.RemoveObject(fileRecord.BucketName, objectName(fileRecord))
+}
+
+func RemoveObject(bucket, object, fallback string) error {
+	if object == "" {
+		object = fallback
+	}
+	return globalMinioClient.RemoveObject(bucket, object)
 }

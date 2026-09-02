@@ -96,6 +96,14 @@ CREATE TABLE `t_file_record`
     `file_uuid`   varchar(128)  NOT NULL,
     `file_size`   bigint(20)    NOT NULL,
     `bucket_name` varchar(32)   NOT NULL,
+    `object_name` varchar(512)  NOT NULL DEFAULT '',
+    `content_type` varchar(128) NOT NULL DEFAULT '',
+    `user_id`      bigint(20)   NOT NULL DEFAULT '0',
+    `topic_id`     bigint(20)   NOT NULL DEFAULT '0',
+    `comment_id`   bigint(20)   NOT NULL DEFAULT '0',
+    `source_type`  varchar(32)  NOT NULL DEFAULT 'unattached',
+    `managed`      tinyint(1)   NOT NULL DEFAULT '0',
+    `create_time`  bigint(20)   NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE KEY `file_uuid` (`file_uuid`)
 ) ENGINE = InnoDB
@@ -263,6 +271,14 @@ CREATE TABLE `t_file_record`
     `file_uuid`   varchar(128)  NOT NULL,
     `file_size`   bigint(20)    NOT NULL,
     `bucket_name` varchar(32)   NOT NULL,
+    `object_name` varchar(512)  NOT NULL DEFAULT '',
+    `content_type` varchar(128) NOT NULL DEFAULT '',
+    `user_id`      bigint(20)   NOT NULL DEFAULT '0',
+    `topic_id`     bigint(20)   NOT NULL DEFAULT '0',
+    `comment_id`   bigint(20)   NOT NULL DEFAULT '0',
+    `source_type`  varchar(32)  NOT NULL DEFAULT 'unattached',
+    `managed`      tinyint(1)   NOT NULL DEFAULT '0',
+    `create_time`  bigint(20)   NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
     UNIQUE KEY `file_uuid` (`file_uuid`)
 ) ENGINE = InnoDB

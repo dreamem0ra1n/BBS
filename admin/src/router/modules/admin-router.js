@@ -47,6 +47,15 @@ const adminRouter = [
           icon: "iconfont icon-article",
         },
       },
+      {
+        name: "Files",
+        path: "files",
+        component: () => import("@/views/pages/files/index"),
+        meta: {
+          title: "文件",
+          icon: "el-icon-document",
+        },
+      },
     ],
   },
   {

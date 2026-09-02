@@ -94,6 +94,11 @@ data: {
 		"file_id":   fileUUID,
 		"file_size":   fileSize,
 		"bucket_name": bucketName,
+		"object_name": objectName,
+		"content_type": contentType,
+		"user_id": userId,
+		"topic_id": 0,
+		"source_type": "unattached",
 }
 ```
 
@@ -102,6 +107,8 @@ data: {
 `[GET]` `/api/file/download/{file_id}`
 
 resp: file
+
+图片上传接口返回 `/api/file/preview/{file_id}`，可直接在浏览器内联预览；文件记录会在发帖或编辑时自动关联帖子，未被引用的记录来源为 `unattached`。
 
 ## OLD-BBS 兼容性修改
 

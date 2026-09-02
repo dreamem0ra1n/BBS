@@ -93,7 +93,7 @@
           <el-input v-model="addForm.summary" :autosize="{ minRows: 2, maxRows: 4 }" />
         </el-form-item>
         <el-form-item label="Logo">
-          <upload v-model="addForm.logo" />
+          <upload v-model="addForm.logo" source="link_logo" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -115,7 +115,7 @@
           <el-input v-model="editForm.summary" :autosize="{ minRows: 2, maxRows: 4 }" />
         </el-form-item>
         <el-form-item label="Logo">
-          <upload v-model="editForm.logo" />
+          <upload v-model="editForm.logo" source="link_logo" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="editForm.status" placeholder="请选择">

@@ -78,7 +78,7 @@
           <el-input v-model="addForm.name" />
         </el-form-item>
         <el-form-item label="图标">
-          <upload v-model="addForm.logo" />
+          <upload v-model="addForm.logo" source="node_logo" />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="addForm.description" type="textarea" auto-complete="off" />
@@ -105,7 +105,7 @@
           <el-input v-model="editForm.name" />
         </el-form-item>
         <el-form-item label="图标">
-          <upload v-model="editForm.logo" />
+          <upload v-model="editForm.logo" source="node_logo" />
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="editForm.description" type="textarea" auto-complete="off" />

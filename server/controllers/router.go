@@ -101,6 +101,7 @@ func Router() {
 		m.Party("/link").Handle(new(admin.LinkController))
 		m.Party("/user-score-log").Handle(new(admin.UserScoreLogController))
 		m.Party("/operate-log").Handle(new(admin.OperateLogController))
+		m.Party("/file").Handle(new(admin.FileController))
 	})
 
 	app.Get("/api/img/proxy", func(i iris.Context) {

@@ -177,6 +177,9 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 		return nil
 	})
 	if err == nil {
+		if bindErr := FileService.BindTopicFiles(topic.Id, userId, form.Content, form.ImageList); bindErr != nil {
+			logrus.Error("error associating uploaded files with topic: ", bindErr)
+		}
 		// 用户话题计数
 		UserService.IncrTopicCount(userId)
 		// 获得积分
@@ -230,6 +233,13 @@ func (s *topicService) Edit(topicId, editorUserId, nodeId int64, tags []string, 
 		return nil
 	})
 
+	if err == nil {
+		if topic := s.Get(topicId); topic != nil {
+			if bindErr := FileService.BindTopicFiles(topicId, topic.UserId, content, nil); bindErr != nil {
+				logrus.Error("error associating uploaded files with edited topic: ", bindErr)
+			}
+		}
+	}
 	return web.FromError(err)
 }
 

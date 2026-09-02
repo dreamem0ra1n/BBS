@@ -145,12 +145,21 @@ func (s *commentService) Edit(commentId, editorUserId int64, content string, ima
 		}
 	}
 
-	return repositories.CommentRepository.Updates(sqls.DB(), commentId, map[string]interface{}{
+	if err := repositories.CommentRepository.Updates(sqls.DB(), commentId, map[string]interface{}{
 		"content":           content,
 		"image_list":        imageListStr,
 		"last_edit_user_id": editorUserId,
 		"last_edit_time":    dates.NowTimestamp(),
-	})
+	}); err != nil {
+		return err
+	}
+	comment := s.Get(commentId)
+	if comment != nil {
+		if err := FileService.BindCommentFiles(commentId, comment.UserId, content, imageList); err != nil {
+			logrus.Error("error associating uploaded files with edited comment: ", err)
+		}
+	}
+	return nil
 }
 
 func (s *commentService) DeleteWithCounts(comment *model.Comment) error {
@@ -173,6 +182,9 @@ func (s *commentService) DeleteWithCounts(comment *model.Comment) error {
 		return nil
 	})
 	if err == nil {
+		if unbindErr := FileService.UnbindCommentFiles(comment.Id); unbindErr != nil {
+			logrus.Error("error unbinding comment files: ", unbindErr)
+		}
 		UserService.DecrCommentCount(comment.UserId)
 	}
 	return err
@@ -240,6 +252,9 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 
 	if err != nil {
 		return nil, err
+	}
+	if bindErr := FileService.BindCommentFiles(comment.Id, userId, form.Content, form.ImageList); bindErr != nil {
+		logrus.Error("error associating uploaded files with comment: ", bindErr)
 	}
 
 	// 用户跟帖计数

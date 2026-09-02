@@ -24,7 +24,7 @@ type UploadController struct {
 // 		return web.JsonErrorMsg("图片不能超过" + strconv.Itoa(constants.UploadMaxM) + "M")
 // 	}
 
-// 	record, err := putFile(header.Filename, file, header.Size)
+// 	record, err := putFile(file, header.Filename, header.Size, user.Id)
 // 	if err != nil {
 // 		return web.JsonError(err)
 // 	}

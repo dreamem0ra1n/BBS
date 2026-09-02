@@ -43,6 +43,7 @@ export default {
         const res = await compression(preFile)
         const { file } = res
         formData.append('image', file, preFile.name)
+        formData.append('source', 'avatar')
         let ret
         try {
           ret = await this.$axios.post('/api/file/upload/img', formData, {

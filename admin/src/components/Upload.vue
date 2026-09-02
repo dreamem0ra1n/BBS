@@ -6,6 +6,7 @@
     :with-credentials="true"
     :show-file-list="false"
     :headers="headers"
+    :data="uploadData"
     name="image"
     accept="image/*"
     :before-upload="startLoad"
@@ -24,6 +25,10 @@ export default {
       type: String,
       default: "",
     },
+    source: {
+      type: String,
+      default: "unattached",
+    },
   },
   data() {
     return {
@@ -39,6 +44,9 @@ export default {
       return {
         "X-User-Token": userToken || "",
       };
+    },
+    uploadData() {
+      return { source: this.source };
     },
   },
   methods: {
