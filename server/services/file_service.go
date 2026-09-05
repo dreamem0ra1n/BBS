@@ -71,6 +71,11 @@ func (s *fileService) BindTopicFiles(topicId, userId int64, content string, imag
 	return nil
 }
 
+func (s *fileService) UnbindTopicFiles(topicId int64) error {
+	return sqls.DB().Model(&model.FileRecord{}).Where("topic_id = ?", topicId).
+		Updates(map[string]interface{}{"topic_id": 0, "comment_id": 0, "source_type": "unattached"}).Error
+}
+
 func (s *fileService) BindCommentFiles(commentId, userId int64, content string, images []model.ImageDTO) error {
 	uuids := extractFileUUIDs(content, images)
 	db := sqls.DB()

@@ -89,6 +89,9 @@ func (s *topicService) Delete(topicId, deleteUserId int64, r *http.Request) erro
 	}
 	err := repositories.TopicRepository.UpdateColumn(sqls.DB(), topicId, "status", constants.StatusDeleted)
 	if err == nil {
+		if unbindErr := FileService.UnbindTopicFiles(topicId); unbindErr != nil {
+			logrus.Error("error unbinding topic files: ", unbindErr)
+		}
 		// 删掉标签文章
 		TopicTagService.DeleteByTopicId(topicId)
 		// 发送事件
@@ -105,6 +108,17 @@ func (s *topicService) Delete(topicId, deleteUserId int64, r *http.Request) erro
 func (s *topicService) Undelete(id int64) error {
 	err := repositories.TopicRepository.UpdateColumn(sqls.DB(), id, "status", constants.StatusOk)
 	if err == nil {
+		if topic := s.Get(id); topic != nil {
+			var imageList []model.ImageDTO
+			if topic.ImageList != "" {
+				if parseErr := jsons.Parse(topic.ImageList, &imageList); parseErr != nil {
+					logrus.Error("error parsing topic image list: ", parseErr)
+				}
+			}
+			if bindErr := FileService.BindTopicFiles(id, topic.UserId, topic.Content, imageList); bindErr != nil {
+				logrus.Error("error rebinding topic files: ", bindErr)
+			}
+		}
 		// 删掉标签文章
 		TopicTagService.UndeleteByTopicId(id)
 	}
