@@ -95,6 +95,8 @@
 </template>
 
 <script>
+import { CONTENT_MAX_LENGTH, contentLength } from '../../utils/content'
+
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, query, store }) {
@@ -194,8 +196,12 @@ export default {
         this.$message.error('请选择标签')
         return
       }
-      if (this.postForm.content.length > 5000) {
-        this.$message.error('字数超过5000上限')
+      if (contentLength(this.postForm.content) > CONTENT_MAX_LENGTH) {
+        this.$message.error(`字数超过${CONTENT_MAX_LENGTH}上限`)
+        return
+      }
+      if (contentLength(this.postForm.hideContent) > CONTENT_MAX_LENGTH) {
+        this.$message.error(`隐藏内容超过${CONTENT_MAX_LENGTH}上限`)
         return
       }
       this.publishing = true

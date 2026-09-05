@@ -3,6 +3,7 @@
     <textarea
       ref="textarea"
       v-model="post.content"
+      :maxlength="maxLength * 2"
       placeholder="请输入您要发表的内容 ..."
       :style="{ 'min-height': height + 'px', height: height + 'px' }"
       @input="onInput"
@@ -11,6 +12,7 @@
       @keydown.ctrl.enter="doSubmit"
       @keydown.meta.enter="doSubmit"
     ></textarea>
+    <div class="text-editor-counter">{{ contentLength }} / {{ maxLength }}</div>
     <div v-show="showImageUpload" class="text-editor-image-uploader">
       <image-upload
         ref="imageUploader"
@@ -55,6 +57,12 @@
 </template>
 
 <script>
+import {
+  CONTENT_MAX_LENGTH,
+  contentLength,
+  limitContent,
+} from '../utils/content'
+
 export default {
   props: {
     height: {
@@ -64,6 +72,10 @@ export default {
     submitText: {
       type: String,
       default: '发布',
+    },
+    maxLength: {
+      type: Number,
+      default: CONTENT_MAX_LENGTH,
     },
     value: {
       type: Object,
@@ -80,6 +92,18 @@ export default {
       post: this.value,
       showImageUpload: false, // 是否显示图片上传
       imageUploading: false, // 图片上传中
+    }
+  },
+  computed: {
+    contentLength() {
+      return contentLength(this.post.content)
+    },
+  },
+  mounted() {
+    const limited = limitContent(this.post.content, this.maxLength)
+    if (limited !== this.post.content) {
+      this.post.content = limited
+      this.$emit('input', this.post)
     }
   },
   methods: {
@@ -111,6 +135,8 @@ export default {
             '" download="' +
             fileName +
             '">点击下载附件</a>'
+          that.post.content = limitContent(that.post.content, that.maxLength)
+          that.onInput()
         })
         .catch((err) => {
           alert(err.message)
@@ -120,6 +146,7 @@ export default {
       this.$emit('submit')
     },
     onInput() {
+      this.post.content = limitContent(this.post.content, this.maxLength)
       this.$emit('input', this.post)
     },
     isOnUpload() {
@@ -188,6 +215,14 @@ export default {
 <style lang="scss" scoped>
 .text-editor {
   border: 1px solid var(--border-color);
+  .text-editor-counter {
+    padding: 3px 8px;
+    color: var(--text-color3);
+    font-size: 12px;
+    text-align: right;
+    background-color: var(--bg-color);
+  }
+
   textarea {
     width: 100%;
     font-family: inherit;

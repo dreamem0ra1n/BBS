@@ -1,6 +1,7 @@
 <template>
   <div class="bbsgoEditor">
     <v-md-editor
+      ref="editor"
       v-model="content"
       :left-toolbar="toolbars"
       :toolbar="myToolbar"
@@ -9,11 +10,12 @@
       :placeholder="placeholder"
       :disabled-menus="[]"
       mode="edit"
-      @change="change"
+      @input="handleInput"
       @upload-image="uploadImage"
       @keydown.ctrl.enter.native="submit"
       @keydown.meta.enter.native="submit"
     ></v-md-editor>
+    <div class="editor-counter">{{ contentLength }} / {{ maxLength }}</div>
     <input ref="upload" type="file" @input="uploadFile" />
   </div>
 </template>
@@ -26,6 +28,11 @@ import githubTheme from '@kangc/v-md-editor/lib/theme/github.js'
 import '@kangc/v-md-editor/lib/theme/style/github.css'
 // highlightjs
 import hljs from 'highlight.js'
+import {
+  CONTENT_MAX_LENGTH,
+  contentLength,
+  limitContent,
+} from '../utils/content'
 
 VMdEditor.use(githubTheme, {
   Hljs: hljs,
@@ -46,6 +53,10 @@ export default {
     placeholder: {
       type: String,
       default: '请输入...',
+    },
+    maxLength: {
+      type: Number,
+      default: CONTENT_MAX_LENGTH,
     },
   },
   data() {
@@ -82,6 +93,9 @@ export default {
     }
   },
   computed: {
+    contentLength() {
+      return contentLength(this.content)
+    },
     isMobile() {
       return this.$store.state.env.isMobile
     },
@@ -99,10 +113,39 @@ export default {
       return 'preview sync-scroll fullscreen'
     },
   },
+  watch: {
+    value(value) {
+      this.content = limitContent(value, this.maxLength)
+    },
+  },
   mounted() {
     _this = this
+    const limited = limitContent(this.value, this.maxLength)
+    this.content = limited
+    if (limited !== this.value) {
+      this.$emit('input', limited)
+    }
+    this.setTextareaMaxLength()
+  },
+  updated() {
+    this.setTextareaMaxLength()
   },
   methods: {
+    setTextareaMaxLength() {
+      const textarea = this.$el.querySelector('textarea')
+      if (textarea) {
+        const nativeMaxLength = this.maxLength * 2
+        textarea.maxLength = nativeMaxLength
+        textarea.setAttribute('maxlength', nativeMaxLength)
+      }
+    },
+    handleInput(value) {
+      const limited = limitContent(value, this.maxLength)
+      if (limited !== value) {
+        this.content = limited
+      }
+      this.$emit('input', limited)
+    },
     uploadFile(e) {
       const files = e.target.files
       if (files.length <= 0) {
@@ -167,9 +210,6 @@ export default {
           })
       }
     },
-    change(value, render) {
-      this.$emit('input', value)
-    },
     /**
      * 清空编辑器内容
      */
@@ -190,6 +230,14 @@ input {
   display: none;
 }
 .bbsgoEditor {
+  .editor-counter {
+    padding: 3px 8px;
+    color: var(--text-color3);
+    font-size: 12px;
+    text-align: right;
+    background-color: var(--markdown-background);
+  }
+
   .v-md-editor {
     box-shadow: none !important;
     border: 1px solid var(--border-color2);

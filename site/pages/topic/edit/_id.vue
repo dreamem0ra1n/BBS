@@ -87,6 +87,8 @@
 </template>
 
 <script>
+import { CONTENT_MAX_LENGTH, contentLength } from '../../../utils/content'
+
 export default {
   middleware: 'authenticated',
   async asyncData({ $axios, params }) {
@@ -149,11 +151,15 @@ export default {
       if (me.publishing) {
         return
       }
-      me.publishing = true
-      if (this.postForm.content.length > 5000) {
-        this.$message.error('字数超过5000上限')
+      if (contentLength(this.postForm.content) > CONTENT_MAX_LENGTH) {
+        this.$message.error(`字数超过${CONTENT_MAX_LENGTH}上限`)
         return
       }
+      if (contentLength(this.postForm.hideContent) > CONTENT_MAX_LENGTH) {
+        this.$message.error(`隐藏内容超过${CONTENT_MAX_LENGTH}上限`)
+        return
+      }
+      me.publishing = true
       try {
         const topic = await this.$axios.post(
           '/api/topic/edit/' + this.topic.topicId,

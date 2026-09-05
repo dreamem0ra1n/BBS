@@ -135,6 +135,9 @@ func (s *commentService) Edit(commentId, editorUserId int64, content string, ima
 	if strs.IsBlank(content) {
 		return errors.New("请输入评论内容")
 	}
+	if strs.RuneLen(content) > constants.ContentMaxLen {
+		return errors.New("评论内容长度不能超过5000个字符")
+	}
 
 	imageListStr := ""
 	if len(imageList) > 0 {
@@ -201,6 +204,9 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 	}
 	if strs.IsBlank(form.Content) {
 		return nil, errors.New("请输入评论内容")
+	}
+	if strs.RuneLen(form.Content) > constants.ContentMaxLen {
+		return nil, errors.New("评论内容长度不能超过5000个字符")
 	}
 	if form.EntityType == constants.EntityComment {
 		parent := s.Get(form.EntityId)

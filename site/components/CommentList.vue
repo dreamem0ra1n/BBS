@@ -367,6 +367,20 @@ export default {
           margin-top: 10px;
           margin-bottom: 0;
           color: var(--text-color);
+          max-width: 100%;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+
+          pre {
+            max-width: 100%;
+            overflow-x: auto;
+            white-space: pre;
+          }
+
+          code {
+            overflow-wrap: normal;
+            word-break: normal;
+          }
         }
         .comment-image-list {
           margin-top: 10px;

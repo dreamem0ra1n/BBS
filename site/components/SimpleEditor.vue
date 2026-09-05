@@ -11,6 +11,7 @@
     <label class="simple-editor-input">
       <textarea
         v-model="post.content"
+        :maxlength="maxWordCount * 2"
         placeholder="请输入您要发表的内容 ..."
         :style="{ 'min-height': height, height: height }"
         @input="onInput"
@@ -32,6 +33,8 @@
 </template>
 
 <script>
+import { contentLength, limitContent } from '../utils/content'
+
 export default {
   props: {
     maxWordCount: {
@@ -64,7 +67,7 @@ export default {
       return this.post.content && this.post.content.length > 0
     },
     wordCount() {
-      return this.post.content ? this.post.content.length : 0
+      return contentLength(this.post.content)
     },
     user() {
       return this.$store.state.user.current
@@ -78,6 +81,7 @@ export default {
       this.$emit('submit')
     },
     onInput() {
+      this.post.content = limitContent(this.post.content, this.maxWordCount)
       this.$emit('input', this.post)
     },
     isOnUpload() {

@@ -127,6 +127,13 @@ func (s *topicService) Undelete(id int64) error {
 
 // Publish 发表
 func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model.Topic, *web.CodeError) {
+	if strs.RuneLen(form.Content) > constants.ContentMaxLen {
+		return nil, web.NewErrorMsg("帖子内容长度不能超过5000个字符")
+	}
+	if strs.RuneLen(form.HideContent) > constants.ContentMaxLen {
+		return nil, web.NewErrorMsg("隐藏内容长度不能超过5000个字符")
+	}
+
 	if form.Type == constants.TopicTypeTweet {
 		if strs.IsBlank(form.Content) && len(form.ImageList) == 0 {
 			return nil, web.NewErrorMsg("内容或图片不能为空")
@@ -216,6 +223,13 @@ func (s *topicService) Edit(topicId, editorUserId, nodeId int64, tags []string, 
 
 	if strs.RuneLen(title) > 128 {
 		return web.NewErrorMsg("标题长度不能超过128")
+	}
+
+	if strs.RuneLen(content) > constants.ContentMaxLen {
+		return web.NewErrorMsg("帖子内容长度不能超过5000个字符")
+	}
+	if strs.RuneLen(hideContent) > constants.ContentMaxLen {
+		return web.NewErrorMsg("隐藏内容长度不能超过5000个字符")
 	}
 
 	node := repositories.TopicNodeRepository.Get(sqls.DB(), nodeId)

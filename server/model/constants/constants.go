@@ -3,6 +3,7 @@ package constants
 const (
 	DefaultTokenExpireDays       = 7   // 用户登录token默认有效期
 	SummaryLen                   = 256 // 摘要长度
+	ContentMaxLen                = 5000
 	UploadMaxM                   = 30
 	UploadMaxBytes         int64 = 1024 * 1024 * UploadMaxM
 )
