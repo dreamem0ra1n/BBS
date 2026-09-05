@@ -26,9 +26,6 @@ import (
 	"bbs-go/middleware"
 )
 
-// 10 MB
-const FileMaxSize = 10 << 20
-
 // Shared HTTP client for image proxy to avoid leaking connections.
 // Add a timeout to prevent stuck upstream requests from exhausting workers.
 var imgProxyClient = resty.New().SetTimeout(10 * time.Second)

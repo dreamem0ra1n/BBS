@@ -65,6 +65,16 @@ export default {
   router: {
     middleware: ['resetEnv', 'checkSession'],
     base: '/bbs2',
+    extendRoutes(routes) {
+      const topicRoute = routes.find((r) => r.name === 'topic-id')
+      if (topicRoute) {
+        routes.splice(routes.indexOf(topicRoute) + 1, 0, {
+          path: '/topic/:id/:page',
+          component: topicRoute.component,
+          name: 'topic-id-page',
+        })
+      }
+    },
   },
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules

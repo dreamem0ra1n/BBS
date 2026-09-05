@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/mlogclub/simple/sqls"
 	"gorm.io/gorm"
 
 	"bbs-go/model"
@@ -86,6 +87,45 @@ func (r *oldBBSService) GetTopic(id int64) *model.Topic {
 	}
 	topic := r.post2topic(post)
 	return &topic
+}
+
+func (r *oldBBSService) GetCommentsPage(topicId int64, page int, ascOrder bool) (comments []model.Comment, paging *sqls.Paging) {
+	if page < 1 {
+		page = 1
+	}
+	limit := 10
+	posts := []oldPost{}
+	comments = []model.Comment{}
+	optionalDesc := ""
+	if !ascOrder {
+		optionalDesc = " DESC"
+	}
+
+	var total int64
+	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", topicId).Where("first = 0").Count(&total)
+
+	if r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", topicId).Order("position"+optionalDesc).Where("first = 0").Limit(limit).Offset((page - 1) * limit).Find(&posts).Error != nil {
+		comments = nil
+		paging = &sqls.Paging{Page: page, Limit: limit, Total: total}
+		return
+	}
+	for _, post := range posts {
+		var cnt int64
+		r.DB.Table("qsc_bbs_forum_postcomment").Where("pid = ?", post.MsgId).Count(&cnt)
+		comments = append(comments, model.Comment{
+			Model:        model.Model{Id: post.MsgId},
+			UserId:       -1,
+			EntityType:   "topic",
+			EntityId:     topicId,
+			Author:       post.Author,
+			Content:      post.Content,
+			CommentCount: cnt,
+			CreateTime:   post.Timestamp,
+			IsOldBBS:     true,
+		})
+	}
+	paging = &sqls.Paging{Page: page, Limit: limit, Total: total}
+	return
 }
 
 func (r *oldBBSService) GetComments(_ string, TopicId int64, cursor int64, ascOrder bool) (comments []model.Comment, nextCursor int64, hasMore bool) {

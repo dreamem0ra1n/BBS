@@ -279,6 +279,7 @@
             <comment
               :entity-id="entityId"
               :comments-page="commentsPage"
+              :page="page"
               :comment-count="topic.commentCount"
               :mode="topic.type === 1 ? 'text' : 'markdown'"
               :no-comment="isOld"
@@ -308,7 +309,9 @@ export default {
     let favorited = null
     let likeUsers
     try {
-      topic = await $axios.get('/api/topic/' + params.id)
+      topic = await $axios.get('/api/topic/' + params.id, {
+        params: params.page ? { count_view: 0 } : undefined,
+      })
     } catch (e) {
       error({
         statusCode: 404,
@@ -316,11 +319,13 @@ export default {
       })
       return
     }
+    const page = parseInt(params.page) || 1
     const commentsPage = await $axios.get('/api/comment/comments', {
       params: {
         entityType: 'topic',
         entityId: params.id,
         asc_order: store.state.env.ascOrder,
+        page,
       },
     })
     if (!topic.isOldBBS) {
@@ -360,6 +365,7 @@ export default {
       liked: liked?.liked,
       likeUsers,
       entityId: params.id,
+      page,
     }
   },
   data() {
@@ -443,6 +449,13 @@ export default {
     },
     commentDeleted() {
       this.topic.commentCount = Math.max(0, this.topic.commentCount - 1)
+      if (
+        this.commentsPage &&
+        this.commentsPage.page &&
+        this.commentsPage.page.total > 0
+      ) {
+        this.commentsPage.page.total -= 1
+      }
     },
     async addFavorite(topicId) {
       if (this.topic.isOldBBS) {
@@ -598,6 +611,7 @@ export default {
             entityType: 'topic',
             entityId: this.entityId,
             asc_order: order,
+            page: this.page,
           },
         })
         .then((res) => {

@@ -24,6 +24,7 @@ func (c *CommentController) GetComments() *web.JsonResult {
 	var (
 		err         error
 		cursor      int64
+		page        int
 		entityType  string
 		entityId    int64
 		IsOldBBS    bool
@@ -31,6 +32,7 @@ func (c *CommentController) GetComments() *web.JsonResult {
 		ascOrder    bool
 	)
 	cursor = params.FormValueInt64Default(c.Ctx, "cursor", 0)
+	page = params.FormValueIntDefault(c.Ctx, "page", 0)
 	ascOrder = !(params.FormValueIntDefault(c.Ctx, "asc_order", 0) == 0)
 
 	if entityType, err = params.FormValueRequired(c.Ctx, "entityType"); err != nil {
@@ -39,6 +41,15 @@ func (c *CommentController) GetComments() *web.JsonResult {
 	entityIdStr = params.FormValue(c.Ctx, "entityId")
 	if entityId, IsOldBBS = parseIdStr(entityIdStr); entityId == -1 {
 		return web.JsonError(fmt.Errorf("bad id"))
+	}
+	if page > 0 {
+		if !IsOldBBS {
+			currentUser := services.UserTokenService.GetCurrent(c.Ctx)
+			comments, paging := services.CommentService.GetCommentsPage(entityType, entityId, page, ascOrder)
+			return web.JsonPageData(render.BuildComments(comments, currentUser, true, false), paging)
+		}
+		comments, paging := services.OldBBSService.GetCommentsPage(entityId, page, ascOrder)
+		return web.JsonPageData(render.BuildComments(comments, nil, true, false), paging)
 	}
 	if !IsOldBBS {
 		currentUser := services.UserTokenService.GetCurrent(c.Ctx)

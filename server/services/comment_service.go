@@ -282,6 +282,21 @@ func (s *commentService) onComment(tx *gorm.DB, comment *model.Comment) error {
 // 	return count
 // }
 
+func (s *commentService) GetCommentsPage(entityType string, entityId int64, page int, ascOrder bool) ([]model.Comment, *sqls.Paging) {
+	if page < 1 {
+		page = 1
+	}
+	cnd := sqls.NewCnd().Eq("entity_type", entityType).Eq("entity_id", entityId).
+		Where("(status = ? or (status = ? and comment_count > 0))", constants.StatusOk, constants.StatusDeleted).
+		Page(page, 10)
+	if ascOrder {
+		cnd.Asc("id")
+	} else {
+		cnd.Desc("id")
+	}
+	return s.FindPageByCnd(cnd)
+}
+
 // GetComments 列表
 func (s *commentService) GetComments(entityType string, entityId int64, cursor int64, ascOrder bool) (comments []model.Comment, nextCursor int64, hasMore bool) {
 	limit := 20

@@ -199,7 +199,8 @@ func (c *TopicController) GetBy(topicIdStr string) *web.JsonResult {
 	}
 
 	if model.UserCanAccessTopic(user, topic) || (user != nil && topic.UserId == user.Id) {
-		if !isOld {
+		countView := params.FormValueIntDefault(c.Ctx, "count_view", 1) != 0
+		if !isOld && countView {
 			services.TopicService.IncrViewCount(topicId) // 增加浏览量
 		}
 		return web.JsonData(render.BuildTopic(user, topic))

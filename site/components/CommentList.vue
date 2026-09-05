@@ -1,144 +1,128 @@
 <template>
   <div class="comments">
-    <load-more
-      v-if="commentsPage"
-      ref="commentsLoadMore"
-      v-slot="{ results }"
-      :init-data="commentsPage"
-      :params="{
-        entityType: entityType,
-        entityId: entityId,
-        asc_order: ascOrder,
-      }"
-      url="/api/comment/comments"
+    <div
+      v-for="comment in commentResults"
+      :id="commentAnchorId(comment.commentId)"
+      :key="comment.commentId"
+      class="comment"
     >
-      <div
-        v-for="comment in results"
-        :id="commentAnchorId(comment.commentId)"
-        :key="comment.commentId"
-        class="comment"
-      >
-        <div class="comment-item-left">
-          <avatar :user="comment.user" size="40" round has-border />
+      <div class="comment-item-left">
+        <avatar :user="comment.user" size="40" round has-border />
+      </div>
+      <div class="comment-item-main">
+        <div class="comment-meta">
+          <nuxt-link :to="'/user/' + comment.user.id" class="comment-nickname">
+            {{ comment.user.nickname }}
+          </nuxt-link>
+          <time
+            class="comment-time"
+            :datetime="
+              (comment.isOldBBS
+                ? comment.createTime * 1000
+                : comment.createTime) | formatDate('yyyy-MM-ddTHH:mm:ss')
+            "
+            >{{
+              (comment.isOldBBS
+                ? comment.createTime * 1000
+                : comment.createTime) | prettyDate
+            }}</time
+          >
         </div>
-        <div class="comment-item-main">
-          <div class="comment-meta">
-            <nuxt-link
-              :to="'/user/' + comment.user.id"
-              class="comment-nickname"
-            >
-              {{ comment.user.nickname }}
-            </nuxt-link>
-            <time
-              class="comment-time"
-              :datetime="
-                (comment.isOldBBS
-                  ? comment.createTime * 1000
-                  : comment.createTime) | formatDate('yyyy-MM-ddTHH:mm:ss')
-              "
-              >{{
-                (comment.isOldBBS
-                  ? comment.createTime * 1000
-                  : comment.createTime) | prettyDate
-              }}</time
-            >
-          </div>
+        <div
+          v-viewer
+          v-lazy-container="{ selector: 'img' }"
+          class="comment-content-wrapper"
+        >
           <div
-            v-viewer
-            v-lazy-container="{ selector: 'img' }"
-            class="comment-content-wrapper"
-          >
-            <div
-              v-if="comment.content"
-              class="comment-content content"
-              v-html="comment.content.replace(/\n/gm, '<br>')"
-            ></div>
-            <div
-              v-if="comment.imageList && comment.imageList.length"
-              class="comment-image-list"
-            >
-              <img
-                v-for="(image, imageIndex) in comment.imageList"
-                :key="imageIndex"
-                :data-src="image.url"
-              />
-            </div>
-          </div>
+            v-if="comment.content"
+            class="comment-content content"
+            v-html="comment.content.replace(/\n/gm, '<br>')"
+          ></div>
           <div
-            v-if="comment.lastEditUser && comment.lastEditTime"
-            class="comment-edit-record"
+            v-if="comment.imageList && comment.imageList.length"
+            class="comment-image-list"
           >
-            该帖由
-            <nuxt-link :to="'/user/' + comment.lastEditUser.id">
-              {{ comment.lastEditUser.nickname }}
-            </nuxt-link>
-            于 {{ comment.lastEditTime | formatDate }} 编辑
-          </div>
-          <div class="comment-actions">
-            <div
-              v-if="comment.status === 0"
-              class="comment-action-item"
-              :class="{ active: comment.liked }"
-              @click="like(comment)"
-            >
-              <i class="iconfont icon-like"></i>
-              <span>{{ comment.liked ? '已赞' : '点赞' }}</span>
-              <span v-if="comment.likeCount > 0">{{ comment.likeCount }}</span>
-            </div>
-            <div
-              v-if="comment.status === 0"
-              class="comment-action-item"
-              :class="{ active: reply.commentId === comment.commentId }"
-              @click="switchShowReply(comment)"
-            >
-              <i class="iconfont icon-comment"></i>
-              <span>{{
-                reply.commentId === comment.commentId ? '取消评论' : '评论'
-              }}</span>
-            </div>
-            <div
-              v-if="comment.canEdit"
-              class="comment-action-item"
-              @click="editComment(comment)"
-            >
-              <i class="iconfont icon-edit"></i>
-              <span>编辑</span>
-            </div>
-            <div
-              v-if="comment.canDelete"
-              class="comment-action-item"
-              @click="deleteComment(comment)"
-            >
-              <i class="iconfont icon-delete"></i>
-              <span>删除</span>
-            </div>
-          </div>
-          <div
-            v-if="reply.commentId === comment.commentId"
-            class="comment-reply-form"
-          >
-            <text-editor
-              :ref="`editor${comment.commentId}`"
-              v-model="reply.value"
-              :height="100"
-              @submit="submitReply(comment)"
+            <img
+              v-for="(image, imageIndex) in comment.imageList"
+              :key="imageIndex"
+              :data-src="image.url"
             />
           </div>
-          <sub-comment-list
-            v-if="
-              comment.replies &&
-              comment.replies.results &&
-              comment.replies.results.length
-            "
-            :key="getNewKey()"
-            :comment-id="comment.commentId"
-            :data="comment.replies"
-            @reply="onReply(comment, $event)"
-            @deleted="replyDeleted(comment)"
+        </div>
+        <div
+          v-if="comment.lastEditUser && comment.lastEditTime"
+          class="comment-edit-record"
+        >
+          该帖由
+          <nuxt-link :to="'/user/' + comment.lastEditUser.id">
+            {{ comment.lastEditUser.nickname }}
+          </nuxt-link>
+          于 {{ comment.lastEditTime | formatDate }} 编辑
+        </div>
+        <div class="comment-actions">
+          <div
+            v-if="comment.status === 0"
+            class="comment-action-item"
+            :class="{ active: comment.liked }"
+            @click="like(comment)"
+          >
+            <i class="iconfont icon-like"></i>
+            <span>{{ comment.liked ? '已赞' : '点赞' }}</span>
+            <span v-if="comment.likeCount > 0">{{ comment.likeCount }}</span>
+          </div>
+          <div
+            v-if="comment.status === 0"
+            class="comment-action-item"
+            :class="{ active: reply.commentId === comment.commentId }"
+            @click="switchShowReply(comment)"
+          >
+            <i class="iconfont icon-comment"></i>
+            <span>{{
+              reply.commentId === comment.commentId ? '取消评论' : '评论'
+            }}</span>
+          </div>
+          <div
+            v-if="comment.canEdit"
+            class="comment-action-item"
+            @click="editComment(comment)"
+          >
+            <i class="iconfont icon-edit"></i>
+            <span>编辑</span>
+          </div>
+          <div
+            v-if="comment.canDelete"
+            class="comment-action-item"
+            @click="deleteComment(comment)"
+          >
+            <i class="iconfont icon-delete"></i>
+            <span>删除</span>
+          </div>
+        </div>
+        <div
+          v-if="reply.commentId === comment.commentId"
+          class="comment-reply-form"
+        >
+          <text-editor
+            :ref="`editor${comment.commentId}`"
+            v-model="reply.value"
+            :height="100"
+            @submit="submitReply(comment)"
           />
         </div>
+        <sub-comment-list
+          v-if="
+            comment.replies &&
+            comment.replies.results &&
+            comment.replies.results.length
+          "
+          :key="getNewKey()"
+          :comment-id="comment.commentId"
+          :data="comment.replies"
+          @reply="onReply(comment, $event)"
+          @deleted="replyDeleted(comment)"
+        />
       </div>
-    </load-more>
+    </div>
     <comment-edit-dialog
       :visible.sync="editVisible"
       :comment="editingComment"
@@ -172,6 +156,7 @@ export default {
   },
   data() {
     return {
+      commentResults: [],
       showReplyCommentId: 0,
       editVisible: false,
       editingComment: null,
@@ -196,6 +181,14 @@ export default {
       return this.$store.state.env.ascOrder
     },
   },
+  watch: {
+    commentsPage: {
+      immediate: true,
+      handler(value) {
+        this.commentResults = ((value && value.results) || []).slice()
+      },
+    },
+  },
   mounted() {
     this.scrollToHashComment()
   },
@@ -214,24 +207,16 @@ export default {
       }
 
       const targetId = this.commentAnchorId(match[1])
-      const loadMore = this.$refs.commentsLoadMore
-      for (let attempt = 0; attempt < 100; attempt++) {
-        await this.$nextTick()
-        const target = document.getElementById(targetId)
-        if (target) {
-          this.hashScrolled = true
-          target.scrollIntoView({ block: 'center' })
-          return
-        }
-        if (!loadMore || !loadMore.hasMore || loadMore.loading) {
-          return
-        }
-        await loadMore.loadMore()
+      await this.$nextTick()
+      const target = document.getElementById(targetId)
+      if (target) {
+        this.hashScrolled = true
+        target.scrollIntoView({ block: 'center' })
       }
     },
     append(data) {
       if (data) {
-        this.$refs.commentsLoadMore.unshiftResults(data)
+        this.commentResults.unshift(data)
       }
     },
     editComment(comment) {
@@ -252,7 +237,8 @@ export default {
           comment.canEdit = false
           comment.canDelete = false
         } else {
-          this.$refs.commentsLoadMore.removeResult(comment)
+          const index = this.commentResults.indexOf(comment)
+          if (index !== -1) this.commentResults.splice(index, 1)
         }
         this.$emit('deleted')
         this.$message.success('删除成功')

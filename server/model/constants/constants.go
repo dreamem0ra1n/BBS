@@ -4,7 +4,7 @@ const (
 	DefaultTokenExpireDays       = 7   // 用户登录token默认有效期
 	SummaryLen                   = 256 // 摘要长度
 	UploadMaxM                   = 30
-	UploadMaxBytes         int64 = 1024 * 1024 * 1024 * UploadMaxM
+	UploadMaxBytes         int64 = 1024 * 1024 * UploadMaxM
 )
 
 // 系统配置
