@@ -272,8 +272,8 @@ export default {
   }, */
   mounted() {
     this.today = this.formatDate(new Date())
+    this.user = { ...(this.$store.state.user.current || {}) }
     this.reload()
-    this.user = this.$store.state.user.current
   },
   methods: {
     async submitForm() {
@@ -296,6 +296,7 @@ export default {
       }
     },
     onAvatarUpdateSuccess() {
+      this.$store.commit('user/setCurrent', { ...this.user })
       this.$message.success('头像更新成功')
     },
     onAvatarUpdateError(e) {
@@ -326,7 +327,7 @@ export default {
       const _user = await this.$axios.get('/api/user/current')
       if (_user) {
         this.$store.commit('user/setCurrent', _user)
-        this.user = _user
+        this.user = { ..._user }
         this.form = { ..._user }
         this.originalBirthday = _user.birthday || ''
         this.birthdayInput = this.isValidBirthday(this.originalBirthday)
