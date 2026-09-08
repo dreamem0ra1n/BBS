@@ -66,6 +66,7 @@ func Router() {
 		// m.Party("/article").Handle(new(api.ArticleController))
 		api.RegisterLoginProviders(m.Party("/login"))
 		m.Party("/user").Handle(new(api.UserController))
+		api.RegisterPresence(m.Party("/presence"))
 		m.Party("/tag").Handle(new(api.TagController))
 		m.Party("/comment").Handle(new(api.CommentController))
 		m.Party("/favorite").Handle(new(api.FavoriteController))
@@ -80,6 +81,7 @@ func Router() {
 		m.Party("/feed").Handle(new(api.FeedController))
 		m.Party("/file").Handle(new(api.FileController))
 	})
+	app.Get("/api/ws/presence", api.PresenceWebSocket)
 
 	// admin
 	mvc.Configure(app.Party("/api/admin"), func(m *mvc.Application) {

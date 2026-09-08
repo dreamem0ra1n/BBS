@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/kataras/iris/v12"
 	"github.com/mlogclub/simple/common/strs"
@@ -86,6 +87,10 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	// nickname := strings.TrimSpace(params.FormValue(c.Ctx, "nickname"))
 	homePage := params.FormValue(c.Ctx, "homePage")
 	description := params.FormValue(c.Ctx, "description")
+	greeting := strings.TrimSpace(params.FormValue(c.Ctx, "greeting"))
+	if utf8.RuneCountInString(greeting) > 20 {
+		return web.JsonErrorMsg("问候语不能超过20个字")
+	}
 	major := params.FormValue(c.Ctx, "major")
 	birthday := params.FormValue(c.Ctx, "birthday")
 	mobile := params.FormValue(c.Ctx, "mobile")
@@ -105,6 +110,7 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	err := services.UserService.Updates(user.Id, map[string]interface{}{
 		"home_page":                        homePage,
 		"description":                      description,
+		"greeting":                         greeting,
 		"major":                            major,
 		"birthday":                         birthday,
 		"mobile":                           mobile,

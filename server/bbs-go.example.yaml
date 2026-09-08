@@ -27,3 +27,20 @@ DB:
 # 当前代码启动时要求 OldDB 可连接；没有旧库时可暂时指向主库
 OldDB:
   Url: <用户名>:<密码>@tcp(<数据库主机>:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local
+
+# 在线用户状态（不可用时在线列表自动隐藏，不影响登录和浏览）
+Redis:
+  Url: redis:6379
+  Password: ""
+  DB: 0
+
+Presence:
+  AllowedOrigins:
+    - https://www.qsc.zju.edu.cn
+  # 仅这些反向代理来源允许提供 X-Forwarded-For；请按部署网络收窄
+  TrustedProxies:
+    - 127.0.0.1/32
+    - 172.16.0.0/12
+  MaxConnections: 10000
+  MaxConnectionsPerIP: 20
+  MaxConnectionsPerUser: 5

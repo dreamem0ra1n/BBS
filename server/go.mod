@@ -15,6 +15,7 @@ require (
 	github.com/iris-contrib/middleware/cors v0.0.0-20220301201128-27fa0f6a7d7e
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/kataras/iris/v12 v12.2.0-beta4
+	github.com/mediocregopher/radix/v3 v3.8.0
 	github.com/microcosm-cc/bluemonday v1.0.19
 	github.com/mlogclub/simple v1.2.1
 	github.com/panjf2000/ants/v2 v2.4.8
@@ -66,7 +67,6 @@ require (
 	github.com/klauspost/cpuid v1.2.3 // indirect
 	github.com/mailgun/raymond/v2 v2.0.46 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mediocregopher/radix/v3 v3.8.0 // indirect
 	github.com/minio/md5-simd v1.1.0 // indirect
 	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect

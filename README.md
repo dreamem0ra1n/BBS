@@ -150,7 +150,28 @@ docker run -d \
 
 MinIO 控制台：`http://localhost:9001`。后端首次启动时会自动创建 `qscbbsbucket`。
 
-### 6. 创建本地后端配置
+### 6. 启动 Redis
+
+“当前在线”功能使用 Redis 保存短期在线状态。Redis 不可用时，后端仍可正常登录和浏览，但首页会自动隐藏“当前在线”板块。
+
+```bash
+docker run -d \
+  --name bbs-redis \
+  --network bbs-net \
+  --restart unless-stopped \
+  -v bbs-redis-data:/data \
+  redis:7-alpine \
+  redis-server --appendonly yes
+```
+
+确认 Redis 已启动：
+
+```bash
+docker ps --filter name=bbs-redis
+docker logs --tail 50 bbs-redis
+```
+
+### 7. 创建本地后端配置
 
 创建 `server/bbs-go.yaml`，内容如下：
 
@@ -182,6 +203,21 @@ DB:
 # 当前代码启动时要求 OldDB 可连接；无旧 BBS 数据库时可暂时指向主库
 OldDB:
   Url: root:bbs123456@tcp(bbs-mysql:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local
+
+Redis:
+  Url: bbs-redis:6379
+  Password: ""
+  DB: 0
+
+Presence:
+  AllowedOrigins:
+    - http://localhost:3000
+  TrustedProxies:
+    - 127.0.0.1/32
+    - 172.16.0.0/12
+  MaxConnections: 10000
+  MaxConnectionsPerIP: 20
+  MaxConnectionsPerUser: 5
 ```
 
 挂载配置前务必确认它是文件：
@@ -192,7 +228,7 @@ test -f /root/BBS/server/bbs-go.yaml
 
 如果源路径不存在，Docker 可能创建同名目录，后端会报 `read ./bbs-go.yaml: is a directory`。
 
-### 7. 构建并启动开发后端
+### 8. 构建并启动开发后端
 
 开发环境必须显式选择 `dev` target：
 
@@ -227,7 +263,7 @@ docker logs --tail 200 bbs-backend
 Now listening on: http://localhost:8082
 ```
 
-### 8. 安装并启动 Site
+### 9. 安装并启动 Site
 
 请使用 Node 22 和 Yarn 1.22.22。依赖下载证书报错时切换到 Yarn 官方 registry，不要关闭 TLS 校验：
 
@@ -242,7 +278,7 @@ yarn dev
 
 前端依赖统一使用 Yarn 和各目录中的 `yarn.lock`；不要使用 npm 重新生成 `package-lock.json`。
 
-### 9. 安装并启动 Admin
+### 10. 安装并启动 Admin
 
 另开终端：
 
@@ -258,7 +294,7 @@ yarn serve
 
 如果提示 `vue-cli-service: not found`，说明 `yarn install` 没有成功完成；不要直接运行 `yarn serve`，先解决依赖下载错误并重新安装。
 
-### 10. 本地验收
+### 11. 本地验收
 
 检查公开配置是否识别密码登录能力：
 
@@ -288,24 +324,41 @@ curl -sS -X POST \
 | Admin | `http://localhost:8080/bbsadmin/` |
 | API | `http://localhost:8082/` |
 | MinIO Console | `http://localhost:9001/` |
+| Redis | 仅在 `bbs-net` Docker 网络内提供 `bbs-redis:6379` |
 
-### 11. 本地停止与重启
+### 12. 本地停止与重启
 
 终止 `yarn dev` 和 `yarn serve` 后，停止应用容器，不删除数据卷：
 
 ```bash
-docker stop bbs-backend bbs-minio bbs-mysql
+docker stop bbs-backend bbs-redis bbs-minio bbs-mysql
 ```
 
 重新启动：
 
 ```bash
-docker start bbs-mysql bbs-minio bbs-backend
+docker start bbs-mysql bbs-minio bbs-redis bbs-backend
 ```
 
 然后再重新启动 Site 和 Admin。
 
-MySQL 和 MinIO 数据分别保存在 `bbs-mysql-data`、`bbs-minio-data` volume 中。除非确定不需要数据，不要删除这两个 volume。
+MySQL、MinIO 和 Redis 数据分别保存在 `bbs-mysql-data`、`bbs-minio-data`、`bbs-redis-data` volume 中。除非确定不需要数据，不要删除这些 volume。
+
+如果已经登录但首页没有显示“当前在线”板块，先检查 Redis 和后端日志：
+
+```bash
+docker ps --filter name=bbs-redis
+docker logs --tail 50 bbs-redis
+docker logs --tail 100 bbs-backend
+```
+
+若后端日志出现以下内容，表示 Redis 尚未运行、容器不在 `bbs-net` 网络中，或者配置中的 `Redis.Url` 不正确：
+
+```text
+Redis unavailable; online presence is disabled
+```
+
+修复后后端会定期重新连接 Redis，前端也会使用指数退避自动重连 WebSocket；通常等待最多 30 秒或刷新页面即可恢复，无需重启整个 BBS。
 
 ## 服务器部署
 
@@ -372,9 +425,17 @@ docker run -d \
   --env-file /etc/bbs-neo/minio.env \
   -v bbs-minio-data:/data \
   minio/minio server /data --console-address ":9001"
+
+docker run -d \
+  --name bbs-redis \
+  --network bbs-net \
+  --restart unless-stopped \
+  -v bbs-redis-data:/data \
+  redis:7-alpine \
+  redis-server --appendonly yes
 ```
 
-生产环境不需要用 `-p` 暴露 MySQL 和 MinIO。确需访问 MinIO 控制台时，建议使用 SSH 隧道，不要把 `9001` 直接开放到公网。
+生产环境不需要用 `-p` 暴露 MySQL、MinIO 和 Redis。确需访问 MinIO 控制台时，建议使用 SSH 隧道，不要把 `9001` 直接开放到公网。
 
 ### 4. 初始化生产数据库
 
@@ -443,6 +504,21 @@ DB:
 # 有旧 BBS 数据库时填写真实连接；没有时当前代码仍要求可连接，可暂时指向主库
 OldDB:
   Url: bbsgo:<与 mysql.env 中 MYSQL_APP_PASSWORD 一致>@tcp(bbs-mysql:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local
+
+Redis:
+  Url: bbs-redis:6379
+  Password: ""
+  DB: 0
+
+Presence:
+  AllowedOrigins:
+    - https://www.qsc.zju.edu.cn
+  TrustedProxies:
+    - 127.0.0.1/32
+    - 172.16.0.0/12
+  MaxConnections: 10000
+  MaxConnectionsPerIP: 20
+  MaxConnectionsPerUser: 5
 ```
 
 ### 6. 构建并启动生产后端
@@ -528,9 +604,20 @@ sudo cp -a /opt/bbs-neo/admin/dist/. /var/www/html/bbsadmin/
 在 `www.qsc.zju.edu.cn` 的 HTTPS `server` 块中加入：
 
 ```nginx
+# 在 nginx.conf 的 http 块中配置一次：
+# map $http_upgrade $connection_upgrade {
+#     default upgrade;
+#     '' close;
+# }
+
 location ^~ /bbs2/api/ {
     rewrite ^/bbs2/api/(.*)$ /api/$1 break;
     proxy_pass http://127.0.0.1:8082;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_read_timeout 120s;
+    proxy_send_timeout 120s;
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

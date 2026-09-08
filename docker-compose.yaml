@@ -1,4 +1,13 @@
 services:
+  bbs-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - bbs_redis_data:/data
+    networks:
+      - default
+    restart: unless-stopped
+
   bbs_admin:
     image: bbs_neo_admin
     ports:
@@ -44,6 +53,8 @@ services:
       - source: bbs_neo_config
         target: /bbs-go.yaml
         mode: 0440
+    depends_on:
+      - bbs-redis
     deploy:
       replicas: 2
       restart_policy:
@@ -55,6 +66,8 @@ services:
         - "traefik.docker.network=traefik_net"
         - "traefik.backend=bbs_backend"
         - "traefik.frontend.rule=Host:api.bbss.zjuqsc.com"
+        # Traefik 会透传 WebSocket Upgrade；生产环境请将后端 idle timeout
+        # 设置为至少 90 秒（与 presence TTL 相匹配）。
 
 configs:
   bbs_neo_config:
@@ -63,3 +76,6 @@ configs:
 networks:
   traefik_net:
     external: true
+
+volumes:
+  bbs_redis_data:

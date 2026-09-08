@@ -74,6 +74,25 @@
 
         <div class="field is-horizontal">
           <div class="field-label is-normal">
+            <label class="label">问候语</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <input
+                  v-model.trim="form.greeting"
+                  class="input"
+                  type="text"
+                  maxlength="20"
+                  placeholder="在线列表中展示的问候语（20字以内）"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
             <label class="label">钉钉通知</label>
           </div>
           <div class="field-body">

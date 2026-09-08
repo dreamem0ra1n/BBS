@@ -50,6 +50,7 @@ export default {
     '~/plugins/filters',
     '~/plugins/axios',
     '~/plugins/bbs-go',
+    { src: '~/plugins/presence.client.js', ssr: false },
     { src: '~/plugins/vue-lazyload', ssr: false },
     { src: '~/plugins/viewer.js', ssr: false },
   ],

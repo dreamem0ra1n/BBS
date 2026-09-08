@@ -63,6 +63,7 @@ type UserProfile struct {
 	Mobile                          string   `json:"mobile" form:"mobile"`         // 电话
 	Wechat                          string   `json:"wechat" form:"wechat"`         // 微信号
 	Qq                              string   `json:"qq" form:"qq"`                 // QQ号
+	Greeting                        string   `json:"greeting" form:"greeting"`
 	BirthdayBlessingEnabled         bool     `json:"birthdayBlessingEnabled" form:"birthdayBlessingEnabled"`
 	BirthdayBlessingPreferSameDepartment bool `json:"birthdayBlessingPreferSameDepartment" form:"birthdayBlessingPreferSameDepartment"`
 	BirthdayBlessingNotifyEnabled   bool     `json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`

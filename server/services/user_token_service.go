@@ -103,7 +103,10 @@ func (s *userTokenService) GetUserToken(ctx iris.Context) string {
 	if len(userToken) > 0 {
 		return userToken
 	}
-	return ctx.GetHeader("X-User-Token")
+	if userToken = ctx.GetHeader("X-User-Token"); len(userToken) > 0 {
+		return userToken
+	}
+	return ctx.GetCookie("userToken")
 }
 
 // 生成

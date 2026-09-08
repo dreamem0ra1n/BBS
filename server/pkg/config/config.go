@@ -42,6 +42,20 @@ type Config struct {
 		Url string `yaml:"Url"`
 	} `yaml:"OldDB"`
 
+	Redis struct {
+		Url      string `yaml:"Url"`
+		Password string `yaml:"Password"`
+		DB       int    `yaml:"DB"`
+	} `yaml:"Redis"`
+
+	Presence struct {
+		AllowedOrigins        []string `yaml:"AllowedOrigins"`
+		TrustedProxies        []string `yaml:"TrustedProxies"`
+		MaxConnections        int      `yaml:"MaxConnections"`
+		MaxConnectionsPerIP   int      `yaml:"MaxConnectionsPerIP"`
+		MaxConnectionsPerUser int      `yaml:"MaxConnectionsPerUser"`
+	} `yaml:"Presence"`
+
 	// smtp
 	Smtp struct {
 		Host     string `yaml:"Host"`
@@ -55,10 +69,22 @@ type Config struct {
 func Init(filename string) *Config {
 	Instance = &Config{}
 	Instance.LoginMethods.Passport = true
+	Instance.Presence.MaxConnections = 10000
+	Instance.Presence.MaxConnectionsPerIP = 20
+	Instance.Presence.MaxConnectionsPerUser = 5
 	if yamlFile, err := ioutil.ReadFile(filename); err != nil {
 		logrus.Error(err)
 	} else if err = yaml.Unmarshal(yamlFile, Instance); err != nil {
 		logrus.Error(err)
+	}
+	if Instance.Presence.MaxConnections <= 0 {
+		Instance.Presence.MaxConnections = 10000
+	}
+	if Instance.Presence.MaxConnectionsPerIP <= 0 {
+		Instance.Presence.MaxConnectionsPerIP = 20
+	}
+	if Instance.Presence.MaxConnectionsPerUser <= 0 {
+		Instance.Presence.MaxConnectionsPerUser = 5
 	}
 	return Instance
 }

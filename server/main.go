@@ -60,6 +60,7 @@ func init() {
 	if services.OldBBSService.DB, err = gorm.Open(mysql.Open(config.Instance.OldDB.Url)); err != nil {
 		logrus.Fatal("Failed to connect to old database: ", err)
 	}
+	services.PresenceService.Init()
 }
 
 func main() {

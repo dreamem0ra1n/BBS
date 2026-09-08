@@ -3,9 +3,16 @@ CREATE DATABASE IF NOT EXISTS `bbsgo_db` DEFAULT CHARACTER SET utf8mb4;
 
 USE bbsgo_db;
 SET NAMES utf8mb4;
+
 ```
 
 - 初始化用户表
+
+已有数据库升级时执行（若字段已存在请跳过）：
+
+```sql
+ALTER TABLE `t_user` ADD COLUMN `greeting` varchar(80) DEFAULT NULL;
+```
 
 ```sql
 CREATE TABLE `t_user`
@@ -28,6 +35,7 @@ CREATE TABLE `t_user`
     `password`           varchar(512)        DEFAULT NULL,
     `home_page`          varchar(1024)       DEFAULT NULL,
     `description`        text,
+    `greeting`           varchar(80)         DEFAULT NULL,
     `score`              bigint(20) NOT NULL,
     `status`             bigint(20) NOT NULL,
     `topic_count`        bigint(20) NOT NULL,
@@ -215,6 +223,7 @@ CREATE TABLE `t_user`
     `password`           varchar(512)        DEFAULT NULL,
     `home_page`          varchar(1024)       DEFAULT NULL,
     `description`        text,
+    `greeting`           varchar(80)         DEFAULT NULL,
     `score`              bigint(20) NOT NULL,
     `status`             bigint(20) NOT NULL,
     `topic_count`        bigint(20) NOT NULL,

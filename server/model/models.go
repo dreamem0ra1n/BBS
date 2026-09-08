@@ -39,6 +39,7 @@ type User struct {
 	Password                      string         `gorm:"size:512" json:"password" form:"password"`                           // 密码
 	HomePage                      string         `gorm:"size:1024" json:"homePage" form:"homePage"`                          // 个人主页
 	Description                   string         `gorm:"type:text" json:"description" form:"description"`                    // 个人描述
+	Greeting                      string         `gorm:"size:80" json:"greeting" form:"greeting"`                            // 在线列表问候语
 	Score                         int            `gorm:"not null;index:idx_user_score" json:"score" form:"score"`            // 积分
 	Status                        int            `gorm:"index:idx_user_status;not null" json:"status" form:"status"`         // 状态
 	TopicCount                    int            `gorm:"not null" json:"topicCount" form:"topicCount"`                       // 帖子数量

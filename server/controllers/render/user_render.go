@@ -90,6 +90,7 @@ func BuildUserProfile(user *model.User) *model.UserProfile {
 		Mobile:                        user.Mobile,
 		Wechat:                        user.Wechat,
 		Qq:                            user.Qq,
+		Greeting:                      user.Greeting,
 		BirthdayBlessingEnabled:       user.BirthdayBlessingEnabled,
 		BirthdayBlessingPreferSameDepartment: user.BirthdayBlessingPreferSameDepartment,
 		BirthdayBlessingNotifyEnabled: user.BirthdayBlessingNotifyEnabled,

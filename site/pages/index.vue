@@ -23,6 +23,7 @@
         <score-rank :score-rank="scoreRank" />
         <friend-links :links="links" />
         <site-stats :stats="stats" />
+        <online-users />
       </div>
     </div>
   </section>
