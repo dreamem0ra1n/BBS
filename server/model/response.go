@@ -68,6 +68,7 @@ type UserProfile struct {
 	BirthdayBlessingPreferSameDepartment bool `json:"birthdayBlessingPreferSameDepartment" form:"birthdayBlessingPreferSameDepartment"`
 	BirthdayBlessingNotifyEnabled   bool     `json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`
 	BirthdayBlessingNotifyAvailable bool     `json:"birthdayBlessingNotifyAvailable"`
+	PublicFavorites                 bool     `json:"publicFavorites" form:"publicFavorites"`
 }
 
 type DingTalkSettingsResponse struct {

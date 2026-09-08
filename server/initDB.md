@@ -12,6 +12,7 @@ SET NAMES utf8mb4;
 
 ```sql
 ALTER TABLE `t_user` ADD COLUMN `greeting` varchar(80) DEFAULT NULL;
+ALTER TABLE `t_user` ADD COLUMN `public_favorites` tinyint(1) NOT NULL DEFAULT '0';
 ```
 
 ```sql
@@ -36,6 +37,7 @@ CREATE TABLE `t_user`
     `home_page`          varchar(1024)       DEFAULT NULL,
     `description`        text,
     `greeting`           varchar(80)         DEFAULT NULL,
+    `public_favorites`   tinyint(1) NOT NULL DEFAULT '0',
     `score`              bigint(20) NOT NULL,
     `status`             bigint(20) NOT NULL,
     `topic_count`        bigint(20) NOT NULL,
@@ -224,6 +226,7 @@ CREATE TABLE `t_user`
     `home_page`          varchar(1024)       DEFAULT NULL,
     `description`        text,
     `greeting`           varchar(80)         DEFAULT NULL,
+    `public_favorites`   tinyint(1) NOT NULL DEFAULT '0',
     `score`              bigint(20) NOT NULL,
     `status`             bigint(20) NOT NULL,
     `topic_count`        bigint(20) NOT NULL,

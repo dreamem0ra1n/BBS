@@ -29,6 +29,7 @@ type User struct {
 	BirthdayBlessingEnabled       bool           `gorm:"not null;default:false" json:"birthdayBlessingEnabled" form:"birthdayBlessingEnabled"`
 	BirthdayBlessingPreferSameDepartment bool    `gorm:"not null;default:false" json:"birthdayBlessingPreferSameDepartment" form:"birthdayBlessingPreferSameDepartment"`
 	BirthdayBlessingNotifyEnabled bool           `gorm:"not null;default:false" json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`
+	PublicFavorites               bool           `gorm:"not null;default:false" json:"publicFavorites" form:"publicFavorites"` // 是否公开收藏夹
 	BirthdayYearSent              int            `gorm:"not null;default:0" json:"-" form:"-"`
 	Department                    string         `gorm:"size:32;" json:"department" form:"department"`                       // 部门
 	Mobile                        string         `gorm:"size:32;" json:"mobile" form:"mobile"`                               // 电话

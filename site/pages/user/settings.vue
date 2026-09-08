@@ -93,6 +93,27 @@
 
         <div class="field is-horizontal">
           <div class="field-label is-normal">
+            <label class="label">收藏</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <label class="notification-checkbox">
+                  <input
+                    v-model="form.publicFavorites"
+                    class="notification-checkbox-input"
+                    type="checkbox"
+                  />
+                  <span class="notification-checkbox-box" aria-hidden="true" />
+                  <span>公开收藏夹</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
             <label class="label">钉钉通知</label>
           </div>
           <div class="field-body">
@@ -236,6 +257,7 @@ export default {
         birthdayBlessingPreferSameDepartment: false,
         birthdayBlessingNotifyEnabled: false,
         birthdayBlessingNotifyAvailable: false,
+        publicFavorites: false,
       },
     }
   },

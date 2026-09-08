@@ -94,6 +94,7 @@ func BuildUserProfile(user *model.User) *model.UserProfile {
 		BirthdayBlessingEnabled:       user.BirthdayBlessingEnabled,
 		BirthdayBlessingPreferSameDepartment: user.BirthdayBlessingPreferSameDepartment,
 		BirthdayBlessingNotifyEnabled: user.BirthdayBlessingNotifyEnabled,
+		PublicFavorites:              user.PublicFavorites,
 	}
 	return ret
 }

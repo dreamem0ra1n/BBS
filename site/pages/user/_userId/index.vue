@@ -25,7 +25,10 @@
                     <span>收藏</span>
                   </nuxt-link>
                 </li>
-                <li :class="{ 'is-active': activeTab === 'comments' }">
+                <li
+                  v-if="isOwner"
+                  :class="{ 'is-active': activeTab === 'comments' }"
+                >
                   <nuxt-link :to="tabLink('comments')">
                     <span class="icon is-small"
                       ><i class="iconfont icon-comment" aria-hidden="true"
@@ -52,8 +55,13 @@
             </div>
 
             <div v-else-if="activeTab === 'favorites'">
+              <div v-if="favoritesPrivate" class="notification is-primary">
+                浪潮的秘密暂未公开:)
+              </div>
               <ul
-                v-if="favoritesPage.results && favoritesPage.results.length"
+                v-else-if="
+                  favoritesPage.results && favoritesPage.results.length
+                "
                 class="favorite-list"
               >
                 <li
@@ -82,7 +90,7 @@
               </ul>
               <div v-else class="notification is-primary">暂无收藏</div>
               <pagination
-                v-if="favoritesPage.page"
+                v-if="!favoritesPrivate && favoritesPage.page"
                 :page="favoritesPage.page"
                 :url-prefix="paginationUrlPrefix"
               />
@@ -144,7 +152,7 @@ const tabs = ['topics', 'favorites', 'comments']
 
 export default {
   middleware: 'authenticated',
-  async asyncData({ $axios, params, query, error }) {
+  async asyncData({ $axios, params, query, error, store }) {
     let user
     try {
       user = await $axios.get('/api/user/' + params.userId)
@@ -157,20 +165,30 @@ export default {
       return
     }
 
-    const activeTab = tabs.includes(query.tab) ? query.tab : defaultTab
+    const currentUser = store.state.user.current
+    const isOwner = !!(currentUser && currentUser.id === user.id)
+    const requestedTab = tabs.includes(query.tab) ? query.tab : defaultTab
+    const activeTab =
+      requestedTab === 'comments' && !isOwner ? defaultTab : requestedTab
     const page = query.p || 1
     const ascOrder = query.asc_order === '1' ? 1 : 0
     let topicsPage = null
     let favoritesPage = null
     let commentsPage = null
+    let favoritesPrivate = false
     if (activeTab === 'topics') {
       topicsPage = await $axios.get('/api/topic/user/topics', {
         params: { userId: params.userId, page },
       })
     } else if (activeTab === 'favorites') {
-      favoritesPage = await $axios.get('/api/user/favorites', {
-        params: { userId: params.userId, page },
-      })
+      favoritesPrivate = !isOwner && !user.publicFavorites
+      if (favoritesPrivate) {
+        favoritesPage = { results: [] }
+      } else {
+        favoritesPage = await $axios.get('/api/user/favorites', {
+          params: { userId: params.userId, page },
+        })
+      }
     } else {
       commentsPage = await $axios.get('/api/comment/user/comments', {
         params: { userId: params.userId, page, asc_order: ascOrder },
@@ -183,6 +201,7 @@ export default {
       topicsPage,
       favoritesPage,
       commentsPage,
+      favoritesPrivate,
     }
   },
   data() {

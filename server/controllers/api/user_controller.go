@@ -102,6 +102,7 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	birthdayBlessingNotifyEnabled := services.SysConfigService.IsBirthdayRandomBlessingEnabled() &&
 		services.BirthdayBlessingService.ExistsByNickname(user.Nickname) &&
 		strings.EqualFold(params.FormValue(c.Ctx, "birthdayBlessingNotifyEnabled"), "true")
+	publicFavorites := strings.EqualFold(params.FormValue(c.Ctx, "publicFavorites"), "true")
 
 	if len(homePage) > 0 && validate.IsURL(homePage) != nil {
 		return web.JsonErrorMsg("个人主页地址错误")
@@ -119,6 +120,7 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 		"birthday_blessing_enabled":        birthdayBlessingEnabled,
 		"birthday_blessing_prefer_same_department": birthdayBlessingPreferSameDepartment,
 		"birthday_blessing_notify_enabled": birthdayBlessingNotifyEnabled,
+		"public_favorites":                 publicFavorites,
 	})
 	if err != nil {
 		return web.JsonError(err)
@@ -272,6 +274,9 @@ func (c *UserController) GetFavorites() *web.JsonResult {
 	userId := params.FormValueInt64Default(c.Ctx, "userId", user.Id)
 	if userId <= 0 {
 		userId = user.Id
+	}
+	if !canViewUserFavorites(user, userId) {
+		return web.JsonErrorMsg("浪潮的秘密暂未公开:)")
 	}
 	if page := params.FormValueIntDefault(c.Ctx, "page", 0); page > 0 {
 		favorites, paging := services.FavoriteService.FindPageByCnd(sqls.NewCnd().
@@ -451,4 +456,15 @@ func (c *UserController) PostVerify_email() *web.JsonResult {
 		return web.JsonError(err)
 	}
 	return web.NewEmptyRspBuilder().Put("email", email).JsonResult()
+}
+
+func canViewUserFavorites(viewer *model.User, targetUserId int64) bool {
+	if viewer == nil {
+		return false
+	}
+	if viewer.Id == targetUserId {
+		return true
+	}
+	target := cache.UserCache.Get(targetUserId)
+	return target != nil && target.PublicFavorites
 }

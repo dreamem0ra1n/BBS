@@ -76,10 +76,16 @@ func (c *CommentController) GetUserComments() *web.JsonResult {
 	if err != nil || userId <= 0 {
 		return web.JsonErrorMsg("用户不存在")
 	}
+	currentUser := services.UserTokenService.GetCurrent(c.Ctx)
+	if currentUser == nil {
+		return web.JsonError(errs.NotLogin)
+	}
+	if currentUser.Id != userId {
+		return web.JsonErrorMsg("无权限")
+	}
 	page := params.FormValueIntDefault(c.Ctx, "page", 1)
 	ascOrder := params.FormValueIntDefault(c.Ctx, "asc_order", 0) != 0
 	comments, paging := services.CommentService.FindUserCommentsPage(userId, page, ascOrder)
-	currentUser := services.UserTokenService.GetCurrent(c.Ctx)
 	return web.JsonPageData(render.BuildUserComments(comments, currentUser), paging)
 }
 
