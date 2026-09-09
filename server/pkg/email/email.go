@@ -80,7 +80,7 @@ func SendEmail(to string, subject, html string) error {
 		addr      = net.JoinHostPort(host, port)
 		auth      = smtp.PlainAuth("", username, password, host)
 		tlsConfig = &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: true,// InsecureSkipVerify 不应该在生产代码中使用。【现在未使用到邮箱功能所以不作改动】
 			ServerName:         host,
 		}
 	)

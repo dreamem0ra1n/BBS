@@ -64,19 +64,24 @@ export function param(json) {
 /**
  * @param {string} url
  * @returns {Object}
+ * 该函数当前没有任何调用
  */
 export function param2Obj(url) {
   const search = url.split("?")[1];
   if (!search) {
     return {};
   }
-  return JSON.parse(
-    `{"${decodeURIComponent(search)
-      .replace(/"/g, '\\"')
-      .replace(/&/g, '","')
-      .replace(/=/g, '":"')
-      .replace(/\+/g, " ")}"}`
-  );
+  const obj = {};
+  search.split("&").forEach((part) => {
+    if (!part) return;
+    const index = part.indexOf("=");
+    const rawKey = index >= 0 ? part.slice(0, index) : part;
+    const rawVal = index >= 0 ? part.slice(index + 1) : "";
+    const key = decodeURIComponent(rawKey.replace(/\+/g, " "));
+    const val = decodeURIComponent(rawVal.replace(/\+/g, " "));
+    obj[key] = val;
+  });
+  return obj;
 }
 
 /**
