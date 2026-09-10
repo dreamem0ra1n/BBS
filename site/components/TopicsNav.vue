@@ -1,7 +1,13 @@
 <template>
   <nav class="dock-nav">
     <ul>
-      <li :class="{ active: currentNodeId === 1 }">
+      <li
+        :class="{
+          active: currentNodeId === 1,
+          'has-description': nodeDescription(1),
+        }"
+        :title="nodeDescription(1) || null"
+      >
         <nuxt-link to="/topics/node/1">
           <span class="node-name"
             ><img
@@ -10,6 +16,9 @@
             />公告</span
           >
         </nuxt-link>
+        <span v-if="nodeDescription(1)" class="node-description" role="tooltip">
+          {{ nodeDescription(1) }}
+        </span>
       </li>
       <li :class="{ active: currentNodeId === 0 }">
         <nuxt-link to="/topics/node/newest">
@@ -45,13 +54,20 @@
       <li
         v-for="node in nodes.filter((node) => node.nodeId !== 1)"
         :key="node.nodeId"
-        :class="{ active: currentNodeId === node.nodeId }"
+        :class="{
+          active: currentNodeId === node.nodeId,
+          'has-description': node.description,
+        }"
+        :title="node.description || null"
       >
         <div @click="goToTag(node.nodeId)">
           <img v-if="node.logo" class="node-logo" :src="node.logo" />
           <img v-else class="node-logo" src="~/assets/images/node.png" />
           <span class="node-name">{{ node.name }}</span>
         </div>
+        <span v-if="node.description" class="node-description" role="tooltip">
+          {{ node.description }}
+        </span>
       </li>
     </ul>
   </nav>
@@ -73,6 +89,10 @@ export default {
     },
   },
   methods: {
+    nodeDescription(nodeId) {
+      const node = this.nodes.find((item) => item.nodeId === nodeId)
+      return node ? node.description : ''
+    },
     goToTag(id) {
       this.$store.commit('env/setCurrentTag', -1919810)
       this.$linkTo('/topics/node/' + id)
@@ -87,6 +107,7 @@ export default {
   position: -webkit-sticky;
   position: sticky;
   top: 10px;
+  z-index: 20;
 
   width: 200px;
   border-radius: 2px;
@@ -113,6 +134,37 @@ export default {
       transition: background-color 0.2s, color 0.2s;
       font-weight: 500;
       height: 40px;
+
+      .node-description {
+        position: absolute;
+        z-index: 10;
+        top: 50%;
+        left: calc(100% + 8px);
+        width: 260px;
+        padding: 8px 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--bg-color);
+        color: var(--text-color3);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.5;
+        text-align: left;
+        white-space: normal;
+        box-shadow: 0 2px 8px var(--bg-color-alpha);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translate(-4px, -50%);
+        transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+      }
+
+      &.has-description:hover .node-description,
+      &.has-description:focus-within .node-description {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(0, -50%);
+      }
 
       &:not(:first-child) {
         margin-top: 10px;
