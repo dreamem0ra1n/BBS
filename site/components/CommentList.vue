@@ -341,6 +341,7 @@ export default {
 
     .comment-item-main {
       flex: 1 1 auto;
+      min-width: 0;
       margin-left: 16px;
 
       .comment-meta {
