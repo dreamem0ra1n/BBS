@@ -8,6 +8,7 @@ import (
 	"github.com/mlogclub/simple/web/params"
 
 	"bbs-go/controllers/render"
+	"bbs-go/model/constants"
 	"bbs-go/pkg/errs"
 	"bbs-go/services"
 )
@@ -88,6 +89,33 @@ func (c *TopicController) PostUndelete() *web.JsonResult {
 	}
 	err = services.TopicService.Undelete(id)
 	if err != nil {
+		return web.JsonError(err)
+	}
+	return web.JsonSuccess()
+}
+
+// 更新节点和标签
+func (c *TopicController) PostUpdate() *web.JsonResult {
+	topicId := params.FormValueInt64Default(c.Ctx, "id", 0)
+	if topicId <= 0 {
+		topicId = params.FormValueInt64Default(c.Ctx, "topicId", 0)
+	}
+	if topicId <= 0 {
+		return web.JsonErrorMsg("id is required")
+	}
+	nodeId, err := params.FormValueInt64(c.Ctx, "nodeId")
+	if err != nil {
+		return web.JsonError(err)
+	}
+	tagIds := params.FormValueInt64Array(c.Ctx, "tagIds")
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if user == nil || !user.IsAdminUserOrHigher() {
+		return web.JsonErrorMsg("无权限")
+	}
+	if topic := services.TopicService.Get(topicId); topic == nil || topic.Status != constants.StatusOk {
+		return web.JsonErrorMsg("话题不存在或已被删除")
+	}
+	if err := services.TopicService.UpdateNodeAndTags(topicId, user.Id, nodeId, tagIds); err != nil {
 		return web.JsonError(err)
 	}
 	return web.JsonSuccess()

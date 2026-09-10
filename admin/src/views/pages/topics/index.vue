@@ -87,6 +87,9 @@
                 @click="showComments(topic.topicId)"
                 >查看评论</el-link
               >
+              <el-link class="action-item" icon="el-icon-edit" @click="showUpdateTaxonomy(topic)"
+                >修改节点/标签</el-link
+              >
               <el-link
                 v-if="topic.recommend"
                 class="action-item"
@@ -136,6 +139,42 @@
     </div>
 
     <comments-dialog ref="commentsDialog" />
+
+    <el-dialog
+      :visible.sync="taxonomyDialogVisible"
+      :close-on-click-modal="false"
+      title="修改节点和标签"
+    >
+      <el-form label-width="80px">
+        <el-form-item label="节点">
+          <el-select
+            v-model="taxonomyForm.nodeId"
+            style="width: 100%"
+            placeholder="请选择节点"
+            @change="handleTaxonomyNodeChange"
+          >
+            <el-option v-for="node in nodes" :key="node.id" :label="node.name" :value="node.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="标签">
+          <el-select
+            v-model="taxonomyForm.tagIds"
+            style="width: 100%"
+            multiple
+            filterable
+            placeholder="请选择标签"
+          >
+            <el-option v-for="tag in tagOptions" :key="tag.id" :label="tag.name" :value="tag.id" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click.native="taxonomyDialogVisible = false"> 取消 </el-button>
+        <el-button :loading="taxonomyLoading" type="primary" @click.native="updateTaxonomy">
+          提交
+        </el-button>
+      </div>
+    </el-dialog>
   </section>
 </template>
 
@@ -157,13 +196,35 @@ export default {
         status: "0",
       },
       selectedRows: [],
+      nodes: [],
+      tagOptions: [],
+      taxonomyDialogVisible: false,
+      taxonomyLoading: false,
+      taxonomyForm: {
+        id: 0,
+        nodeId: 0,
+        tagIds: [],
+      },
     };
   },
   mounted() {
     mainHeight(this);
+    this.loadTaxonomyOptions();
     this.list();
   },
   methods: {
+    async loadTaxonomyOptions() {
+      try {
+        const [nodes, tags] = await Promise.all([
+          this.axios.get("/api/admin/topic-node/nodes"),
+          this.axios.get("/api/admin/tag/all"),
+        ]);
+        this.nodes = nodes || [];
+        this.tagOptions = tags || [];
+      } catch (err) {
+        this.$notify.error({ title: "错误", message: err.message || err });
+      }
+    },
     list() {
       const me = this;
       me.listLoading = true;
@@ -191,6 +252,46 @@ export default {
     },
     showComments(topicId) {
       this.$refs.commentsDialog.show("topic", topicId);
+    },
+    showUpdateTaxonomy(topic) {
+      this.taxonomyForm = {
+        id: topic.topicId,
+        nodeId: topic.node ? topic.node.nodeId : 0,
+        tagIds: topic.tags ? topic.tags.map((tag) => tag.tagId) : [],
+      };
+      this.taxonomyDialogVisible = true;
+      this.loadTagOptions(this.taxonomyForm.nodeId, this.taxonomyForm.tagIds);
+    },
+    async handleTaxonomyNodeChange(nodeId) {
+      await this.loadTagOptions(nodeId, []);
+    },
+    async loadTagOptions(nodeId, selectedTagIds) {
+      try {
+        const tags = await this.axios.get("/api/admin/tag/all?sectionId=" + nodeId);
+        if (this.taxonomyForm.nodeId !== nodeId) {
+          return;
+        }
+        this.tagOptions = tags || [];
+        const availableTagIds = new Set(this.tagOptions.map((tag) => tag.id));
+        this.taxonomyForm.tagIds = (selectedTagIds || []).filter((tagId) =>
+          availableTagIds.has(tagId)
+        );
+      } catch (err) {
+        this.$notify.error({ title: "错误", message: err.message || err });
+      }
+    },
+    async updateTaxonomy() {
+      this.taxonomyLoading = true;
+      try {
+        await this.axios.form("/api/admin/topic/update", this.taxonomyForm);
+        this.taxonomyDialogVisible = false;
+        this.$message.success("操作成功");
+        this.list();
+      } catch (err) {
+        this.$notify.error({ title: "错误", message: err.message || err });
+      } finally {
+        this.taxonomyLoading = false;
+      }
     },
     deleteSubmit(topicId) {
       const me = this;

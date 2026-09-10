@@ -116,3 +116,16 @@ func (c *TagController) GetTags() *web.JsonResult {
 	}
 	return web.JsonData(tags)
 }
+
+// 获取所有标签
+func (c *TagController) GetAll() *web.JsonResult {
+	sectionId := params.FormValueIntDefault(c.Ctx, "sectionId", 0)
+	cnd := sqls.NewCnd().Eq("status", constants.StatusOk)
+	if sectionId > 0 {
+		cnd.In("section_id", []int{0, sectionId})
+	} else {
+		cnd.Eq("section_id", 0)
+	}
+	tags := services.TagService.Find(cnd.Asc("name"))
+	return web.JsonData(tags)
+}

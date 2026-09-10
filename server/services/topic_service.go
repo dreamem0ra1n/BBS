@@ -271,6 +271,54 @@ func (s *topicService) Edit(topicId, editorUserId, nodeId int64, tags []string, 
 	return web.FromError(err)
 }
 
+// 更新节点和标签
+func (s *topicService) UpdateNodeAndTags(topicId, editorUserId, nodeId int64, tagIds []int64) error {
+	topic := s.Get(topicId)
+	if topic == nil {
+		return errors.New("话题不存在")
+	}
+	node := repositories.TopicNodeRepository.Get(sqls.DB(), nodeId)
+	if node == nil || node.Status != constants.StatusOk {
+		return errors.New("节点不存在")
+	}
+
+	uniqueTagIds := make([]int64, 0, len(tagIds))
+	seenTagIds := make(map[int64]struct{}, len(tagIds))
+	for _, tagId := range tagIds {
+		if tagId <= 0 {
+			return errors.New("标签不存在")
+		}
+		if _, exists := seenTagIds[tagId]; !exists {
+			seenTagIds[tagId] = struct{}{}
+			uniqueTagIds = append(uniqueTagIds, tagId)
+		}
+	}
+	if len(uniqueTagIds) > 0 {
+		tags := repositories.TagRepository.Find(sqls.DB(), sqls.NewCnd().In("id", uniqueTagIds))
+		if len(tags) != len(uniqueTagIds) {
+			return errors.New("标签不存在")
+		}
+		for _, tag := range tags {
+			if tag.Status != constants.StatusOk {
+				return errors.New("标签不存在")
+			}
+		}
+	}
+
+	return sqls.DB().Transaction(func(tx *gorm.DB) error {
+		if err := repositories.TopicRepository.Updates(tx, topicId, map[string]interface{}{
+			"node_id":           nodeId,
+			"last_edit_user_id": editorUserId,
+			"last_edit_time":    dates.NowTimestamp(),
+		}); err != nil {
+			return err
+		}
+		repositories.TopicTagRepository.DeleteTopicTags(tx, topicId)
+		repositories.TopicTagRepository.AddTopicTags(tx, topicId, uniqueTagIds)
+		return nil
+	})
+}
+
 // 推荐
 func (s *topicService) SetRecommend(topicId int64, recommend bool) error {
 	topic := s.Get(topicId)
