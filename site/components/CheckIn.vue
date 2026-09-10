@@ -186,7 +186,7 @@ export default {
     .gold-icon-box {
       width: 25%;
       span {
-        color: var(--text-color4);
+        color: var(--text-color3);
         font-size: 0.875rem;
         line-height: 1.25rem;
         display: flex;
@@ -199,7 +199,7 @@ export default {
     .gold-info-box {
       width: 25%;
       .gold-info {
-        color: var(--text-color4);
+        color: var(--text-color3);
         font-size: 0.875rem;
         line-height: 1.25rem;
         display: flex;

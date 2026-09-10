@@ -50,13 +50,13 @@ export default {
   align-items: center;
 
   strong {
-    color: var(--text-color3);
+    color: var(--text-color2);
     font-size: 18px;
   }
 
   span {
     margin-top: 4px;
-    color: var(--text-color4);
+    color: var(--text-color3);
     font-size: 12px;
   }
 }

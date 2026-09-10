@@ -58,7 +58,7 @@ export default {
 }
 .online-user-info span {
   margin-top: 2px;
-  color: var(--text-color4);
+  color: var(--text-color3);
   font-size: 12px;
 }
 .empty,
