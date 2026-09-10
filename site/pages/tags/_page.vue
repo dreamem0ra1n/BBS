@@ -16,7 +16,7 @@
                     class="tag is-normal"
                   >
                     <nuxt-link
-                      :to="'/topic/' + tag.nodeId + '/' + tag.tagId"
+                      :to="'/topics/node/tag/' + tag.nodeId + '/' + tag.tagId"
                       :title="tag.tagName"
                       >{{ tag.tagName }}</nuxt-link
                     >

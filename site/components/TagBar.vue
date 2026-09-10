@@ -2,7 +2,9 @@
   <div class="select-tags">
     <div class="tags-container">
       <div v-for="tag in tags" :key="tag.id + 'tag'" @click="chooseTag(tag.id)">
-        <div :class="tagClass(tag.id)">{{ tag.name }}</div>
+        <div :class="tagClass(tag.id)" :title="tag.description || null">
+          {{ tag.name }}
+        </div>
       </div>
     </div>
   </div>
@@ -27,7 +29,9 @@ export default {
   },
   methods: {
     chooseTag(id) {
-      this.$linkTo('/topic/' + this.nodeId.toString() + '/' + id.toString())
+      this.$linkTo(
+        '/topics/node/tag/' + this.nodeId.toString() + '/' + id.toString()
+      )
     },
     tagClass(id) {
       if (this.currTag === id) {
@@ -48,7 +52,6 @@ export default {
   box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
   color: var(--text-color);
   padding: 0 8px;
-  overflow-x: auto;
   .input {
     border: none;
     box-shadow: none;
@@ -58,6 +61,8 @@ export default {
 
   .tags-container {
     display: flex;
+    flex-wrap: wrap;
+    width: 100%;
 
     .tag-item,
     .selected-item {
