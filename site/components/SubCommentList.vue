@@ -241,7 +241,28 @@ export default {
       })
       this.replies.cursor = ret.cursor
       this.replies.hasMore = ret.hasMore
-      this.replies.results.push(...ret.results)
+      this.mergeReplies(ret.results)
+    },
+    /**
+     * 合并服务端返回的回复：按 commentId 去重，保持按 id 升序排列。
+     * 本地先发布回复再展开时，新回复的 id 大于当前游标，
+     * 会被下一页重复返回，这里过滤掉避免同一条回复出现两次。
+     */
+    mergeReplies(list) {
+      if (!list || !list.length) {
+        return
+      }
+      const existed = new Set(
+        this.replies.results.map((item) => item.commentId)
+      )
+      list.forEach((item) => {
+        if (!item || existed.has(item.commentId)) {
+          return
+        }
+        existed.add(item.commentId)
+        this.replies.results.push(item)
+      })
+      this.replies.results.sort((a, b) => a.commentId - b.commentId)
     },
     async like(comment) {
       try {

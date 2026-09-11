@@ -311,8 +311,16 @@ export default {
       this.appendReply(parent, comment)
     },
     appendReply(parent, comment) {
+      if (!comment) {
+        return
+      }
       if (parent.replies && parent.replies.results) {
-        parent.replies.results.push(comment)
+        const existed = parent.replies.results.some(
+          (item) => item.commentId === comment.commentId
+        )
+        if (!existed) {
+          parent.replies.results.push(comment)
+        }
       } else {
         parent.replies = {
           results: [comment],
