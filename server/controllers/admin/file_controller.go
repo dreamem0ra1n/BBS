@@ -23,7 +23,6 @@ type FileController struct {
 }
 
 func (c *FileController) AnyList() *web.JsonResult {
-	services.FileService.ClassifyReferencedFiles()
 	query := params.NewQueryParams(c.Ctx)
 	query.EqByReq("id").EqByReq("user_id").EqByReq("topic_id").EqByReq("comment_id").
 		EqByReq("source_type").LikeByReq("file_name").PageByReq().Desc("id")
