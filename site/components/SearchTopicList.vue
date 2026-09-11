@@ -2,31 +2,23 @@
   <div class="topic-search-items">
     <div
       v-for="item in searchPage.results"
-      :key="item.id"
+      :key="item.topicId"
       class="topic-search-item"
     >
-      <nuxt-link :to="'/topic/' + (old ? 'OLD' : '') + item.id">
-        <h1 class="topic-search-item-title" v-html="item.title"></h1>
+      <nuxt-link :to="'/topic/' + (old ? 'OLD' : '') + item.topicId">
+        <h1 class="topic-search-item-title">{{ item.title }}</h1>
       </nuxt-link>
-      <p class="topic-search-item-summary content" v-html="item.summary"></p>
+      <p class="topic-search-item-summary content">{{ item.summary }}</p>
       <div class="topic-mates">
-        <span v-html="item.nickname"></span>
+        <span v-if="item.user">{{ item.user.nickname }}</span>
         <span>{{
           (old ? item.createTime * 1000 : item.createTime) | formatDate
         }}</span>
         <span v-if="item.node">{{ item.node.name }}</span>
-        <!-- <template v-if="item.tags && item.tags.length">
+        <template v-if="item.tags && item.tags.length">
           <span v-for="tag in item.tags" :key="tag.tagId" class="tag">{{
             tag.tagName
           }}</span>
-        </template> -->
-        <template v-if="item.tagNames && item.tagNames.length">
-          <span
-            v-for="(tagName, index) in item.tagNames"
-            :key="index"
-            class="tag"
-            v-html="tagName"
-          ></span>
         </template>
       </div>
     </div>
