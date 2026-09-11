@@ -5,6 +5,8 @@
     <nuxt />
 
     <my-footer />
+
+    <back-to-top />
   </div>
 </template>
 

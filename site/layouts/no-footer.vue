@@ -2,6 +2,8 @@
   <div>
     <my-nav />
     <nuxt />
+
+    <back-to-top />
   </div>
 </template>
 
