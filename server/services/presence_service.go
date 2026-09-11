@@ -4,9 +4,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"sort"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -105,13 +105,17 @@ func (s *presenceService) Available() bool {
 	return s.redis() != nil
 }
 
-func (s *presenceService) IssueTicket(userId int64, ip string) (string, error) {
+// IssueTicket 为用户签发一次性连接凭证，凭证只绑定用户和有效期，不绑定客户端 IP。
+// 在共享出口或 NAT 地址池的环境中，申请凭证和建立 WebSocket 可能从池内不同的出口
+// 地址发出，绑定 IP 会让合法用户被拒。安全性由"一次性凭证 + 短 TTL + WebSocket
+// 握手时校验登录态与用户一致性"保证。
+func (s *presenceService) IssueTicket(userId int64) (string, error) {
 	client := s.redis()
 	if client == nil {
 		return "", errors.New("当前在线功能暂不可用")
 	}
 	ticket := uuid.NewString()
-	value := strconv.FormatInt(userId, 10) + "|" + ipHash(ip)
+	value := strconv.FormatInt(userId, 10)
 	var result string
 	if err := client.Do(radix.Cmd(&result, "SET", presencePrefix+"ticket:"+ticket, value, "NX", "EX", strconv.Itoa(int(ticketTTL.Seconds())))); err != nil || result != "OK" {
 		return "", errors.New("当前在线功能暂不可用")
@@ -119,7 +123,7 @@ func (s *presenceService) IssueTicket(userId int64, ip string) (string, error) {
 	return ticket, nil
 }
 
-func (s *presenceService) ConsumeTicket(ticket, ip string) (int64, error) {
+func (s *presenceService) ConsumeTicket(ticket string) (int64, error) {
 	client := s.redis()
 	if client == nil || ticket == "" {
 		return 0, errors.New("无效的连接凭证")
@@ -129,11 +133,11 @@ func (s *presenceService) ConsumeTicket(ticket, ip string) (int64, error) {
 	if err := client.Do(radix.Cmd(&value, "EVAL", consumeScript, "1", presencePrefix+"ticket:"+ticket)); err != nil || value == "" {
 		return 0, errors.New("连接凭证已失效")
 	}
-	parts := strings.SplitN(value, "|", 2)
-	if len(parts) != 2 || parts[1] != ipHash(ip) {
-		return 0, errors.New("连接凭证与客户端不匹配")
+	userId, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return 0, errors.New("连接凭证已失效")
 	}
-	return strconv.ParseInt(parts[0], 10, 64)
+	return userId, nil
 }
 
 func (s *presenceService) AddConnection(userId int64, ip string) (string, error) {
@@ -145,7 +149,7 @@ func (s *presenceService) AddConnection(userId int64, ip string) (string, error)
 	now := time.Now().Unix()
 	expires := now + int64(presenceTTL.Seconds())
 	userKey := presencePrefix + "user:" + strconv.FormatInt(userId, 10)
-	ipKey := presencePrefix + "ip:" + ipHash(ip)
+	ipKey := presencePrefix + "ip:" + IPHash(ip)
 	limits := config.Instance.Presence
 	const addScript = `
 redis.call('ZREMRANGEBYSCORE',KEYS[1],'-inf',ARGV[1])
@@ -173,11 +177,11 @@ return 1`
 	}
 	switch result {
 	case -1:
-		return "", errors.New("在线连接数已达上限")
+		return "", fmt.Errorf("在线连接数已达上限（%d）", limits.MaxConnections)
 	case -2:
-		return "", errors.New("该账号的在线连接数已达上限")
+		return "", fmt.Errorf("该账号的在线连接数已达上限（%d）", limits.MaxConnectionsPerUser)
 	case -3:
-		return "", errors.New("该网络地址的在线连接数已达上限")
+		return "", fmt.Errorf("该网络地址的在线连接数已达上限（%d）", limits.MaxConnectionsPerIP)
 	}
 	return connectionId, nil
 }
@@ -192,10 +196,10 @@ func (s *presenceService) Refresh(userId int64, ip, connectionId string) error {
 	commands := radix.Pipeline(
 		radix.Cmd(nil, "ZADD", presencePrefix+"connections", strconv.FormatInt(expires, 10), connectionId),
 		radix.Cmd(nil, "ZADD", presencePrefix+"user:"+userIdString, strconv.FormatInt(expires, 10), connectionId),
-		radix.Cmd(nil, "ZADD", presencePrefix+"ip:"+ipHash(ip), strconv.FormatInt(expires, 10), connectionId),
+		radix.Cmd(nil, "ZADD", presencePrefix+"ip:"+IPHash(ip), strconv.FormatInt(expires, 10), connectionId),
 		radix.Cmd(nil, "ZADD", presencePrefix+"users", strconv.FormatInt(expires, 10), userIdString),
 		radix.Cmd(nil, "EXPIRE", presencePrefix+"user:"+userIdString, strconv.Itoa(int((presenceTTL*2).Seconds()))),
-		radix.Cmd(nil, "EXPIRE", presencePrefix+"ip:"+ipHash(ip), strconv.Itoa(int((presenceTTL*2).Seconds()))),
+		radix.Cmd(nil, "EXPIRE", presencePrefix+"ip:"+IPHash(ip), strconv.Itoa(int((presenceTTL*2).Seconds()))),
 		radix.Cmd(nil, "EXPIRE", presencePrefix+"users", strconv.Itoa(int((presenceTTL*2).Seconds()))),
 		radix.Cmd(nil, "EXPIRE", presencePrefix+"connections", strconv.Itoa(int((presenceTTL*2).Seconds()))),
 	)
@@ -211,7 +215,7 @@ func (s *presenceService) Remove(userId int64, ip, connectionId string) {
 	userKey := presencePrefix + "user:" + userIdString
 	const removeScript = `redis.call('ZREM',KEYS[1],ARGV[1]); redis.call('ZREM',KEYS[2],ARGV[1]); redis.call('ZREM',KEYS[3],ARGV[1]); redis.call('ZREMRANGEBYSCORE',KEYS[2],'-inf',ARGV[2]); if redis.call('ZCARD',KEYS[2]) == 0 then redis.call('ZREM',KEYS[4],ARGV[3]) end; return 1`
 	_ = client.Do(radix.Cmd(nil, "EVAL", removeScript, "4", presencePrefix+"connections", userKey,
-		presencePrefix+"ip:"+ipHash(ip), presencePrefix+"users", connectionId, strconv.FormatInt(time.Now().Unix(), 10), userIdString))
+		presencePrefix+"ip:"+IPHash(ip), presencePrefix+"users", connectionId, strconv.FormatInt(time.Now().Unix(), 10), userIdString))
 }
 
 func (s *presenceService) OnlineUsers() (OnlineSnapshot, error) {
@@ -246,7 +250,8 @@ func (s *presenceService) OnlineUsers() (OnlineSnapshot, error) {
 	return OnlineSnapshot{Users: users, Total: total}, nil
 }
 
-func ipHash(ip string) string {
+// IPHash 返回客户端 IP 的不可逆哈希，用于 Redis 键和日志，避免落盘明文地址。
+func IPHash(ip string) string {
 	sum := sha256.Sum256([]byte(ip))
 	return hex.EncodeToString(sum[:12])
 }

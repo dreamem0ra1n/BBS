@@ -70,7 +70,7 @@ func Init(filename string) *Config {
 	Instance = &Config{}
 	Instance.LoginMethods.Passport = true
 	Instance.Presence.MaxConnections = 10000
-	Instance.Presence.MaxConnectionsPerIP = 20
+	Instance.Presence.MaxConnectionsPerIP = 200
 	Instance.Presence.MaxConnectionsPerUser = 5
 	if yamlFile, err := ioutil.ReadFile(filename); err != nil {
 		logrus.Error(err)
@@ -81,7 +81,7 @@ func Init(filename string) *Config {
 		Instance.Presence.MaxConnections = 10000
 	}
 	if Instance.Presence.MaxConnectionsPerIP <= 0 {
-		Instance.Presence.MaxConnectionsPerIP = 20
+		Instance.Presence.MaxConnectionsPerIP = 200
 	}
 	if Instance.Presence.MaxConnectionsPerUser <= 0 {
 		Instance.Presence.MaxConnectionsPerUser = 5

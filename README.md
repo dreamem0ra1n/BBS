@@ -218,7 +218,7 @@ Presence:
     - 127.0.0.1/32
     - 172.16.0.0/12
   MaxConnections: 10000
-  MaxConnectionsPerIP: 20
+  MaxConnectionsPerIP: 200
   MaxConnectionsPerUser: 5
 ```
 
@@ -359,6 +359,8 @@ docker logs --tail 100 bbs-backend
 ```text
 Redis unavailable; online presence is disabled
 ```
+
+被拒绝的 WebSocket 连接会在后端留下 `presence:` 开头的告警日志，按原因区分：`连接凭证校验失败`（凭证过期、重复使用，或页面停留过久）、`WebSocket 登录态校验失败`（登录 cookie 与凭证中的用户不一致）、`WebSocket 连接被拒绝`（触发了 `Presence` 里的并发上限，日志中会带上具体数值）、`Origin 校验失败`（`AllowedOrigins` 与访问域名不匹配）。日志同时记录 `user_id` 和 `ip_hash`，`ip_hash` 是 IP 的不可逆哈希，用于统计同源连接而不会落盘明文地址。
 
 修复后后端会定期重新连接 Redis，前端也会使用指数退避自动重连 WebSocket；通常等待最多 30 秒或刷新页面即可恢复，无需重启整个 BBS。
 
@@ -519,7 +521,7 @@ Presence:
     - 127.0.0.1/32
     - 172.16.0.0/12
   MaxConnections: 10000
-  MaxConnectionsPerIP: 20
+  MaxConnectionsPerIP: 200
   MaxConnectionsPerUser: 5
 ```
 

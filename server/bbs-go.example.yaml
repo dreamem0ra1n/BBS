@@ -42,5 +42,7 @@ Presence:
     - 127.0.0.1/32
     - 172.16.0.0/12
   MaxConnections: 10000
-  MaxConnectionsPerIP: 20
+  # 校园网常在 NAT 地址池后共享出口地址，单 IP 并发上限不宜过低。
+  # 填 <=0 会被重置为默认值 200；想彻底放开可填一个很大的数。
+  MaxConnectionsPerIP: 200
   MaxConnectionsPerUser: 5

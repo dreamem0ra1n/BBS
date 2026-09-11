@@ -15,6 +15,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"github.com/mlogclub/simple/web"
+	"github.com/sirupsen/logrus"
 )
 
 type PresenceController struct {
@@ -27,10 +28,12 @@ func (c *PresenceController) PostTicket() *web.JsonResult {
 		return web.JsonError(errs.NotLogin)
 	}
 	if !services.PresenceService.Available() {
+		logrus.Warn("presence: Redis 不可用，拒绝签发连接凭证")
 		return web.JsonErrorMsg("当前在线功能暂不可用")
 	}
-	ticket, err := services.PresenceService.IssueTicket(user.Id, clientIP(c.Ctx.Request()))
+	ticket, err := services.PresenceService.IssueTicket(user.Id)
 	if err != nil {
+		logrus.WithError(err).WithField("user_id", user.Id).Warn("presence: 签发连接凭证失败")
 		return web.JsonErrorMsg(err.Error())
 	}
 	return web.JsonData(map[string]string{"ticket": ticket})
@@ -69,27 +72,32 @@ var presenceUpgrader = websocket.Upgrader{
 }
 
 func PresenceWebSocket(ctx iris.Context) {
+	ip := clientIP(ctx.Request())
 	if !services.PresenceService.Available() {
+		logrus.Warn("presence: Redis 不可用，拒绝 WebSocket 连接")
 		ctx.StatusCode(http.StatusServiceUnavailable)
 		return
 	}
 	if !presenceUpgrader.CheckOrigin(ctx.Request()) {
+		logrus.WithField("origin", ctx.Request().Header.Get("Origin")).Warn("presence: WebSocket Origin 校验失败")
 		ctx.StatusCode(http.StatusForbidden)
 		return
 	}
-	ip := clientIP(ctx.Request())
-	userId, err := services.PresenceService.ConsumeTicket(ctx.URLParam("ticket"), ip)
+	userId, err := services.PresenceService.ConsumeTicket(ctx.URLParam("ticket"))
 	if err != nil {
+		logrus.WithError(err).WithField("ip_hash", services.IPHash(ip)).Warn("presence: 连接凭证校验失败")
 		ctx.StatusCode(http.StatusUnauthorized)
 		return
 	}
 	user := services.UserTokenService.GetCurrent(ctx)
 	if user == nil || user.Id != userId || !services.PresenceService.IsActiveUser(userId) {
+		logrus.WithFields(logrus.Fields{"user_id": userId, "ip_hash": services.IPHash(ip)}).Warn("presence: WebSocket 登录态校验失败")
 		ctx.StatusCode(http.StatusUnauthorized)
 		return
 	}
 	connectionId, err := services.PresenceService.AddConnection(userId, ip)
 	if err != nil {
+		logrus.WithError(err).WithFields(logrus.Fields{"user_id": userId, "ip_hash": services.IPHash(ip)}).Warn("presence: WebSocket 连接被拒绝")
 		ctx.StatusCode(http.StatusTooManyRequests)
 		return
 	}
