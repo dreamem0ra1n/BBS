@@ -64,7 +64,7 @@ type oldForum struct {
 
 func (r *oldBBSService) post2topic(post oldPost) model.Topic {
 	var cnt int64
-	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", post.PostId).Where("first = 1").Count(&cnt)
+	r.DB.Table("qsc_bbs_forum_post").Where("tid = ?", post.PostId).Where("first = 0").Count(&cnt)
 
 	// 加入权限控制
 	post_meta := oldPostMeta{}
@@ -107,7 +107,7 @@ func (r *oldBBSService) buildTopics(posts []oldPost) []model.Topic {
 	r.DB.Table("qsc_bbs_forum_post").
 		Select("tid, count(*) as cnt").
 		Where("tid in ?", ids).
-		Where("first = 1").
+		Where("first = 0").
 		Group("tid").
 		Find(&countRows)
 	for _, row := range countRows {
