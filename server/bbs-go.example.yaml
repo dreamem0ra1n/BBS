@@ -46,3 +46,20 @@ Presence:
   # 填 <=0 会被重置为默认值 200；想彻底放开可填一个很大的数。
   MaxConnectionsPerIP: 200
   MaxConnectionsPerUser: 5
+
+# 搜索（Meilisearch）。Enabled 为 false 或 Meilisearch 不可用时，搜索自动回退到数据库 LIKE。
+# 旧 BBS 数据量大，默认不同步；首次上线可临时把 SyncOldBBS 置为 true，或调用
+# POST /api/admin/search/reindex 手动触发重建。
+Search:
+  Enabled: true
+  Url: http://bbs-meilisearch:7700
+  ApiKey: <Meilisearch 主密钥，仅后端可访问>
+  Index: topics
+  # filter：搜索结果只返回当前用户有权访问的主题；mark：返回全部命中主题，由渲染层隐藏无权内容
+  PermissionMode: filter
+  MaxLimit: 50
+  MaxPage: 100
+  MaxScan: 1000
+  TimeoutMs: 3000
+  SyncOnBoot: true
+  SyncOldBBS: false

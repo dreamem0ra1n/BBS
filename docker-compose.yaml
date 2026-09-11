@@ -8,6 +8,19 @@ services:
       - default
     restart: unless-stopped
 
+  # 搜索服务。后端通过 Search.Url 访问，不对外暴露端口。
+  bbs-meilisearch:
+    image: getmeili/meilisearch:v1.6
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-change-me-in-production}
+      - MEILI_ENV=production
+      - MEILI_NO_ANALYTICS=true
+    volumes:
+      - bbs_meili_data:/meili_data
+    networks:
+      - default
+    restart: unless-stopped
+
   bbs_admin:
     image: bbs_neo_admin
     ports:
@@ -79,3 +92,4 @@ networks:
 
 volumes:
   bbs_redis_data:
+  bbs_meili_data:

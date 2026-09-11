@@ -18,6 +18,11 @@ type TopicCreateEvent struct {
 	CreateTime int64 `json:"createTime"`
 }
 
+// TopicUpdateEvent 主题内容/节点/权限等可索引字段发生变化
+type TopicUpdateEvent struct {
+	TopicId int64 `json:"topicId"`
+}
+
 type TopicDeleteEvent struct {
 	UserId       int64 `json:"userId"`
 	TopicId      int64 `json:"topicId"`

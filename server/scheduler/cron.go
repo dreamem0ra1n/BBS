@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"bbs-go/pkg/config"
 	"bbs-go/pkg/sitemap"
 	"time"
 
@@ -28,6 +29,15 @@ func Start() {
 	// Generate sitemap
 	addCronFunc(c, "0 0 4 ? * *", func() {
 		sitemap.Generate()
+	})
+
+	// 搜索索引对账重建：修复漏同步的文档。
+	// 旧站数据量大，仅在开启 SyncOldBBS 时一起重建。
+	addCronFunc(c, "0 30 4 * * *", func() {
+		services.SearchService.ReindexAll()
+		if config.Instance != nil && config.Instance.Search.SyncOldBBS {
+			services.SearchService.ReindexOldBBS()
+		}
 	})
 
 	c.Start()

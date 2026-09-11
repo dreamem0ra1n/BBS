@@ -61,6 +61,8 @@ func init() {
 		logrus.Fatal("Failed to connect to old database: ", err)
 	}
 	services.PresenceService.Init()
+	// 初始化搜索引擎（失败时自动回退到数据库 LIKE）
+	services.SearchService.Init()
 }
 
 func main() {

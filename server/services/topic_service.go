@@ -121,6 +121,8 @@ func (s *topicService) Undelete(id int64) error {
 		}
 		// 删掉标签文章
 		TopicTagService.UndeleteByTopicId(id)
+		// 恢复后重新进入搜索索引
+		event.Send(event.TopicUpdateEvent{TopicId: id})
 	}
 	return err
 }
@@ -266,6 +268,8 @@ func (s *topicService) Edit(topicId, editorUserId, nodeId int64, tags []string, 
 			if bindErr := FileService.BindTopicFiles(topicId, topic.UserId, content, nil); bindErr != nil {
 				logrus.Error("error associating uploaded files with edited topic: ", bindErr)
 			}
+			// 标题/正文/节点/权限可能已变化，刷新搜索索引
+			event.Send(event.TopicUpdateEvent{TopicId: topicId})
 		}
 	}
 	return web.FromError(err)
@@ -305,7 +309,7 @@ func (s *topicService) UpdateNodeAndTags(topicId, editorUserId, nodeId int64, ta
 		}
 	}
 
-	return sqls.DB().Transaction(func(tx *gorm.DB) error {
+	err := sqls.DB().Transaction(func(tx *gorm.DB) error {
 		if err := repositories.TopicRepository.Updates(tx, topicId, map[string]interface{}{
 			"node_id":           nodeId,
 			"last_edit_user_id": editorUserId,
@@ -317,6 +321,11 @@ func (s *topicService) UpdateNodeAndTags(topicId, editorUserId, nodeId int64, ta
 		repositories.TopicTagRepository.AddTopicTags(tx, topicId, uniqueTagIds)
 		return nil
 	})
+	if err == nil {
+		// 节点与标签变化会影响索引里的可搜索字段
+		event.Send(event.TopicUpdateEvent{TopicId: topicId})
+	}
+	return err
 }
 
 // 推荐
