@@ -11,6 +11,7 @@
 | Admin | `admin/` | `8080` | Vue 2 管理后台，访问前缀 `/bbsadmin` |
 | MySQL | - | `3306` | 主数据库；推荐使用 MySQL 5.7 |
 | MinIO | - | `9000/9001` | 文件对象存储及管理控制台 |
+| Meilisearch | - | `7700` | 可选；搜索索引服务，只保存后端同步的索引，不启动则搜索回退到数据库 `LIKE` |
 
 本文档中的命令默认在仓库根目录执行。
 
@@ -173,7 +174,40 @@ docker ps --filter name=bbs-redis
 docker logs --tail 50 bbs-redis
 ```
 
-### 7. 创建本地后端配置
+### 7. 启动 Meilisearch
+
+搜索使用独立的 [Meilisearch](https://www.meilisearch.com/) 服务。MySQL 仍然是唯一真值源，Meilisearch 只保存后端同步过去的索引，负责分词、倒排检索、过滤和排序；搜索命中的帖子会拿编号回 MySQL 取原文。
+
+它属于可选组件：不启动也能跑，后端会自动回退到数据库 `LIKE` 查询。回退路径功能可用，但没有中文分词、错字容错和相关度排序，关键词命中量大时也更慢。
+
+```bash
+docker run -d \
+  --name bbs-meilisearch \
+  --network bbs-net \
+  --restart unless-stopped \
+  -e MEILI_MASTER_KEY=bbsmeili123456 \
+  -e MEILI_ENV=development \
+  -e MEILI_NO_ANALYTICS=true \
+  -v bbs-meili-data:/meili_data \
+  getmeili/meilisearch:v1.6
+```
+
+确认已启动：
+
+```bash
+docker ps --filter name=bbs-meilisearch
+docker logs --tail 50 bbs-meilisearch
+```
+
+需要注意：
+
+- 容器名必须是 `bbs-meilisearch`，要和下一步 `Search.Url` 里的主机名一致，并且和 MySQL、Redis、后端处于同一个 `bbs-net` 网络。
+- `MEILI_MASTER_KEY` 必须和下一步 `Search.ApiKey` **完全一致**。不一致时 Meilisearch 会返回 401，后端每次搜索都会记录 `meilisearch query failed, fallback to database like` 并回退到数据库——页面看起来正常，实际没走搜索引擎。
+- 索引数据保存在 `bbs-meili-data` volume 中，不删除就保留，重启容器不需要重新同步。
+- 这里没有加 `-p 7700:7700`：后端通过 `bbs-net` 内部访问即可，不需要把搜索服务暴露到宿主机。
+- 生产环境必须换成随机密钥；本地可以随便填，但不要把示例值直接带上线。
+
+### 8. 创建本地后端配置
 
 创建 `server/bbs-go.yaml`，内容如下：
 
@@ -220,6 +254,26 @@ Presence:
   MaxConnections: 10000
   MaxConnectionsPerIP: 200
   MaxConnectionsPerUser: 5
+
+# 搜索（Meilisearch）。Enabled 为 false、或 Meilisearch 不可用时，自动回退到数据库 LIKE。
+Search:
+  Enabled: true
+  # 必须和 Meilisearch 容器名一致，且两者在同一 Docker 网络内
+  Url: http://bbs-meilisearch:7700
+  # 必须和容器启动时的 MEILI_MASTER_KEY 完全一致
+  ApiKey: bbsmeili123456
+  Index: topics
+  # filter：搜索结果只返回当前用户有权访问的主题；mark：返回全部命中主题，由渲染层隐藏无权内容
+  PermissionMode: filter
+  # 单页条数上限 / 最大页码 / 单次搜索最多扫描的候选条数
+  MaxLimit: 50
+  MaxPage: 100
+  MaxScan: 1000
+  TimeoutMs: 3000
+  # 启动时异步全量重建新站索引
+  SyncOnBoot: true
+  # 是否同时同步旧 BBS 数据；旧库数据量大，默认关闭
+  SyncOldBBS: false
 ```
 
 挂载配置前务必确认它是文件：
@@ -230,7 +284,23 @@ test -f /root/BBS/server/bbs-go.yaml
 
 如果源路径不存在，Docker 可能创建同名目录，后端会报 `read ./bbs-go.yaml: is a directory`。
 
-### 8. 构建并启动开发后端
+关于搜索，本地部署时还需要注意：
+
+- **首次搜索前要等索引同步完。** 后端启动后会异步全量重建索引（`SyncOnBoot: true`），帖子多时需要几十秒到几分钟，期间搜索结果可能不完整。查看进度：
+
+  ```bash
+  docker logs --tail 200 bbs-backend | grep 'search:'
+  ```
+
+  出现 `search: reindex all topics done, total=N` 表示同步完成。日志里出现 `meilisearch health check failed` 或 `fallback to database like` 说明当前走的是数据库回退路径，按本节末尾的排查项处理。
+- **手动重建索引**：重启后端即可；或带 Admin 登录态调用 `POST http://localhost:8082/api/admin/search/reindex`。
+- **未登录访客不能搜索**，必须登录后才返回结果。这是本项目的预期行为，不是故障。
+- **旧帖默认搜不到**：`SyncOldBBS: false` 时不会同步旧 BBS 数据，需要搜旧帖就改成 `true` 并重启后端；旧库数据量大，首次同步会明显变慢。
+- **改 `Search.Index` 等于换成一个空索引**，改完必须重新触发一次全量同步。
+- **`Search` 段可以整段省略**：省略等价于 `Enabled: false`，搜索自动走数据库回退，已有的旧配置不改也能正常启动。
+- **本地不需要搜索功能**时，把 `Search.Enabled` 设为 `false`、且不启动 `bbs-meilisearch` 容器即可，搜索自动走数据库 `LIKE` 回退。
+
+### 9. 构建并启动开发后端
 
 开发环境必须显式选择 `dev` target：
 
@@ -265,7 +335,7 @@ docker logs --tail 200 bbs-backend
 Now listening on: http://localhost:8082
 ```
 
-### 9. 安装并启动 Site
+### 10. 安装并启动 Site
 
 请使用 Node 22 和 Yarn 1.22.22。依赖下载证书报错时切换到 Yarn 官方 registry，不要关闭 TLS 校验：
 
@@ -280,7 +350,7 @@ yarn dev
 
 前端依赖统一使用 Yarn 和各目录中的 `yarn.lock`；不要使用 npm 重新生成 `package-lock.json`。
 
-### 10. 安装并启动 Admin
+### 11. 安装并启动 Admin
 
 另开终端：
 
@@ -296,7 +366,7 @@ yarn serve
 
 如果提示 `vue-cli-service: not found`，说明 `yarn install` 没有成功完成；不要直接运行 `yarn serve`，先解决依赖下载错误并重新安装。
 
-### 11. 本地验收
+### 12. 本地验收
 
 检查公开配置是否识别密码登录能力：
 
@@ -317,6 +387,23 @@ curl -sS -X POST \
 
 响应应包含 `"success":true`、`"username":"admin"` 和 token。浏览器中 Site 与 Admin 均可使用 `admin / 123456` 调试登录。
 
+验证搜索可用（把 `<token>` 换成上一步响应里的 token）：
+
+```bash
+curl -sS -X POST \
+  -H 'X-User-Token: <token>' \
+  -d 'keyword=admin' \
+  http://localhost:8082/api/search/topic
+```
+
+响应应为 `"success":true`；`results` 有命中时是数组，未命中时为空。要确认走的确实是 Meilisearch 而不是回退路径，检查后端日志里没有 `fallback to database like`：
+
+```bash
+docker logs --tail 200 bbs-backend | grep 'search:'
+```
+
+不带 `X-User-Token` 再请求一次，应返回空结果——未登录访客不可搜索。
+
 最终地址：
 
 | 服务 | 地址 |
@@ -327,24 +414,25 @@ curl -sS -X POST \
 | API | `http://localhost:8082/` |
 | MinIO Console | `http://localhost:9001/` |
 | Redis | 仅在 `bbs-net` Docker 网络内提供 `bbs-redis:6379` |
+| Meilisearch | 仅在 `bbs-net` Docker 网络内提供 `bbs-meilisearch:7700` |
 
-### 12. 本地停止与重启
+### 13. 本地停止与重启
 
 终止 `yarn dev` 和 `yarn serve` 后，停止应用容器，不删除数据卷：
 
 ```bash
-docker stop bbs-backend bbs-redis bbs-minio bbs-mysql
+docker stop bbs-backend bbs-meilisearch bbs-redis bbs-minio bbs-mysql
 ```
 
 重新启动：
 
 ```bash
-docker start bbs-mysql bbs-minio bbs-redis bbs-backend
+docker start bbs-mysql bbs-minio bbs-redis bbs-meilisearch bbs-backend
 ```
 
 然后再重新启动 Site 和 Admin。
 
-MySQL、MinIO 和 Redis 数据分别保存在 `bbs-mysql-data`、`bbs-minio-data`、`bbs-redis-data` volume 中。除非确定不需要数据，不要删除这些 volume。
+MySQL、MinIO、Redis 和 Meilisearch 的索引分别保存在 `bbs-mysql-data`、`bbs-minio-data`、`bbs-redis-data`、`bbs-meili-data` volume 中。除非确定不需要数据，不要删除这些 volume；删掉 `bbs-meili-data` 后需要重启后端重新同步索引，搜索结果才会恢复完整。
 
 如果已经登录但首页没有显示“当前在线”板块，先检查 Redis 和后端日志：
 
