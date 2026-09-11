@@ -203,6 +203,9 @@ export default {
   $search-box-width: 380px;
   $border-color: #4e6ef2; // TODO
 
+  // 历史下拉框相对搜索框定位，随搜索框一起滚动/消失
+  position: relative;
+
   &.input-focus {
     .search-input {
       background-color: var(--bg-color);
@@ -265,8 +268,9 @@ export default {
     width: $search-box-width;
     display: none;
     height: auto;
-    top: 48px;
-    position: fixed;
+    top: calc(100% + 6px);
+    left: 0;
+    position: absolute;
 
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
