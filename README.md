@@ -154,6 +154,8 @@ MinIO 控制台：`http://localhost:9001`。后端首次启动时会自动创建
 
 “当前在线”功能使用 Redis 保存短期在线状态。Redis 不可用时，后端仍可正常登录和浏览，但首页会自动隐藏“当前在线”板块。
 
+首页侧栏默认折叠显示前 10 位在线用户，点“还有 N 人在线”可展开完整名单。服务端单次快照最多携带 200 位用户（见 `server/services/presence_service.go` 中的 `maxOnlineUsersReturned`），在线人数超过该值时列表底部会标注“仅显示前 200 位”，同时按 Redis 中的真实在线人数显示“还有 N 人在线”。
+
 ```bash
 docker run -d \
   --name bbs-redis \

@@ -40,11 +40,11 @@ func (c *PresenceController) GetOnline() *web.JsonResult {
 	if services.UserTokenService.GetCurrent(c.Ctx) == nil {
 		return web.JsonError(errs.NotLogin)
 	}
-	users, err := services.PresenceService.OnlineUsers()
+	snapshot, err := services.PresenceService.OnlineUsers()
 	if err != nil {
-		return web.JsonData([]services.OnlineUser{})
+		return web.JsonData(services.OnlineSnapshot{Users: []services.OnlineUser{}})
 	}
-	return web.JsonData(users)
+	return web.JsonData(snapshot)
 }
 
 func RegisterPresence(app *mvc.Application) {
@@ -100,7 +100,7 @@ func PresenceWebSocket(ctx iris.Context) {
 	}
 	defer conn.Close()
 	defer services.PresenceService.Remove(userId, ip, connectionId)
-	client := &presenceClient{conn: conn, snapshots: make(chan []services.OnlineUser, 1), done: make(chan struct{})}
+	client := &presenceClient{conn: conn, snapshots: make(chan *services.OnlineSnapshot, 1), done: make(chan struct{})}
 	presenceBroadcastHub.add(client)
 	defer presenceBroadcastHub.remove(client)
 	go client.write(userId, ip, connectionId)
@@ -120,7 +120,7 @@ func PresenceWebSocket(ctx iris.Context) {
 
 type presenceClient struct {
 	conn      *websocket.Conn
-	snapshots chan []services.OnlineUser
+	snapshots chan *services.OnlineSnapshot
 	done      chan struct{}
 }
 
@@ -129,11 +129,15 @@ func (c *presenceClient) write(userId int64, ip, connectionId string) {
 	defer pingTicker.Stop()
 	for {
 		select {
-		case users := <-c.snapshots:
+		case snapshot := <-c.snapshots:
 			_ = c.conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
-			message := map[string]interface{}{"type": "snapshot", "users": users}
-			if users == nil {
-				message = map[string]interface{}{"type": "unavailable"}
+			message := map[string]interface{}{"type": "unavailable"}
+			if snapshot != nil {
+				users := snapshot.Users
+				if users == nil {
+					users = []services.OnlineUser{}
+				}
+				message = map[string]interface{}{"type": "snapshot", "users": users, "total": snapshot.Total}
 			}
 			if err := c.conn.WriteJSON(message); err != nil {
 				_ = c.conn.Close()
@@ -156,7 +160,7 @@ type presenceHub struct {
 	sync.RWMutex
 	clients map[*presenceClient]struct{}
 	once    sync.Once
-	last    []services.OnlineUser
+	last    services.OnlineSnapshot
 }
 
 var presenceBroadcastHub = &presenceHub{clients: make(map[*presenceClient]struct{})}
@@ -193,7 +197,7 @@ func (h *presenceHub) broadcast(force bool) {
 		return
 	}
 	h.RUnlock()
-	users, err := services.PresenceService.OnlineUsers()
+	snapshot, err := services.PresenceService.OnlineUsers()
 	if err != nil {
 		h.RLock()
 		for client := range h.clients {
@@ -207,24 +211,17 @@ func (h *presenceHub) broadcast(force bool) {
 	}
 	h.Lock()
 	defer h.Unlock()
-	if !force && reflect.DeepEqual(h.last, users) {
+	if !force && reflect.DeepEqual(h.last, snapshot) {
 		return
 	}
-	h.last = users
+	h.last = snapshot
 	for client := range h.clients {
+		current := snapshot
 		select {
-		case client.snapshots <- users:
+		case client.snapshots <- &current:
 		default:
 		}
 	}
-}
-
-func onlineSnapshot() []services.OnlineUser {
-	users, err := services.PresenceService.OnlineUsers()
-	if err != nil {
-		return []services.OnlineUser{}
-	}
-	return users
 }
 
 func clientIP(r *http.Request) string {

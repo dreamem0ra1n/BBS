@@ -23,6 +23,9 @@ const (
 	presenceTTL    = 75 * time.Second
 	ticketTTL      = 30 * time.Second
 	presencePrefix = "bbs:presence:"
+	// maxOnlineUsersReturned 限制单次快照中携带的用户数量，避免在线人数很多时
+	// 每个 WebSocket 客户端都收到过大的消息；真实在线人数通过 Total 单独返回。
+	maxOnlineUsersReturned = 200
 )
 
 var PresenceService = &presenceService{}
@@ -32,6 +35,13 @@ type OnlineUser struct {
 	Nickname string `json:"nickname"`
 	Avatar   string `json:"avatar"`
 	Greeting string `json:"greeting"`
+}
+
+// OnlineSnapshot 是在线名单的推送内容。Users 最多包含 maxOnlineUsersReturned
+// 条记录，Total 是 Redis 中真实存在的在线用户总数，用于前端显示"还有 N 人在线"。
+type OnlineSnapshot struct {
+	Users []OnlineUser `json:"users"`
+	Total int          `json:"total"`
 }
 
 type presenceService struct {
@@ -204,18 +214,22 @@ func (s *presenceService) Remove(userId int64, ip, connectionId string) {
 		presencePrefix+"ip:"+ipHash(ip), presencePrefix+"users", connectionId, strconv.FormatInt(time.Now().Unix(), 10), userIdString))
 }
 
-func (s *presenceService) OnlineUsers() ([]OnlineUser, error) {
+func (s *presenceService) OnlineUsers() (OnlineSnapshot, error) {
 	client := s.redis()
 	if client == nil {
-		return nil, errors.New("Redis unavailable")
+		return OnlineSnapshot{}, errors.New("Redis unavailable")
 	}
 	now := strconv.FormatInt(time.Now().Unix(), 10)
 	if err := client.Do(radix.Cmd(nil, "ZREMRANGEBYSCORE", presencePrefix+"users", "-inf", now)); err != nil {
-		return nil, err
+		return OnlineSnapshot{}, err
+	}
+	var total int
+	if err := client.Do(radix.Cmd(&total, "ZCARD", presencePrefix+"users")); err != nil {
+		return OnlineSnapshot{}, err
 	}
 	var ids []string
-	if err := client.Do(radix.FlatCmd(&ids, "ZRANGEBYSCORE", presencePrefix+"users", now, "+inf", "LIMIT", "0", "100")); err != nil {
-		return nil, err
+	if err := client.Do(radix.FlatCmd(&ids, "ZRANGEBYSCORE", presencePrefix+"users", now, "+inf", "LIMIT", "0", strconv.Itoa(maxOnlineUsersReturned))); err != nil {
+		return OnlineSnapshot{}, err
 	}
 	users := make([]OnlineUser, 0, len(ids))
 	for _, idString := range ids {
@@ -229,7 +243,7 @@ func (s *presenceService) OnlineUsers() ([]OnlineUser, error) {
 		}
 	}
 	sort.Slice(users, func(i, j int) bool { return users[i].Id < users[j].Id })
-	return users, nil
+	return OnlineSnapshot{Users: users, Total: total}, nil
 }
 
 func ipHash(ip string) string {

@@ -35,8 +35,14 @@ export default function ({ $axios, app, store }) {
       socket.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data)
-          if (message.type === 'snapshot')
-            store.commit('presence/setUsers', message.users || [])
+          if (message.type === 'snapshot') {
+            const users = message.users || []
+            store.commit('presence/setUsers', users)
+            store.commit(
+              'presence/setTotal',
+              typeof message.total === 'number' ? message.total : users.length
+            )
+          }
           if (message.type === 'unavailable') {
             store.commit('presence/setEnabled', false)
           }
@@ -61,6 +67,7 @@ export default function ({ $axios, app, store }) {
         socket.close()
         socket = null
         store.commit('presence/setUsers', [])
+        store.commit('presence/setTotal', 0)
         store.commit('presence/setEnabled', false)
       }
     },
