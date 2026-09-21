@@ -17,7 +17,7 @@ import (
 type BirthdayBlessingController struct{ Ctx iris.Context }
 
 func (c *BirthdayBlessingController) AnyList() *web.JsonResult {
-	p := params.NewQueryParams(c.Ctx).LikeByReq("nickname").LikeByReq("department").LikeByReq("content").PageByReq().Desc("id")
+	p := params.NewQueryParams(c.Ctx).LikeByReq("nickname").LikeByReq("content").PageByReq().Desc("id")
 	list, paging := services.BirthdayBlessingService.FindPageByParams(p)
 	return web.JsonData(&web.PageResult{Results: list, Page: paging})
 }
@@ -38,7 +38,7 @@ func (c *BirthdayBlessingController) PostCreate() *web.JsonResult {
 }
 
 func (c *BirthdayBlessingController) PostImport() *web.JsonResult {
-	item := &model.BirthdayBlessing{Nickname: c.Ctx.FormValue("nickname"), Department: c.Ctx.FormValue("department"), Content: c.Ctx.FormValue("content")}
+	item := &model.BirthdayBlessing{Nickname: c.Ctx.FormValue("nickname"), Content: c.Ctx.FormValue("content")}
 	if !services.BirthdayBlessingService.Normalize(item) {
 		return web.JsonErrorMsg("祝福内容不能为空")
 	}
@@ -61,14 +61,14 @@ func (c *BirthdayBlessingController) PostBatchImport() *web.JsonResult {
 		if err != nil {
 			return web.JsonErrorMsg("CSV 格式错误：" + err.Error())
 		}
-		if len(parts) < 3 {
+		if len(parts) < 2 {
 			continue
 		}
 		first := strings.TrimSpace(strings.TrimPrefix(parts[0], "\ufeff"))
-		if strings.EqualFold(first, "昵称") && strings.EqualFold(strings.TrimSpace(parts[1]), "部门") {
+		if strings.EqualFold(first, "昵称") && strings.EqualFold(strings.TrimSpace(parts[1]), "内容") {
 			continue
 		}
-		item := &model.BirthdayBlessing{Nickname: parts[0], Department: parts[1], Content: parts[2], CreateTime: dates.NowTimestamp()}
+		item := &model.BirthdayBlessing{Nickname: parts[0], Content: parts[1], CreateTime: dates.NowTimestamp()}
 		if !services.BirthdayBlessingService.Normalize(item) {
 			continue
 		}

@@ -92,9 +92,8 @@ func BuildUserProfile(user *model.User) *model.UserProfile {
 		Qq:                            user.Qq,
 		Greeting:                      user.Greeting,
 		BirthdayBlessingEnabled:       user.BirthdayBlessingEnabled,
-		BirthdayBlessingPreferSameDepartment: user.BirthdayBlessingPreferSameDepartment,
 		BirthdayBlessingNotifyEnabled: user.BirthdayBlessingNotifyEnabled,
-		PublicFavorites:              user.PublicFavorites,
+		PublicFavorites:               user.PublicFavorites,
 	}
 	return ret
 }

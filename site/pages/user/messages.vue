@@ -56,7 +56,35 @@
               <div v-if="message.quoteContent" class="msg-attr message-quote">
                 {{ message.quoteContent }}
               </div>
-              <div class="msg-attr message-content" v-text="message.content" />
+              <div
+                v-if="birthdayBlessingAuthorIndex(message) >= 0"
+                class="msg-attr message-content"
+              >
+                <span
+                  v-text="
+                    message.content.slice(
+                      0,
+                      birthdayBlessingAuthorIndex(message)
+                    )
+                  "
+                /><nuxt-link
+                  :to="'/user/' + message.birthdayBlessingAuthor.id"
+                  target="_blank"
+                  >{{ message.birthdayBlessingAuthor.nickname }}</nuxt-link
+                ><span
+                  v-text="
+                    message.content.slice(
+                      birthdayBlessingAuthorIndex(message) +
+                        message.birthdayBlessingAuthor.nickname.length
+                    )
+                  "
+                />
+              </div>
+              <div
+                v-else
+                class="msg-attr message-content"
+                v-text="message.content"
+              />
               <div v-if="message.detailUrl" class="msg-attr message-show-more">
                 <a :href="message.detailUrl" target="_blank"
                   >点击查看详情&gt;&gt;</a
@@ -144,6 +172,17 @@ export default {
         return null
       }
     },
+    birthdayBlessingAuthorIndex(message) {
+      const author = message.birthdayBlessingAuthor
+      if (!author || !author.nickname) {
+        return -1
+      }
+      const prefix = '来自潮人 '
+      const markerIndex = message.content.indexOf(
+        `${prefix}${author.nickname} 的留言：`
+      )
+      return markerIndex < 0 ? -1 : markerIndex + prefix.length
+    },
   },
 }
 </script>
@@ -217,6 +256,10 @@ export default {
           font-size: 15px;
           color: var(--text-color);
           white-space: pre-line;
+
+          a {
+            color: var(--text-link-color);
+          }
         }
 
         .message-quote {

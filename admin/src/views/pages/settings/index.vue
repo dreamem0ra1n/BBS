@@ -156,9 +156,6 @@
                 ><el-input v-model="blessingFilters.nickname" placeholder="昵称"
               /></el-form-item>
               <el-form-item
-                ><el-input v-model="blessingFilters.department" placeholder="部门"
-              /></el-form-item>
-              <el-form-item
                 ><el-input v-model="blessingFilters.content" placeholder="内容"
               /></el-form-item>
               <el-form-item
@@ -191,7 +188,6 @@
             >
               <el-table-column type="selection" width="55" />
               <el-table-column prop="nickname" label="昵称" width="160" />
-              <el-table-column prop="department" label="部门" width="180" />
               <el-table-column prop="content" label="内容" />
             </el-table>
             <el-pagination
@@ -268,9 +264,6 @@
           <el-form-item label="昵称"
             ><el-input v-model="blessingImportForm.nickname"
           /></el-form-item>
-          <el-form-item label="部门"
-            ><el-input v-model="blessingImportForm.department"
-          /></el-form-item>
           <el-form-item label="内容"
             ><el-input v-model="blessingImportForm.content" type="textarea"
           /></el-form-item>
@@ -281,7 +274,7 @@
         </div>
       </el-dialog>
       <el-dialog :visible.sync="blessingBatchVisible" title="批量导入生日祝福">
-        <p>CSV 每行三列：昵称、部门、内容；支持内容中的逗号和引号。</p>
+        <p>CSV 每行两列：昵称、内容；支持内容中的逗号和引号。</p>
         <input type="file" accept=".csv,text/csv" @change="readBlessingCsv" />
         <el-input v-model="blessingBatchData" type="textarea" :rows="10" />
         <div slot="footer">
@@ -305,13 +298,13 @@ export default {
       autocompleteTags: [],
       autocompleteTagLoading: false,
       nodes: [],
-      blessingFilters: { nickname: "", department: "", content: "" },
+      blessingFilters: { nickname: "", content: "" },
       blessingResults: [],
       blessingPage: { page: 1, limit: 20, total: 0 },
       selectedBlessings: [],
       blessingImportVisible: false,
       blessingBatchVisible: false,
-      blessingImportForm: { nickname: "", department: "", content: "" },
+      blessingImportForm: { nickname: "", content: "" },
       blessingBatchData: "",
     };
   },
@@ -367,7 +360,7 @@ export default {
     async importBlessing() {
       await this.axios.form("/api/admin/birthday-blessing/import", this.blessingImportForm);
       this.blessingImportVisible = false;
-      this.blessingImportForm = { nickname: "", department: "", content: "" };
+      this.blessingImportForm = { nickname: "", content: "" };
       this.loadBlessings();
     },
     async batchImportBlessings() {

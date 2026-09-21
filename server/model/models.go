@@ -27,7 +27,6 @@ type User struct {
 	Major                         string         `gorm:"size:64;" json:"major" form:"major"`                               // 专业
 	Birthday                      string         `gorm:"size:32;" json:"birthday" form:"birthday"`
 	BirthdayBlessingEnabled       bool           `gorm:"not null;default:false" json:"birthdayBlessingEnabled" form:"birthdayBlessingEnabled"`
-	BirthdayBlessingPreferSameDepartment bool    `gorm:"not null;default:false" json:"birthdayBlessingPreferSameDepartment" form:"birthdayBlessingPreferSameDepartment"`
 	BirthdayBlessingNotifyEnabled bool           `gorm:"not null;default:false" json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`
 	PublicFavorites               bool           `gorm:"not null;default:false" json:"publicFavorites" form:"publicFavorites"` // 是否公开收藏夹
 	BirthdayYearSent              int            `gorm:"not null;default:0" json:"-" form:"-"`
@@ -239,7 +238,6 @@ type UserNotificationSetting struct {
 type BirthdayBlessing struct {
 	Model
 	Nickname   string `gorm:"size:32;index:idx_birthday_blessing_nickname" json:"nickname" form:"nickname"`
-	Department string `gorm:"size:64;index:idx_birthday_blessing_department" json:"department" form:"department"`
 	Content    string `gorm:"type:text;not null" json:"content" form:"content"`
 	CreateTime int64  `gorm:"not null" json:"createTime" form:"createTime"`
 }

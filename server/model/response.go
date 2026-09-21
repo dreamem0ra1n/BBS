@@ -65,7 +65,6 @@ type UserProfile struct {
 	Qq                              string   `json:"qq" form:"qq"`                 // QQ号
 	Greeting                        string   `json:"greeting" form:"greeting"`
 	BirthdayBlessingEnabled         bool     `json:"birthdayBlessingEnabled" form:"birthdayBlessingEnabled"`
-	BirthdayBlessingPreferSameDepartment bool `json:"birthdayBlessingPreferSameDepartment" form:"birthdayBlessingPreferSameDepartment"`
 	BirthdayBlessingNotifyEnabled   bool     `json:"birthdayBlessingNotifyEnabled" form:"birthdayBlessingNotifyEnabled"`
 	BirthdayBlessingNotifyAvailable bool     `json:"birthdayBlessingNotifyAvailable"`
 	PublicFavorites                 bool     `json:"publicFavorites" form:"publicFavorites"`
@@ -195,17 +194,18 @@ type FavoriteResponse struct {
 
 // 消息
 type MessageResponse struct {
-	MessageId    int64     `json:"messageId"`
-	From         *UserInfo `json:"from"`    // 消息发送人
-	UserId       int64     `json:"userId"`  // 消息接收人编号
-	Title        string    `json:"title"`   // 标题
-	Content      string    `json:"content"` // 消息内容
-	QuoteContent string    `json:"quoteContent"`
-	Type         int       `json:"type"`
-	DetailUrl    string    `json:"detailUrl"` // 消息详情url
-	ExtraData    string    `json:"extraData"`
-	Status       int       `json:"status"`
-	CreateTime   int64     `json:"createTime"`
+	MessageId              int64     `json:"messageId"`
+	From                   *UserInfo `json:"from"`    // 消息发送人
+	UserId                 int64     `json:"userId"`  // 消息接收人编号
+	Title                  string    `json:"title"`   // 标题
+	Content                string    `json:"content"` // 消息内容
+	QuoteContent           string    `json:"quoteContent"`
+	Type                   int       `json:"type"`
+	DetailUrl              string    `json:"detailUrl"` // 消息详情url
+	ExtraData              string    `json:"extraData"`
+	BirthdayBlessingAuthor *UserInfo `json:"birthdayBlessingAuthor,omitempty"`
+	Status                 int       `json:"status"`
+	CreateTime             int64     `json:"createTime"`
 }
 
 // 图片

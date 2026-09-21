@@ -97,8 +97,6 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 	wechat := params.FormValue(c.Ctx, "wechat")
 	qq := params.FormValue(c.Ctx, "qq")
 	birthdayBlessingEnabled := services.SysConfigService.IsBirthdayRandomBlessingEnabled() && strings.EqualFold(params.FormValue(c.Ctx, "birthdayBlessingEnabled"), "true")
-	birthdayBlessingPreferSameDepartment := birthdayBlessingEnabled &&
-		strings.EqualFold(params.FormValue(c.Ctx, "birthdayBlessingPreferSameDepartment"), "true")
 	birthdayBlessingNotifyEnabled := services.SysConfigService.IsBirthdayRandomBlessingEnabled() &&
 		services.BirthdayBlessingService.ExistsByNickname(user.Nickname) &&
 		strings.EqualFold(params.FormValue(c.Ctx, "birthdayBlessingNotifyEnabled"), "true")
@@ -118,7 +116,6 @@ func (c *UserController) PostEditBy(userId int64) *web.JsonResult {
 		"wechat":                           wechat,
 		"qq":                               qq,
 		"birthday_blessing_enabled":        birthdayBlessingEnabled,
-		"birthday_blessing_prefer_same_department": birthdayBlessingPreferSameDepartment,
 		"birthday_blessing_notify_enabled": birthdayBlessingNotifyEnabled,
 		"public_favorites":                 publicFavorites,
 	})

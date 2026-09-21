@@ -24,19 +24,43 @@ func BuildMessage(msg *model.Message) *model.MessageResponse {
 	detailUrl := getMessageDetailUrl(msg)
 	// logrus.Info("get URL : ", detailUrl)
 	resp := &model.MessageResponse{
-		MessageId:    msg.Id,
-		From:         from,
-		UserId:       msg.UserId,
-		Title:        msg.Title,
-		Content:      msg.Content,
-		QuoteContent: msg.QuoteContent,
-		Type:         msg.Type,
-		DetailUrl:    detailUrl,
-		ExtraData:    msg.ExtraData,
-		Status:       msg.Status,
-		CreateTime:   msg.CreateTime,
+		MessageId:              msg.Id,
+		From:                   from,
+		UserId:                 msg.UserId,
+		Title:                  msg.Title,
+		Content:                msg.Content,
+		QuoteContent:           msg.QuoteContent,
+		Type:                   msg.Type,
+		DetailUrl:              detailUrl,
+		ExtraData:              msg.ExtraData,
+		BirthdayBlessingAuthor: getBirthdayBlessingAuthor(msg),
+		Status:                 msg.Status,
+		CreateTime:             msg.CreateTime,
 	}
 	return resp
+}
+
+func getBirthdayBlessingAuthor(message *model.Message) *model.UserInfo {
+	if msg.Type(message.Type) != msg.TypeBirthday {
+		return nil
+	}
+	authorId := gjson.Get(message.ExtraData, "blessingAuthorId").Int()
+	if authorId > 0 {
+		return BuildUserInfoDefaultIfNull(authorId)
+	}
+	blessingId := gjson.Get(message.ExtraData, "blessingId").Int()
+	if blessingId <= 0 {
+		return nil
+	}
+	blessing := repositories.BirthdayBlessingRepository.Get(sqls.DB(), blessingId)
+	if blessing == nil {
+		return nil
+	}
+	author := repositories.UserRepository.FindOne(sqls.DB(), sqls.NewCnd().
+		Eq("nickname", blessing.Nickname).
+		Eq("status", constants.StatusOk).
+		Asc("id"))
+	return BuildUserInfo(author)
 }
 
 // BuildMessages 渲染消息列表

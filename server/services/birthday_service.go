@@ -24,8 +24,9 @@ var BirthdayService = newBirthdayService()
 type birthdayService struct{}
 
 type birthdayExtraData struct {
-	Year       int   `json:"birthdayYear"`
-	BlessingId int64 `json:"blessingId,omitempty"`
+	Year             int   `json:"birthdayYear"`
+	BlessingId       int64 `json:"blessingId,omitempty"`
+	BlessingAuthorId int64 `json:"blessingAuthorId,omitempty"`
 }
 
 func newBirthdayService() *birthdayService {
@@ -66,24 +67,26 @@ func (s *birthdayService) sendNotice(user *model.User, now time.Time) error {
 	age := now.Year() - birthday.Year()
 	content := fmt.Sprintf("亲爱的潮人 %s ：今天是你%d岁的生日，求是潮BBS祝你生日快乐！愿你永远有大步向前的勇气，永远有一颗真诚的心，也祝你学习进步，工作顺利。但更重要的是，我们希望你身体健康，无忧无虑。浪潮不息，求是潮BBS永远是你的港湾，每朵浪花我们都记念于心^_^", user.Nickname, age)
 	var blessing *model.BirthdayBlessing
+	var blessingAuthorId int64
 	if user.BirthdayBlessingEnabled && SysConfigService.IsBirthdayRandomBlessingEnabled() {
-		blessing = BirthdayBlessingService.RandomForUser(
-			user.Id,
-			user.Department,
-			user.BirthdayBlessingPreferSameDepartment,
-		)
+		blessing = BirthdayBlessingService.RandomForUser(user.Id)
 		if blessing != nil {
+			blessingAuthorId = getBirthdayBlessingAuthorId(blessing)
 			content += fmt.Sprintf("\n\n来自潮人 %s 的留言：%s", blessing.Nickname, blessing.Content)
 		}
 	}
 
 	notification := &model.Message{
-		FromId:     0,
-		UserId:     user.Id,
-		Title:      "生日快乐！",
-		Content:    content,
-		Type:       int(msg.TypeBirthday),
-		ExtraData:  jsons.ToJsonStr(birthdayExtraData{Year: now.Year(), BlessingId: blessingId(blessing)}),
+		FromId:  0,
+		UserId:  user.Id,
+		Title:   "生日快乐！",
+		Content: content,
+		Type:    int(msg.TypeBirthday),
+		ExtraData: jsons.ToJsonStr(birthdayExtraData{
+			Year:             now.Year(),
+			BlessingId:       blessingId(blessing),
+			BlessingAuthorId: blessingAuthorId,
+		}),
 		Status:     msg.StatusUnread,
 		CreateTime: dates.NowTimestamp(),
 	}
@@ -154,6 +157,20 @@ func (s *birthdayService) createBlessingReceivedNotifications(tx *gorm.DB, recei
 		notifications = append(notifications, notification)
 	}
 	return notifications, nil
+}
+
+func getBirthdayBlessingAuthorId(blessing *model.BirthdayBlessing) int64 {
+	if blessing == nil {
+		return 0
+	}
+	author := UserService.FindOne(sqls.NewCnd().
+		Eq("nickname", strings.TrimSpace(blessing.Nickname)).
+		Eq("status", constants.StatusOk).
+		Asc("id"))
+	if author == nil {
+		return 0
+	}
+	return author.Id
 }
 
 func blessingId(blessing *model.BirthdayBlessing) int64 {
