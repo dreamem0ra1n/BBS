@@ -1,5 +1,6 @@
 .idea
 dist
+miniprogram/node_modules/
 *.log
 .DS_Store
 .vscode

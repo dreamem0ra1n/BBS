@@ -9,6 +9,7 @@
 | Server | `server/` | `8082` | Go API 服务 |
 | Site | `site/` | `3000` | Nuxt 2 SSR 前台，访问前缀 `/bbs2` |
 | Admin | `admin/` | `8080` | Vue 2 管理后台，访问前缀 `/bbsadmin` |
+| Mini Program | `miniprogram/` | - | uni-app + Vue 3 + TypeScript 微信小程序端 |
 | MySQL | - | `3306` | 主数据库；推荐使用 MySQL 5.7 |
 | MinIO | - | `9000/9001` | 文件对象存储及管理控制台 |
 | Meilisearch | - | `7700` | 可选；搜索索引服务，只保存后端同步的索引，不启动则搜索回退到数据库 `LIKE` |
@@ -451,6 +452,138 @@ Redis unavailable; online presence is disabled
 被拒绝的 WebSocket 连接会在后端留下 `presence:` 开头的告警日志，按原因区分：`连接凭证校验失败`（凭证过期、重复使用，或页面停留过久）、`WebSocket 登录态校验失败`（登录 cookie 与凭证中的用户不一致）、`WebSocket 连接被拒绝`（触发了 `Presence` 里的并发上限，日志中会带上具体数值）、`Origin 校验失败`（`AllowedOrigins` 与访问域名不匹配）。日志同时记录 `user_id` 和 `ip_hash`，`ip_hash` 是 IP 的不可逆哈希，用于统计同源连接而不会落盘明文地址。
 
 修复后后端会定期重新连接 Redis，前端也会使用指数退避自动重连 WebSocket；通常等待最多 30 秒或刷新页面即可恢复，无需重启整个 BBS。
+
+## 微信小程序开发
+
+小程序端位于 [`miniprogram/`](miniprogram/)，使用 `uni-app + Vue 3 + TypeScript + Vite`，不依赖 `site/` 的 Nuxt 运行时；当前骨架包含首页话题列表、话题详情、登录页（密码登录）和 Passport 登录页。
+
+### 1. 开发环境
+
+1. 安装 Node.js 22 和 Yarn 1.22.22。
+2. 安装[微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)。
+3. 进入 `miniprogram/` 安装依赖：
+
+```bash
+cd /root/BBS/miniprogram
+yarn install
+```
+
+4. 在 `miniprogram/src/manifest.json` 中把 `mp-weixin.appid` 替换为自己的小程序 AppID；没有 AppID 时可以先使用测试号或 `touristappid` 预览页面。
+5. 根据环境修改 `miniprogram/src/config/env.ts`：
+
+```ts
+export const env = {
+  apiBaseUrl: 'https://你的域名/bbs2',
+  passportUrl: 'https://www.qsc.zju.edu.cn/passport/v4/static/index.html#/login',
+  passportBridgeUrl: 'https://你的域名/bbs2/miniprogram/passport',
+}
+```
+
+本地后端调试时，真机不能使用 `localhost`，应改成运行后端电脑的局域网 IP，例如 `http://192.168.1.10:8082`。微信开发者工具中可以暂时勾选“详情 → 本地设置 → 不校验合法域名、web-view 业务域名、TLS 版本以及 HTTPS 证书”。正式发布不能依赖这个选项。
+
+### 2. Passport 登录说明
+
+网页端 Passport 登录依赖浏览器 Cookie：Passport 把 `SESSION_TOKEN` 放在回调 URL，网页端再调用 `/api/login/signin` 换取 BBS `userToken`。小程序的 `wx.request` 不会共享网页 Cookie，因此不能直接复用网页端的登录回调。
+
+当前骨架使用以下兼容流程：
+
+```text
+小程序 web-view
+  -> Passport 登录
+  -> /bbs2/miniprogram/passport?SESSION_TOKEN=...
+  -> Site bridge 调用 /api/login/signin
+  -> wx.miniProgram.postMessage({ token, user })
+  -> 小程序保存 userToken，并用 X-User-Token 请求 API
+```
+
+桥接页面是 [`site/pages/miniprogram/passport.vue`](site/pages/miniprogram/passport.vue)，网页端的全局 `checkSession` 中间件已为该路径跳过自动消费逻辑。部署 Site 后，必须把 `passportBridgeUrl` 配置成实际可访问的 HTTPS 地址，并在微信公众平台配置：
+
+- request 合法域名：API 域名
+- uploadFile/downloadFile 合法域名：文件上传和预览域名
+- web-view 业务域名：Site 域名
+
+如果不部署 Site bridge，Passport 登录页可以打开，但登录成功后无法把 `userToken` 返回给小程序。`SESSION_TOKEN` 和 Passport 的任何密钥都不要写入小程序代码。
+
+### 3. 用本地后端调试（密码登录）
+
+开发包和发布包连的是不同后端，切换由构建模式决定，不需要手工改地址（见 [`miniprogram/src/config/env.ts`](miniprogram/src/config/env.ts)）：
+
+| 命令 | 产物 | `apiBaseUrl` |
+| --- | --- | --- |
+| `yarn dev:mp-weixin` | `dist/dev/mp-weixin/` | `http://127.0.0.1:8082`（本地后端） |
+| `yarn build:mp-weixin` | `dist/build/mp-weixin/` | 线上地址 |
+
+后端在 WSL 里跑时，Windows 侧的 `127.0.0.1:8082` 会自动转发到 WSL 内监听的端口，不需要额外做端口映射。
+
+本地后端要用密码登录，必须同时满足两个条件：
+
+1. 后端镜像用 Dockerfile 的 `dev` target 构建（与前面「构建并启动开发后端」相同；不装 Go 也能用，编译在镜像里完成）。`dev` target 带 `passwordlogin` build tag；默认的 `prod` target 不含密码登录控制器，`/api/login/password` 不会注册（返回 404）：
+
+```bash
+cd /root/BBS
+docker build --network=host --target dev -t bbs-neo-backend-dev ./server
+```
+
+换成 dev 镜像后重建容器（`-v` 挂载的 `bbs-go.yaml` 里 `LoginMethods.password` 要为 `true`）：
+
+```bash
+docker rm -f bbs-backend
+docker run -d --name bbs-backend --network bbs-net --restart unless-stopped \
+  -p 8082:8082 \
+  -v /root/BBS/server/bbs-go.yaml:/bbs-go.yaml:ro \
+  bbs-neo-backend-dev
+```
+
+改了后端代码后要重新 `docker build --target dev` 并重建容器，否则跑的还是旧二进制。应用容器是无状态的，`docker rm -f bbs-backend` 重建不会丢数据（数据在 MySQL/MinIO 的 volume 里）。
+
+2. `bbs-go.yaml` 中 `LoginMethods.password: true`，见前面「创建本地后端配置」。
+
+登录页会先请求 `/api/config/configs`，按后端返回的 `loginMethods` 决定显示密码表单还是 Passport 按钮——和 Site、Admin 的判定方式一致。本地配置下应看到密码表单，用开发种子账号 `admin / 123456` 登录。
+
+开发者工具里还需要「详情 → 本地设置」勾选**不校验合法域名、web-view 业务域名、TLS 版本及 HTTPS 证书**，否则 `http://127.0.0.1:8082` 会被拦截。真机预览不能用 `127.0.0.1`：把 `DEV_API_BASE_URL` 改成运行后端的电脑局域网 IP（例如 `http://192.168.1.10:8082`），并确保后端监听 `0.0.0.0`、Windows 防火墙放行该端口。
+
+### 4. 调试流程
+
+```bash
+# 启动后端（另见前面的本地部署章节）
+cd /root/BBS/server
+go run . -config ./bbs-go.yaml
+
+# 启动 Site，提供 Passport bridge
+cd /root/BBS/site
+yarn dev
+```
+
+启动小程序端：
+
+```bash
+cd /root/BBS/miniprogram
+yarn dev:mp-weixin
+```
+
+命令会生成 `dist/dev/mp-weixin/`，在微信开发者工具中打开该目录并点击“编译”。首页会请求 `/api/topic/topics`；点击“登录”进入登录页，密码登录走 `/api/login/password`，Passport 登录走 `pages/passport/passport` 的 web-view。登录成功后`userToken` 会保存到本地 Storage，后续请求通过 `X-User-Token` 发送。
+
+也可以直接使用 H5 预览：
+
+```bash
+yarn dev:h5
+```
+
+发布微信小程序代码：
+
+```bash
+yarn build:mp-weixin
+```
+
+产物位于 `dist/build/mp-weixin/`，再导入微信开发者工具上传审核。
+
+当前小程序请求层会把 POST 数据编码为 `application/x-www-form-urlencoded`，这是因为现有 Go API 使用表单参数解析。帖子内容的 HTML 目前使用原生 `rich-text` 展示；正式实现图片、评论、发帖和上传时，应增加 `mp-html` 等富文本组件，并处理后端返回的 `data-src` 图片属性。
+
+### 5. 当前范围与后续工作
+
+- 已有：uni-app 基础工程、TypeScript 请求封装、token 持久化、话题列表、话题详情、密码登录、Passport web-view bridge。
+- 待实现：评论、发帖、编辑、点赞、收藏、文件上传、个人中心。
+- 在线用户功能暂未接入；它依赖带 Origin 校验的 WebSocket 和 Redis，需要单独适配小程序 `wx.connectSocket`。
 
 ## 服务器部署
 
