@@ -168,6 +168,7 @@ export default {
         },
       },
       hashScrolled: false,
+      commentListMounted: false,
     }
   },
   computed: {
@@ -186,11 +187,18 @@ export default {
       immediate: true,
       handler(value) {
         this.commentResults = ((value && value.results) || []).slice()
+        if (this.commentListMounted) {
+          this.scrollToFirstComment()
+        }
       },
     },
   },
   mounted() {
+    this.commentListMounted = true
     this.scrollToHashComment()
+    if (this.$route && this.$route.params && this.$route.params.page) {
+      this.scrollToFirstComment()
+    }
   },
   methods: {
     HTMLDecode,
@@ -213,6 +221,24 @@ export default {
         this.hashScrolled = true
         target.scrollIntoView({ block: 'center' })
       }
+    },
+    scrollToFirstComment() {
+      if (
+        typeof window === 'undefined' ||
+        !this.commentResults.length ||
+        window.location.hash
+      ) {
+        return
+      }
+
+      this.$nextTick(() => {
+        setTimeout(() => {
+          const firstComment = this.$el.querySelector('.comment')
+          if (firstComment) {
+            firstComment.scrollIntoView({ block: 'start' })
+          }
+        }, 0)
+      })
     },
     append(data) {
       if (data) {
