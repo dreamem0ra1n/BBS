@@ -61,6 +61,9 @@
               >
                 <i class="iconfont icon-favorites" />&nbsp;我的收藏
               </nuxt-link>
+              <nuxt-link class="navbar-item" to="/checkin">
+                <i class="iconfont icon-log" />&nbsp;签到
+              </nuxt-link>
               <nuxt-link class="navbar-item" to="/user/profile">
                 <i class="iconfont icon-edit" />&nbsp;编辑资料
               </nuxt-link>

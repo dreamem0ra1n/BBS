@@ -245,6 +245,9 @@ func registerUser(u LoginUser) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err = services.CheckInService.InitializeUser(user.Id); err != nil {
+		return nil, err
+	}
 	return user, nil
 }
 

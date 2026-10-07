@@ -70,8 +70,9 @@ func (s *userService) Create(t *model.User) error {
 	err := repositories.UserRepository.Create(sqls.DB(), t)
 	if err == nil {
 		cache.UserCache.Invalidate(t.Id)
+		err = CheckInService.InitializeUser(t.Id)
 	}
-	return nil
+	return err
 }
 
 func (s *userService) Update(t *model.User) error {
@@ -240,6 +241,9 @@ func (s *userService) SignUp(username, email, nickname, password, rePassword str
 
 	err = repositories.UserRepository.Create(sqls.DB(), user)
 	if err != nil {
+		return nil, err
+	}
+	if err = CheckInService.InitializeUser(user.Id); err != nil {
 		return nil, err
 	}
 	return user, nil

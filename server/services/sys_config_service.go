@@ -247,6 +247,9 @@ func (s *sysConfigService) GetConfig() *model.SysConfigResponse {
 	if scoreConfig.GiftScoreMax <= 0 || scoreConfig.GiftScoreMax > maxGiftScoreMax {
 		scoreConfig.GiftScoreMax = defaultGiftScoreMax
 	}
+	if scoreConfig.ConsecutiveRankSize <= 0 {
+		scoreConfig.ConsecutiveRankSize = 20
+	}
 
 	var (
 		defaultNodeId      = numbers.ToInt64(defaultNodeIdStr)

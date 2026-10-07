@@ -139,6 +139,15 @@
                 placeholder="单次赠米数量上限"
               />
             </el-form-item>
+            <el-form-item label="连续签到排行人数">
+              <el-input-number
+                v-model="config.scoreConfig.consecutiveRankSize"
+                :min="1"
+                :max="1000"
+                type="text"
+                placeholder="连续签到排行展示人数"
+              />
+            </el-form-item>
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="生日随机祝福" name="birthdayBlessingTab">
@@ -321,6 +330,9 @@ export default {
         }
         if (this.config.scoreConfig && !this.config.scoreConfig.giftScoreMax) {
           this.config.scoreConfig.giftScoreMax = 50;
+        }
+        if (this.config.scoreConfig && !this.config.scoreConfig.consecutiveRankSize) {
+          this.config.scoreConfig.consecutiveRankSize = 20;
         }
         this.nodes = await this.axios.get("/api/admin/topic-node/nodes");
         if (this.config.birthdayRandomBlessing) this.loadBlessings();

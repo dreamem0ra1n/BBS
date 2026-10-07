@@ -122,6 +122,33 @@ CREATE TABLE `t_file_record`
 
 - 初始化系统配置数据
 
+- 签到中心升级（已有数据库执行一次；`ADD COLUMN` 如已存在请跳过）
+
+```sql
+ALTER TABLE `t_check_in` ADD COLUMN `total_check_in_days` int NOT NULL DEFAULT 0;
+ALTER TABLE `t_check_in` ADD COLUMN `latest_check_in_time` bigint(20) NOT NULL DEFAULT 0;
+ALTER TABLE `t_check_in` ADD COLUMN `makeup_cards` int NOT NULL DEFAULT 0;
+ALTER TABLE `t_check_in` ADD COLUMN `rewarded_check_in_days` int NOT NULL DEFAULT 0;
+ALTER TABLE `t_check_in` ADD COLUMN `initial_cards_granted` tinyint(1) NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS `t_check_in_day` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `check_in_date` int NOT NULL,
+  `check_in_type` varchar(16) NOT NULL,
+  `check_in_time` bigint(20) NOT NULL,
+  `create_time` bigint(20) DEFAULT NULL,
+  `update_time` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_checkin_day_user_date` (`user_id`,`check_in_date`),
+  KEY `idx_checkin_day_date` (`check_in_date`),
+  KEY `idx_checkin_day_user` (`user_id`),
+  KEY `idx_checkin_day_date_time` (`check_in_date`,`check_in_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+应用启动时会为已有用户幂等初始化 3 张补签卡，并将旧汇总表中唯一可确认的最近签到日迁移为一条明细；无法恢复的历史日期不会被补造。新注册用户在注册完成后获得 3 张补签卡。
+
 ```sql
 INSERT INTO t_sys_config(`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'siteTitle',
@@ -185,7 +212,7 @@ WHERE NOT EXISTS(SELECT * FROM `t_sys_config` WHERE `key` = 'tokenExpireDays');
 
 INSERT INTO t_sys_config (`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'scoreConfig',
-       '{"postTopicScore":1,"postCommentScore":1,"checkInScore":1,"checkInScoreMax":7,"giftScoreMax":50}',
+       '{"postTopicScore":1,"postCommentScore":1,"checkInScore":1,"checkInScoreMax":7,"giftScoreMax":50,"consecutiveRankSize":20}',
        '积分配置',
        '积分配置',
        (UNIX_TIMESTAMP(now()) * 1000),

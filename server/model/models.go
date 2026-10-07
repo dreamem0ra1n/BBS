@@ -8,7 +8,7 @@ import (
 var Models = []interface{}{
 	&User{}, &UserToken{}, &Tag{}, &Article{}, &ArticleTag{}, &Comment{}, &Favorite{}, &Topic{}, &TopicNode{},
 	&TopicTag{}, &UserLike{}, &Message{}, &SysConfig{}, &Link{}, &ThirdAccount{},
-	&UserScoreLog{}, &TopicGift{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &UserFollow{}, &UserFeed{},
+	&UserScoreLog{}, &TopicGift{}, &OperateLog{}, &EmailCode{}, &CheckIn{}, &CheckInDay{}, &UserFollow{}, &UserFeed{},
 	&UserNotificationSetting{}, &BirthdayBlessing{}, &BirthdayBlessingHistory{},
 	&FileRecord{},
 }
@@ -327,9 +327,24 @@ type CheckIn struct {
 	Model
 	UserId          int64 `gorm:"not null;uniqueIndex:idx_user_id" json:"userId" form:"userId"` // 用户编号
 	LatestDayName   int   `gorm:"not null;index:idx_latest" json:"dayName" form:"dayName"`      // 最后一次签到
+	LatestCheckInTime int64 `gorm:"not null;default:0;index:idx_latest" json:"latestCheckInTime"`
 	ConsecutiveDays int   `gorm:"not null;" json:"consecutiveDays" form:"consecutiveDays"`      // 连续签到天数
+	TotalCheckInDays int  `gorm:"not null;default:0" json:"totalCheckInDays" form:"totalCheckInDays"`
+	MakeupCards     int   `gorm:"not null;default:0" json:"makeupCards" form:"makeupCards"`
+	RewardedCheckInDays int `gorm:"not null;default:0" json:"-"`
+	InitialCardsGranted bool `gorm:"not null;default:false" json:"-"`
 	CreateTime      int64 `json:"createTime" form:"createTime"`                                 // 创建时间
 	UpdateTime      int64 `gorm:"index:idx_latest" json:"updateTime" form:"updateTime"`         // 更新时间
+}
+
+type CheckInDay struct {
+	Model
+	UserId      int64  `gorm:"not null;uniqueIndex:idx_checkin_day_user_date;index:idx_checkin_day_user" json:"userId"`
+	CheckInDate int    `gorm:"not null;uniqueIndex:idx_checkin_day_user_date;index:idx_checkin_day_date" json:"checkInDate"`
+	CheckInType string `gorm:"size:16;not null;index:idx_checkin_day_type" json:"checkInType"`
+	CheckInTime int64  `gorm:"not null;index:idx_checkin_day_date_time" json:"checkInTime"`
+	CreateTime  int64  `json:"createTime"`
+	UpdateTime  int64  `json:"updateTime"`
 }
 
 // UserFollow 粉丝关注

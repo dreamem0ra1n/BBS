@@ -13,6 +13,7 @@ type ScoreConfig struct {
 	CheckInScore     int `json:"checkInScore"`     // 旧版固定签到积分（兼容旧配置）
 	CheckInScoreMax  int `json:"checkInScoreMax"`  // 连续签到每日积分上限
 	GiftScoreMax     int `json:"giftScoreMax"`     // 单次赠米上限
+	ConsecutiveRankSize int `json:"consecutiveRankSize"` // 连续签到排行展示人数
 }
 
 type LoginMethod struct {

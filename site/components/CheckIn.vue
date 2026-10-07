@@ -1,6 +1,9 @@
 <template>
   <div class="widget">
-    <div class="widget-header">签到</div>
+    <div class="widget-header">
+      <span>签到</span>
+      <nuxt-link class="checkin-more" to="/checkin">查看更多</nuxt-link>
+    </div>
     <div class="widget-content checkin">
       <div class="checkedin">
         <div class="gold-icon-box">
@@ -51,7 +54,11 @@
         </div>
 
         <div v-else class="checkedin-btn-box">
-          <a class="checkedin-btn" @click="doCheckIn">
+          <a
+            class="checkedin-btn"
+            :class="{ disabled: checking }"
+            @click="doCheckIn"
+          >
             <span class="checkedin-btn-icon">
               <svg
                 fill="none"
@@ -131,6 +138,7 @@ export default {
     return {
       checkIn: null,
       checkInRank: null,
+      checking: false,
     }
   },
   computed: {
@@ -155,15 +163,21 @@ export default {
     },
     async doCheckIn() {
       if (!this.isLogin) {
-        this.$toSignin()
+        this.$toSignin('/checkin')
+        return
       }
+      if (this.checking) return
+      this.checking = true
       try {
         await this.$axios.post('/api/checkin/checkin')
         this.$message.success('签到成功')
         await this.getCheckIn()
         await this.loadCheckInRank()
       } catch (e) {
+        this.$message.error(e.message || '签到失败，请稍后重试')
         console.error(e)
+      } finally {
+        this.checking = false
       }
     },
     async loadCheckInRank() {
@@ -319,5 +333,12 @@ export default {
       }
     }
   }
+}
+
+.checkin-more {
+  float: right;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-color3);
 }
 </style>

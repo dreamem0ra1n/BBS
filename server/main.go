@@ -56,6 +56,9 @@ func init() {
 	if err = sqls.Open(config.Instance.DB.Url, gormConf, config.Instance.DB.MaxIdleConns, config.Instance.DB.MaxOpenConns, model.Models...); err != nil {
 		logrus.Fatal("Failed to connect to database: ", err)
 	}
+	if err = services.CheckInService.InitializeAllUsers(); err != nil {
+		logrus.Fatal("failed to initialize check-in makeup cards: ", err)
+	}
 
 	if services.OldBBSService.DB, err = gorm.Open(mysql.Open(config.Instance.OldDB.Url)); err != nil {
 		logrus.Fatal("Failed to connect to old database: ", err)
