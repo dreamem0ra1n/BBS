@@ -45,10 +45,20 @@
                   topicsPage && topicsPage.results && topicsPage.results.length
                 "
               >
-                <topic-list :topics="topicsPage.results" :show-avatar="false" />
-                <pagination
-                  :page="topicsPage.page"
+                <page-jump-pagination
+                  :paging="topicsPage.page"
+                  :page="topicsPage.page.page"
                   :url-prefix="paginationUrlPrefix"
+                  placement="top"
+                  standalone
+                />
+                <topic-list :topics="topicsPage.results" :show-avatar="false" />
+                <page-jump-pagination
+                  :paging="topicsPage.page"
+                  :page="topicsPage.page.page"
+                  :url-prefix="paginationUrlPrefix"
+                  placement="bottom"
+                  standalone
                 />
               </div>
               <div v-else class="notification is-primary">暂无话题</div>
@@ -58,9 +68,19 @@
               <div v-if="favoritesPrivate" class="notification is-primary">
                 浪潮的秘密暂未公开:)
               </div>
+              <page-jump-pagination
+                v-if="!favoritesPrivate && favoritesPage.page"
+                :paging="favoritesPage.page"
+                :page="favoritesPage.page.page"
+                :url-prefix="paginationUrlPrefix"
+                placement="top"
+                standalone
+              />
               <ul
-                v-else-if="
-                  favoritesPage.results && favoritesPage.results.length
+                v-if="
+                  !favoritesPrivate &&
+                  favoritesPage.results &&
+                  favoritesPage.results.length
                 "
                 class="favorite-list"
               >
@@ -88,29 +108,31 @@
                   </template>
                 </li>
               </ul>
-              <div v-else class="notification is-primary">暂无收藏</div>
-              <pagination
+              <div
+                v-else-if="!favoritesPrivate"
+                class="notification is-primary"
+              >
+                暂无收藏
+              </div>
+              <page-jump-pagination
                 v-if="!favoritesPrivate && favoritesPage.page"
-                :page="favoritesPage.page"
+                :paging="favoritesPage.page"
+                :page="favoritesPage.page.page"
                 :url-prefix="paginationUrlPrefix"
+                placement="bottom"
+                standalone
               />
             </div>
 
             <div v-else-if="activeTab === 'comments'">
-              <div class="comment-order">
-                <span>排序：</span>
-                <nuxt-link
-                  :class="{ active: !ascOrder }"
-                  :to="tabLink('comments', 0)"
-                  >倒序</nuxt-link
-                >
-                <span> · </span>
-                <nuxt-link
-                  :class="{ active: ascOrder }"
-                  :to="tabLink('comments', 1)"
-                  >正序</nuxt-link
-                >
-              </div>
+              <page-jump-pagination
+                v-if="commentsPage.page"
+                :paging="commentsPage.page"
+                :page="commentsPage.page.page"
+                :url-prefix="paginationUrlPrefix"
+                placement="top"
+                standalone
+              />
               <ul
                 v-if="commentsPage.results && commentsPage.results.length"
                 class="user-comments"
@@ -133,10 +155,13 @@
                 </li>
               </ul>
               <div v-else class="notification is-primary">暂无回复</div>
-              <pagination
+              <page-jump-pagination
                 v-if="commentsPage.page"
-                :page="commentsPage.page"
+                :paging="commentsPage.page"
+                :page="commentsPage.page.page"
                 :url-prefix="paginationUrlPrefix"
+                placement="bottom"
+                standalone
               />
             </div>
           </div>
@@ -171,7 +196,6 @@ export default {
     const activeTab =
       requestedTab === 'comments' && !isOwner ? defaultTab : requestedTab
     const page = query.p || 1
-    const ascOrder = query.asc_order === '1' ? 1 : 0
     let topicsPage = null
     let favoritesPage = null
     let commentsPage = null
@@ -191,12 +215,11 @@ export default {
       }
     } else {
       commentsPage = await $axios.get('/api/comment/user/comments', {
-        params: { userId: params.userId, page, asc_order: ascOrder },
+        params: { userId: params.userId, page },
       })
     }
     return {
       activeTab,
-      ascOrder,
       user,
       topicsPage,
       favoritesPage,
@@ -221,12 +244,10 @@ export default {
       return this.user && current && this.user.id === current.id
     },
     paginationUrlPrefix() {
-      const order =
-        this.activeTab === 'comments' ? `&asc_order=${this.ascOrder}` : ''
-      return `/user/${this.user.id}?tab=${this.activeTab}${order}&p=`
+      return `/user/${this.user.id}?tab=${this.activeTab}&p=`
     },
   },
-  watchQuery: ['tab', 'p', 'asc_order'],
+  watchQuery: ['tab', 'p'],
   methods: {
     commentDisplayContent(comment) {
       let content = (comment.content || '').replace(/<img\b[^>]*>/gi, '[图片]')
@@ -236,11 +257,8 @@ export default {
       }
       return content
     },
-    tabLink(tab, order) {
-      const query = { tab }
-      if (tab === 'comments')
-        query.asc_order = order == null ? this.ascOrder : order
-      return { path: `/user/${this.user.id}`, query }
+    tabLink(tab) {
+      return { path: `/user/${this.user.id}`, query: { tab } }
     },
   },
 }
@@ -286,18 +304,6 @@ export default {
     a {
       color: var(--text-link-color);
       margin-right: 10px;
-    }
-  }
-
-  .comment-order {
-    text-align: right;
-    padding: 5px 0;
-
-    a {
-      color: var(--text-link-color);
-      &.active {
-        font-weight: bold;
-      }
     }
   }
 

@@ -5,9 +5,10 @@
     :class="{
       'is-header': placement === 'top',
       'is-bottom': placement === 'bottom',
+      'is-standalone': standalone,
     }"
     role="navigation"
-    aria-label="评论分页"
+    aria-label="分页"
   >
     <div class="comment-page-links">
       <template v-for="(item, idx) in pageItems">
@@ -81,16 +82,16 @@
 <script>
 export default {
   props: {
-    commentsPage: {
+    paging: {
       type: Object,
       default() {
         return {}
       },
       required: true,
     },
-    entityId: {
-      type: [Number, String],
-      default: 0,
+    urlPrefix: {
+      type: String,
+      default: '',
       required: true,
     },
     page: {
@@ -101,6 +102,10 @@ export default {
       type: String,
       default: 'top',
     },
+    standalone: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -109,12 +114,11 @@ export default {
   },
   computed: {
     totalPages() {
-      const paging = this.commentsPage && this.commentsPage.page
-      if (!paging || !paging.total) {
+      if (!this.paging || !this.paging.total) {
         return 1
       }
-      const limit = paging.limit || 10
-      return Math.max(1, Math.ceil(paging.total / limit))
+      const limit = this.paging.limit || 10
+      return Math.max(1, Math.ceil(this.paging.total / limit))
     },
     currentPage() {
       return Math.min(Math.max(this.page || 1, 1), this.totalPages)
@@ -123,7 +127,7 @@ export default {
       return String(this.totalPages).length
     },
     pageInputId() {
-      return `comment-page-input-${this.entityId}-${this.placement}`
+      return `page-input-${this.placement}`
     },
     pageItems() {
       const total = this.totalPages
@@ -169,7 +173,7 @@ export default {
   },
   methods: {
     pageUrl(page) {
-      return `/topic/${this.entityId}/${page}`
+      return `${this.urlPrefix}${page}`
     },
     onPageInput(event) {
       this.pageInput = event.target.value.slice(0, this.pageInputMaxLength)
@@ -221,6 +225,7 @@ export default {
   font-size: 14px;
 
   &.is-header {
+    justify-content: flex-end;
     margin-right: 12px;
   }
 
@@ -228,6 +233,12 @@ export default {
     justify-content: flex-end;
     margin-top: 8px;
     padding: 10px 10px 14px;
+  }
+
+  &.is-standalone {
+    justify-content: flex-end;
+    margin: 8px 0;
+    padding: 8px 10px;
   }
 }
 

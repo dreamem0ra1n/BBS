@@ -4,9 +4,9 @@
       <span v-if="commentCount > 0">{{ commentCount }}条评论</span>
       <span v-else>评论</span>
       <span class="comment-header-right">
-        <comment-pagination
-          :comments-page="commentsPage"
-          :entity-id="entityId"
+        <page-jump-pagination
+          :paging="commentsPage.page || {}"
+          :url-prefix="`/topic/${entityId}/`"
           :page="page"
           placement="top"
         />
@@ -41,9 +41,9 @@
       @reply="reply"
       @deleted="$emit('deleted')"
     />
-    <comment-pagination
-      :comments-page="commentsPage"
-      :entity-id="entityId"
+    <page-jump-pagination
+      :paging="commentsPage.page || {}"
+      :url-prefix="`/topic/${entityId}/`"
       :page="page"
       placement="bottom"
     />
@@ -51,10 +51,10 @@
 </template>
 
 <script>
-import CommentPagination from './CommentPagination.vue'
+import PageJumpPagination from './PageJumpPagination.vue'
 
 export default {
-  components: { CommentPagination },
+  components: { PageJumpPagination },
   props: {
     mode: {
       type: String,
