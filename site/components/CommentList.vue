@@ -188,7 +188,11 @@ export default {
       handler(value) {
         this.commentResults = ((value && value.results) || []).slice()
         if (this.commentListMounted) {
-          this.scrollToFirstComment()
+          if (window.location.hash) {
+            this.scrollToHashComment()
+          } else {
+            this.scrollToFirstComment()
+          }
         }
       },
     },
@@ -232,8 +236,10 @@ export default {
         }
         const currentPage = parseInt(this.$route.params.page, 10) || 1
         if (location.page !== currentPage) {
-          const path = `/topic/${this.entityId}/${location.page}${window.location.hash}`
-          window.location.replace(path)
+          this.$router.replace({
+            path: `/topic/${this.entityId}/${location.page}`,
+            hash: window.location.hash,
+          })
           return
         }
         const root = this.commentResults.find(
@@ -241,10 +247,14 @@ export default {
         )
         if (root && root.commentId !== location.comment.commentId) {
           if (!root.replies) {
-            root.replies = { results: [], cursor: '0', hasMore: false }
+            this.$set(root, 'replies', {
+              results: [],
+              cursor: '0',
+              hasMore: false,
+            })
           }
           if (!root.replies.results) {
-            root.replies.results = []
+            this.$set(root.replies, 'results', [])
           }
           if (
             !root.replies.results.some(
