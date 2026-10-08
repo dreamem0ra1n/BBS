@@ -149,7 +149,7 @@
                     }}</a>
                   </div>
                   <div
-                    class="comment-content"
+                    class="comment-content content"
                     v-html="commentDisplayContent(comment)"
                   />
                 </li>
