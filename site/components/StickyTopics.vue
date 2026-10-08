@@ -14,6 +14,10 @@ export default {
       type: Number,
       default: 0,
     },
+    tagId: {
+      type: Number,
+      default: 0,
+    },
   },
   data() {
     return {
@@ -29,6 +33,7 @@ export default {
         this.topics = await this.$axios.get('/api/topic/sticky_topics', {
           params: {
             nodeId: this.nodeId,
+            tagId: this.tagId,
           },
         })
       } catch (e) {

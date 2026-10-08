@@ -633,7 +633,19 @@ func (s *topicService) GetUserTopics(userId, cursor int64) (topics []model.Topic
 	return
 }
 
-func (s *topicService) GetStickyTopics(nodeId int64, limit int) []model.Topic {
+func (s *topicService) GetStickyTopics(nodeId, tagId int64, limit int) []model.Topic {
+	if tagId > 0 {
+		query := "SELECT DISTINCT a.* FROM t_topic a INNER JOIN t_topic_tag b ON a.id = b.topic_id " +
+			"WHERE a.sticky = true AND a.status = ? AND b.tag_id = ? AND b.status = ?"
+		queryParams := []interface{}{constants.StatusOk, tagId, constants.StatusOk}
+		if nodeId > 0 {
+			query += " AND a.node_id = ?"
+			queryParams = append(queryParams, nodeId)
+		}
+		query += " ORDER BY a.sticky_time DESC LIMIT ?"
+		queryParams = append(queryParams, limit)
+		return repositories.TopicRepository.FindBySql(sqls.DB(), query, queryParams...)
+	}
 	if nodeId > 0 {
 		return s.Find(sqls.NewCnd().Where("node_id = ? and sticky = true and status = ?",
 			nodeId, constants.StatusOk).Desc("sticky_time").Limit(limit))

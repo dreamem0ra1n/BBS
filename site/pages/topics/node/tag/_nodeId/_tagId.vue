@@ -2,7 +2,7 @@
   <div class="topics-main">
     <tag-bar :node-id="node.nodeId" />
     <topic-sort :value="sort" />
-    <sticky-topics :node-id="node.nodeId" />
+    <sticky-topics :node-id="node.nodeId" :tag-id="tag.tagId" />
     <load-more
       v-if="topicsPage"
       v-slot="{ results }"

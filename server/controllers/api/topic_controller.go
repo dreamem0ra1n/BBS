@@ -371,7 +371,8 @@ func (c *TopicController) GetNewest() *web.JsonResult {
 func (c *TopicController) GetSticky_topics() *web.JsonResult {
 	user := services.UserTokenService.GetCurrent(c.Ctx)
 	nodeId := params.FormValueInt64Default(c.Ctx, "nodeId", 0)
-	topics := services.TopicService.GetStickyTopics(nodeId, 3)
+	tagId := params.FormValueInt64Default(c.Ctx, "tagId", 0)
+	topics := services.TopicService.GetStickyTopics(nodeId, tagId, 3)
 	return web.JsonData(render.BuildSimpleTopics(topics, user))
 }
 

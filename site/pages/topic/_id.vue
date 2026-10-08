@@ -163,7 +163,14 @@
                 <nuxt-link
                   v-for="tag in topic.tags"
                   :key="tag.tagId"
-                  :to="'/topics/tag/' + tag.tagId"
+                  :to="
+                    topic.node
+                      ? '/topics/node/tag/' +
+                        topic.node.nodeId +
+                        '/' +
+                        tag.tagId
+                      : '/topics/tag/' + tag.tagId
+                  "
                   class="topic-tag"
                   >#{{ tag.tagName }}</nuxt-link
                 >

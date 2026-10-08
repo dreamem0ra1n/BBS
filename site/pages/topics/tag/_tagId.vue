@@ -1,11 +1,12 @@
 <template>
   <div class="topics-main">
-    <sticky-topics :node-id="0" />
+    <sticky-topics :tag-id="tag.tagId" />
     <load-more
       v-if="topicsPage"
       v-slot="{ results }"
       :init-data="topicsPage"
-      :url="'/api/topic/tag/topics' + tag.id"
+      url="/api/topic/tag/topics"
+      :params="{ tagId: tag.tagId }"
     >
       <topic-list :topics="results" />
     </load-more>
