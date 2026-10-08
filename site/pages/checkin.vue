@@ -111,7 +111,7 @@
             >
               {{ makeupLoading ? '补签中…' : '自动补签最近漏签日' }}
             </button>
-            <p class="help">每累计 7 个有效签到日获得 1 张。</p>
+            <p class="help">每累计 15 个有效签到日获得 1 张。</p>
           </div>
         </div>
         <rank-list

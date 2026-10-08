@@ -131,10 +131,12 @@ func (s *checkInService) refreshStats(tx *gorm.DB, stats *model.CheckIn, userId 
 		if err := tx.Where("user_id = ? AND check_in_date = ?", userId, datesList[0]).First(&latest).Error; err != nil { return err }
 		stats.LatestCheckInTime = latest.CheckInTime
 	}
-	newRewarded := stats.TotalCheckInDays / 7
-	if newRewarded > stats.RewardedCheckInDays { stats.MakeupCards += newRewarded - stats.RewardedCheckInDays }
+	newRewarded := stats.TotalCheckInDays / 15
+	if newRewarded > stats.RewardedCheckInDays {
+		stats.MakeupCards += newRewarded - stats.RewardedCheckInDays
+		stats.RewardedCheckInDays = newRewarded
+	}
 	if stats.MakeupCards < 0 { stats.MakeupCards = 0 }
-	stats.RewardedCheckInDays = newRewarded
 	stats.UpdateTime = now.UnixMilli()
 	return tx.Save(stats).Error
 }

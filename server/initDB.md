@@ -149,6 +149,8 @@ CREATE TABLE IF NOT EXISTS `t_check_in_day` (
 
 应用启动时会为已有用户幂等初始化 3 张补签卡，并将旧汇总表中唯一可确认的最近签到日迁移为一条明细；无法恢复的历史日期不会被补造。新注册用户在注册完成后获得 3 张补签卡。
 
+每累计 15 个有效签到日奖励 1 张补签卡；已发放的补签卡不回收，也不会重复发放。
+
 ```sql
 INSERT INTO t_sys_config(`key`, `value`, `name`, `description`, `create_time`, `update_time`)
 SELECT 'siteTitle',
