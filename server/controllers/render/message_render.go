@@ -6,38 +6,87 @@ import (
 	"bbs-go/pkg/bbsurls"
 	"bbs-go/pkg/msg"
 	"bbs-go/repositories"
+	"bbs-go/services"
 	"strconv"
 
 	"github.com/mlogclub/simple/sqls"
 	"github.com/tidwall/gjson"
 )
 
-func BuildMessage(msg *model.Message) *model.MessageResponse {
-	if msg == nil {
+func BuildMessage(message *model.Message) *model.MessageResponse {
+	if message == nil {
 		return nil
 	}
 
-	from := BuildUserInfoDefaultIfNull(msg.FromId)
-	if msg.FromId <= 0 {
+	from := BuildUserInfoDefaultIfNull(message.FromId)
+	if message.FromId <= 0 {
 		from.Nickname = "系统通知"
 	}
-	detailUrl := getMessageDetailUrl(msg)
+	detailUrl := getMessageDetailUrl(message)
 	// logrus.Info("get URL : ", detailUrl)
 	resp := &model.MessageResponse{
-		MessageId:              msg.Id,
+		MessageId:              message.Id,
 		From:                   from,
-		UserId:                 msg.UserId,
-		Title:                  msg.Title,
-		Content:                msg.Content,
-		QuoteContent:           msg.QuoteContent,
-		Type:                   msg.Type,
+		UserId:                 message.UserId,
+		Title:                  message.Title,
+		Content:                message.Content,
+		QuoteContent:           message.QuoteContent,
+		Type:                   message.Type,
 		DetailUrl:              detailUrl,
-		ExtraData:              msg.ExtraData,
-		BirthdayBlessingAuthor: getBirthdayBlessingAuthor(msg),
-		Status:                 msg.Status,
-		CreateTime:             msg.CreateTime,
+		ExtraData:              message.ExtraData,
+		BirthdayBlessingAuthor: getBirthdayBlessingAuthor(message),
+		Status:                 message.Status,
+		CreateTime:             message.CreateTime,
+	}
+	if msg.Type(message.Type) == msg.TypeMention {
+		if resp.QuoteContent != "" {
+			resp.Content = ""
+		}
+		if !canViewMentionMessage(message) {
+			resp.Content = "内容不可查看"
+			resp.QuoteContent = ""
+			resp.DetailUrl = ""
+		}
 	}
 	return resp
+}
+
+func canViewMentionMessage(message *model.Message) bool {
+	user := services.UserService.Get(message.UserId)
+	if user == nil || user.Status != constants.StatusOk {
+		return false
+	}
+	commentId := gjson.Get(message.ExtraData, "commentId").Int()
+	if commentId > 0 {
+		comment := services.CommentService.Get(commentId)
+		if comment == nil || comment.Status != constants.StatusOk {
+			return false
+		}
+		for depth := 0; comment.EntityType == constants.EntityComment && depth < 10; depth++ {
+			comment = services.CommentService.Get(comment.EntityId)
+			if comment == nil || comment.Status != constants.StatusOk {
+				return false
+			}
+		}
+		if comment.EntityType == constants.EntityComment {
+			return false
+		}
+	}
+	entityType := gjson.Get(message.ExtraData, "entityType").String()
+	entityId := gjson.Get(message.ExtraData, "entityId").Int()
+	if commentId == 0 {
+		entityType = constants.EntityTopic
+		entityId = gjson.Get(message.ExtraData, "topicId").Int()
+	}
+	switch entityType {
+	case constants.EntityTopic:
+		topic := services.TopicService.Get(entityId)
+		return topic != nil && topic.Status == constants.StatusOk && (model.UserCanAccessTopic(user, topic) || topic.UserId == user.Id)
+	case constants.EntityArticle:
+		article := services.ArticleService.Get(entityId)
+		return article != nil && article.Status == constants.StatusOk
+	}
+	return false
 }
 
 func getBirthdayBlessingAuthor(message *model.Message) *model.UserInfo {
@@ -82,7 +131,7 @@ func getMessageDetailUrl(t *model.Message) string {
 		return ""
 	}
 	// logrus.Info("debug: ", msgType)
-	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply {
+	if msgType == msg.TypeTopicComment || msgType == msg.TypeArticleComment || msgType == msg.TypeCommentReply || msgType == msg.TypeMention && gjson.Get(t.ExtraData, "commentId").Int() > 0 {
 		entityType := gjson.Get(t.ExtraData, "entityType")
 		entityId := gjson.Get(t.ExtraData, "entityId")
 		commentId := gjson.Get(t.ExtraData, "commentId").Int()
@@ -101,6 +150,11 @@ func getMessageDetailUrl(t *model.Message) string {
 		topicId := gjson.Get(t.ExtraData, "topicId")
 		if topicId.Exists() && topicId.Int() > 0 {
 			return bbsurls.TopicUrl(topicId.Int())
+		}
+	} else if msgType == msg.TypeMention {
+		topicId := gjson.Get(t.ExtraData, "topicId").Int()
+		if topicId > 0 {
+			return bbsurls.TopicUrl(topicId)
 		}
 	}
 	return bbsurls.AbsUrl("/user/messages")

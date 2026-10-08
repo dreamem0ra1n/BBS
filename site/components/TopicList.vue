@@ -45,13 +45,19 @@
           </template>
           <template v-if="topic.type === 1">
             <nuxt-link
-              v-if="topic.content"
+              v-if="isOld && topic.content"
               :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
               class="topic-summary"
               target="_blank"
               rel="noopener noreferrer"
               >{{ topic.content }}</nuxt-link
             >
+            <div
+              v-if="!isOld && topic.content"
+              class="topic-summary"
+              @click="onTweetContentClick($event, topic.topicId)"
+              v-html="topic.content"
+            ></div>
             <ul
               v-if="topic.imageList && topic.imageList.length"
               class="topic-image-list"
@@ -129,6 +135,11 @@ export default {
     },
   },
   methods: {
+    onTweetContentClick(event, topicId) {
+      if (!event.target.closest('a')) {
+        this.toTopicDetail(topicId)
+      }
+    },
     async like(topic) {
       try {
         await this.$axios.post('/api/topic/like/' + topic.topicId)

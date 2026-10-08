@@ -2,6 +2,7 @@ package model
 
 import (
 	"bbs-go/model/constants"
+	"bbs-go/pkg/markdown"
 	"errors"
 	"strconv"
 	"strings"
@@ -199,6 +200,9 @@ func (u *User) InObservationPeriod(observeSeconds int) bool {
 func (t *Topic) GetTitle() string {
 	if t.Type == constants.TopicTypeTweet {
 		if strs.IsNotBlank(t.Content) {
+			if t.ExtraData == `{"mentions":true}` {
+				return markdown.GetSummary(t.Content, 128)
+			}
 			return t.Content
 		} else {
 			return "分享图片"

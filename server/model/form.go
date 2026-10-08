@@ -63,7 +63,7 @@ func GetCreateTopicForm(ctx iris.Context) CreateTopicForm {
 		CaptchaCode: params.FormValue(ctx, "captchaCode"),
 		NodeId:      params.FormValueInt64Default(ctx, "nodeId", 0),
 		Title:       strings.TrimSpace(params.FormValue(ctx, "title")),
-		Content:     strings.TrimSpace(params.FormValue(ctx, "content")),
+		Content:     params.FormValue(ctx, "content"),
 		HideContent: strings.TrimSpace(params.FormValue(ctx, "hideContent")),
 		Tags:        params.FormValueStringArray(ctx, "tags"),
 		AccessLv:    params.FormValueIntDefault(ctx, "access_lv", 1),
@@ -77,7 +77,7 @@ func GetCreateCommentForm(ctx iris.Context) CreateCommentForm {
 	form := CreateCommentForm{
 		EntityType:  params.FormValue(ctx, "entityType"),
 		EntityId:    params.FormValueInt64Default(ctx, "entityId", 0),
-		Content:     strings.TrimSpace(params.FormValue(ctx, "content")),
+		Content:     params.FormValue(ctx, "content"),
 		ImageList:   GetImageList(ctx, "imageList"),
 		QuoteId:     params.FormValueInt64Default(ctx, "quoteId", 0),
 		ContentType: params.FormValueDefault(ctx, "contentType", constants.ContentTypeText),

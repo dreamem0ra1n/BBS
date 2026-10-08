@@ -106,6 +106,7 @@ const messageCategories = [
   { value: 'system', label: '系统' },
   { value: 'like', label: '点赞' },
   { value: 'reply', label: '回复' },
+  { value: 'mention', label: '提及' },
 ]
 
 function normalizeCategory(value) {

@@ -23,25 +23,35 @@ func handleCommentCreate(i interface{}) {
 	comment := services.CommentService.Get(e.CommentId)
 
 	// 发送消息
-	handleMsg(comment)
+	if comment == nil || comment.Status != constants.StatusOk {
+		return
+	}
+	mentioned := make(map[int64]bool, len(e.MentionUserIds))
+	for _, userId := range e.MentionUserIds {
+		mentioned[userId] = true
+	}
+	handleMsg(comment, mentioned)
 }
 
 // 处理评论消息
-func handleMsg(comment *model.Comment) {
+func handleMsg(comment *model.Comment, mentioned map[int64]bool) {
 	commentMsg := getCommentMsg(comment)
+	if commentMsg == nil || commentMsg.Entity == nil {
+		return
+	}
 
-	handleEntityMsg(comment, commentMsg)
-	handleQuoteMsg(comment, commentMsg)
-	handleReplyMsg(comment, commentMsg)
+	handleEntityMsg(comment, commentMsg, mentioned)
+	handleQuoteMsg(comment, commentMsg, mentioned)
+	handleReplyMsg(comment, commentMsg, mentioned)
 }
 
 // 给被回复的实体对象作者发送消息
-func handleEntityMsg(comment *model.Comment, commentMsg *CommentMsg) {
+func handleEntityMsg(comment *model.Comment, commentMsg *CommentMsg, mentioned map[int64]bool) {
 	var (
 		from = comment.UserId
 		to   = commentMsg.EntityUserId
 	)
-	if from == to {
+	if from == to || mentioned[to] {
 		return
 	}
 
@@ -67,7 +77,7 @@ func handleEntityMsg(comment *model.Comment, commentMsg *CommentMsg) {
 		})
 }
 
-func handleReplyMsg(comment *model.Comment, commentMsg *CommentMsg) {
+func handleReplyMsg(comment *model.Comment, commentMsg *CommentMsg, mentioned map[int64]bool) {
 	if commentMsg.FirstComment == nil {
 		return
 	}
@@ -77,7 +87,7 @@ func handleReplyMsg(comment *model.Comment, commentMsg *CommentMsg) {
 		to   = commentMsg.FirstComment.UserId
 	)
 
-	if from == to {
+	if from == to || mentioned[to] {
 		return
 	}
 
@@ -102,7 +112,7 @@ func handleReplyMsg(comment *model.Comment, commentMsg *CommentMsg) {
 }
 
 // handleQuoteMsg 给被引用人发送消息
-func handleQuoteMsg(comment *model.Comment, commentMsg *CommentMsg) {
+func handleQuoteMsg(comment *model.Comment, commentMsg *CommentMsg, mentioned map[int64]bool) {
 	if commentMsg.QuoteComment == nil {
 		return
 	}
@@ -115,7 +125,7 @@ func handleQuoteMsg(comment *model.Comment, commentMsg *CommentMsg) {
 		repliedContent = common.GetSummary(commentMsg.QuoteComment.ContentType, commentMsg.QuoteComment.Content)
 	)
 
-	if from == to {
+	if from == to || mentioned[to] {
 		return
 	}
 

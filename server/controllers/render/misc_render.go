@@ -1,7 +1,10 @@
 package render
 
 import (
+	"bbs-go/model/constants"
 	"bbs-go/pkg/bbsurls"
+	"html"
+	"strconv"
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -32,6 +35,19 @@ func handleHtmlContent(htmlContent string) string {
 
 	doc.Find("a").Each(func(i int, selection *goquery.Selection) {
 		href := selection.AttrOr("href", "")
+		if selection.AttrOr("title", "") == "bbs-mention" {
+			userId, err := strconv.ParseInt(strings.TrimPrefix(href, "/user/"), 10, 64)
+			if err != nil || userId <= 0 {
+				selection.ReplaceWithHtml(html.EscapeString(selection.Text()))
+				return
+			}
+			user := services.UserService.Get(userId)
+			if user == nil || user.Status != constants.StatusOk {
+				selection.ReplaceWithHtml(html.EscapeString(selection.Text()))
+				return
+			}
+			selection.SetAttr("title", selection.Text())
+		}
 
 		if strs.IsBlank(href) {
 			return

@@ -355,6 +355,8 @@ func getMessageTypesByCategory(category string) []int {
 			int(msg.TypeCommentReply),
 			int(msg.TypeArticleComment),
 		}
+	case "mention":
+		return []int{int(msg.TypeMention)}
 	default:
 		return nil
 	}

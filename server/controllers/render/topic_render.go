@@ -122,9 +122,11 @@ func _buildTopic(user *model.User, topic *model.Topic, buildContent bool) *model
 			}
 		}
 
-		if topic.Type == constants.TopicTypeTweet {
+		if topic.Type == constants.TopicTypeTweet && (model.UserCanAccessTopic(user, topic) || user != nil && user.Id == topic.UserId) {
 			if strs.IsBlank(topic.Content) {
 				rsp.Content = "分享图片"
+			} else if topic.ExtraData == `{"mentions":true}` {
+				rsp.Content = handleHtmlContent(markdown.ToHTML(topic.Content))
 			} else {
 				rsp.Content = html.EscapeString(topic.Content)
 			}

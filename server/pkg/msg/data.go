@@ -19,6 +19,7 @@ const (
 	TypeArticleComment Type = 6 // 收到文章评论
 	TypeTopicGift      Type = 7 // 话题收到赠米
 	TypeBirthday       Type = 8 // 收到生日祝福
+	TypeMention        Type = 9 // 被提及
 )
 
 type TopicLikeExtraData struct {

@@ -195,7 +195,6 @@ func (s *commentService) DeleteWithCounts(comment *model.Comment) error {
 
 // Publish 发表评论
 func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*model.Comment, error) {
-	form.Content = strings.TrimSpace(form.Content)
 	if strs.IsBlank(form.EntityType) {
 		return nil, errors.New("参数非法")
 	}
@@ -227,6 +226,19 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 		Ip:          form.Ip,
 		CreateTime:  dates.NowTimestamp(),
 	}
+	entityType, entityId, mentionTitle, mentionTopic, canMention := mentionCommentTarget(comment)
+	var mentionUsers []int64
+	if canMention {
+		format := comment.ContentType
+		if format != constants.ContentTypeMarkdown && format != constants.ContentTypeHtml {
+			format = constants.ContentTypeText
+		}
+		comment.Content, mentionUsers = prepareMentions(form.Content, format, mentionTopic)
+		if format == constants.ContentTypeText && len(mentionUsers) > 0 {
+			comment.ContentType = constants.ContentTypeHtml
+		}
+	}
+	comment.Content = strings.TrimSpace(comment.Content)
 
 	logrus.Info("创建了这样一个评论：", comment)
 
@@ -259,6 +271,9 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 	if err != nil {
 		return nil, err
 	}
+	if canMention {
+		sendMentionMessages(userId, mentionUsers, entityType, entityId, comment.Id, mentionTitle)
+	}
 	if bindErr := FileService.BindCommentFiles(comment.Id, userId, form.Content, form.ImageList); bindErr != nil {
 		logrus.Error("error associating uploaded files with comment: ", bindErr)
 	}
@@ -269,8 +284,9 @@ func (s *commentService) Publish(userId int64, form model.CreateCommentForm) (*m
 	UserService.IncrScoreForPostComment(comment)
 	// 发送事件
 	event.Send(event.CommentCreateEvent{
-		UserId:    userId,
-		CommentId: comment.Id,
+		UserId:         userId,
+		CommentId:      comment.Id,
+		MentionUserIds: mentionUsers,
 	})
 
 	return comment, nil

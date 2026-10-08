@@ -42,8 +42,9 @@ type UserFavoriteEvent struct {
 }
 
 type CommentCreateEvent struct {
-	UserId    int64 `json:"userId"`
-	CommentId int64 `json:"commentId"`
+	UserId         int64   `json:"userId"`
+	CommentId      int64   `json:"commentId"`
+	MentionUserIds []int64 `json:"mentionUserIds"`
 }
 
 type TopicRecommendEvent struct {

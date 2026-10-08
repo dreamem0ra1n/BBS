@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/kataras/iris/v12"
+	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web"
 	"github.com/mlogclub/simple/web/params"
 
@@ -69,6 +70,39 @@ func (c *CommentController) GetReplies() *web.JsonResult {
 	currentUser := services.UserTokenService.GetCurrent(c.Ctx)
 	comments, cursor, hasMore := services.CommentService.GetReplies(commentId, cursor, 10)
 	return web.JsonCursorData(render.BuildComments(comments, currentUser, false, true), strconv.FormatInt(cursor, 10), hasMore)
+}
+
+func (c *CommentController) GetLocationBy(commentId int64) *web.JsonResult {
+	comment := services.CommentService.Get(commentId)
+	if comment == nil || comment.Status != constants.StatusOk {
+		return web.JsonErrorMsg("评论不存在或已被删除")
+	}
+	root := comment
+	for depth := 0; root.EntityType == constants.EntityComment && depth < 10; depth++ {
+		root = services.CommentService.Get(root.EntityId)
+		if root == nil || root.Status != constants.StatusOk {
+			return web.JsonErrorMsg("评论不存在或已被删除")
+		}
+	}
+	if root.EntityType != constants.EntityTopic {
+		return web.JsonErrorMsg("评论不可查看")
+	}
+	topic := services.TopicService.Get(root.EntityId)
+	user := services.UserTokenService.GetCurrent(c.Ctx)
+	if topic == nil || topic.Status != constants.StatusOk || !model.UserCanAccessTopic(user, topic) && (user == nil || user.Id != topic.UserId) {
+		return web.JsonErrorMsg("评论不可查看")
+	}
+	comparison := "id > ?"
+	if params.FormValueIntDefault(c.Ctx, "asc_order", 0) != 0 {
+		comparison = "id < ?"
+	}
+	preceding := services.CommentService.Count(sqls.NewCnd().Eq("entity_type", constants.EntityTopic).
+		Eq("entity_id", topic.Id).
+		Where("(status = ? or (status = ? and comment_count > 0))", constants.StatusOk, constants.StatusDeleted).
+		Where(comparison, root.Id))
+	return web.NewEmptyRspBuilder().Put("page", preceding/10+1).
+		Put("rootId", root.Id).Put("entityId", topic.Id).
+		Put("comment", render.BuildComment(comment, user)).JsonResult()
 }
 
 func (c *CommentController) GetUserComments() *web.JsonResult {

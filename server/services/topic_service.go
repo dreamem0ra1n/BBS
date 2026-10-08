@@ -9,6 +9,7 @@ import (
 	"math"
 	"net/http"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/mlogclub/simple/common/dates"
@@ -180,6 +181,16 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 		LastCommentTime: now,
 		CreateTime:      now,
 	}
+	mentionTitle := topic.GetTitle()
+	if topic.Type == constants.TopicTypeTweet {
+		mentionTitle = common.GetSummary(constants.ContentTypeMarkdown, form.Content)
+	}
+	var mentionUsers []int64
+	topic.Content, mentionUsers = prepareMentions(form.Content, "markdown", topic)
+	topic.Content = strings.TrimSpace(topic.Content)
+	if topic.Type == constants.TopicTypeTweet && len(mentionUsers) > 0 {
+		topic.ExtraData = `{"mentions":true}`
+	}
 
 	if len(form.ImageList) > 0 {
 		imageListStr, err := jsons.ToStr(form.ImageList)
@@ -200,6 +211,7 @@ func (s *topicService) Publish(userId int64, form model.CreateTopicForm) (*model
 		return nil
 	})
 	if err == nil {
+		sendMentionMessages(userId, mentionUsers, constants.EntityTopic, topic.Id, 0, mentionTitle)
 		if bindErr := FileService.BindTopicFiles(topic.Id, userId, form.Content, form.ImageList); bindErr != nil {
 			logrus.Error("error associating uploaded files with topic: ", bindErr)
 		}

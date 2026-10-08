@@ -220,6 +220,51 @@ export default {
       if (target) {
         this.hashScrolled = true
         target.scrollIntoView({ block: 'center' })
+        return
+      }
+      try {
+        const location = await this.$axios.get(
+          `/api/comment/location/${match[1]}`,
+          { params: { asc_order: this.ascOrder ? 1 : 0 } }
+        )
+        if (String(location.entityId) !== String(this.entityId)) {
+          return
+        }
+        const currentPage = parseInt(this.$route.params.page, 10) || 1
+        if (location.page !== currentPage) {
+          const path = `/topic/${this.entityId}/${location.page}${window.location.hash}`
+          window.location.replace(path)
+          return
+        }
+        const root = this.commentResults.find(
+          (comment) => comment.commentId === location.rootId
+        )
+        if (root && root.commentId !== location.comment.commentId) {
+          if (!root.replies) {
+            root.replies = { results: [], cursor: '0', hasMore: false }
+          }
+          if (!root.replies.results) {
+            root.replies.results = []
+          }
+          if (
+            !root.replies.results.some(
+              (reply) => reply.commentId === location.comment.commentId
+            )
+          ) {
+            root.replies.results.push(location.comment)
+            root.replies.results.sort(
+              (left, right) => left.commentId - right.commentId
+            )
+          }
+        }
+        await this.$nextTick()
+        const loaded = document.getElementById(targetId)
+        if (loaded) {
+          this.hashScrolled = true
+          loaded.scrollIntoView({ block: 'center' })
+        }
+      } catch (error) {
+        console.error(error)
       }
     },
     scrollToFirstComment() {
