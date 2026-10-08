@@ -30,12 +30,16 @@
             <h1 class="topic-title">
               <nuxt-link
                 :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
+                target="_blank"
+                rel="noopener noreferrer"
                 >{{ topic.title }}</nuxt-link
               >
             </h1>
             <nuxt-link
               :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
               class="topic-summary"
+              target="_blank"
+              rel="noopener noreferrer"
               >{{ topic.summary }}</nuxt-link
             >
           </template>
@@ -44,6 +48,8 @@
               v-if="topic.content"
               :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
               class="topic-summary"
+              target="_blank"
+              rel="noopener noreferrer"
               >{{ topic.content }}</nuxt-link
             >
             <ul
@@ -54,6 +60,8 @@
                 <nuxt-link
                   :to="'/topic/' + (isOld ? 'OLD' : '') + topic.topicId"
                   class="image-item"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <img v-lazy="image.preview" />
                 </nuxt-link>
@@ -136,7 +144,9 @@ export default {
       }
     },
     toTopicDetail(topicId) {
-      this.$linkTo('/topic/' + (this.isOld ? 'OLD' : '') + topicId)
+      const path = '/topic/' + (this.isOld ? 'OLD' : '') + topicId
+      const { href } = this.$router.resolve(path)
+      window.open(href, '_blank', 'noopener,noreferrer')
     },
   },
 }
