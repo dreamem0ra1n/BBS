@@ -44,7 +44,7 @@ func newUserCache() *userCache {
 				return
 			},
 			cache.WithMaximumSize(10),
-			cache.WithRefreshAfterWrite(10*time.Minute),
+			cache.WithExpireAfterWrite(2*time.Minute),
 		),
 		newbieScoreRankCache: cache.NewLoadingCache(
 			func(key cache.Key) (value cache.Value, e error) {
@@ -52,7 +52,7 @@ func newUserCache() *userCache {
 				return
 			},
 			cache.WithMaximumSize(3),
-			cache.WithRefreshAfterWrite(10*time.Minute),
+			cache.WithExpireAfterWrite(2*time.Minute),
 		),
 		annualScoreRankCache: cache.NewLoadingCache(
 			func(key cache.Key) (value cache.Value, e error) {
@@ -60,7 +60,7 @@ func newUserCache() *userCache {
 				return
 			},
 			cache.WithMaximumSize(3),
-			cache.WithRefreshAfterWrite(10*time.Minute),
+			cache.WithExpireAfterWrite(2*time.Minute),
 		),
 		checkInRankCache: cache.NewLoadingCache(
 			func(key cache.Key) (value cache.Value, e error) {

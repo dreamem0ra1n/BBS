@@ -380,6 +380,7 @@ func (c *UserController) GetScorelogs() *web.JsonResult {
 
 // 积分排行
 func (c *UserController) GetScoreRank() *web.JsonResult {
+	c.Ctx.Header("Cache-Control", "no-store")
 	var users []model.User
 	switch c.Ctx.URLParam("period") {
 	case "year":
