@@ -206,7 +206,7 @@
                 </div>
                 <div
                   class="action"
-                  :class="{ disabled: liked }"
+                  :class="{ disabled: liked || topicStateLoading }"
                   @click="like(topic)"
                 >
                   <i
@@ -220,7 +220,11 @@
                     </span>
                   </div>
                 </div>
-                <div class="action" @click="addFavorite(topic.topicId)">
+                <div
+                  class="action"
+                  :class="{ disabled: topicStateLoading }"
+                  @click="addFavorite(topic.topicId)"
+                >
                   <i
                     class="action-icon iconfont"
                     :class="{
@@ -283,7 +287,11 @@
             </el-dialog>
 
             <!-- 评论 -->
+            <div v-if="commentsLoading" class="comment-loading">
+              评论加载中…
+            </div>
             <comment
+              v-else
               :entity-id="entityId"
               :comments-page="commentsPage"
               :page="page"
@@ -310,11 +318,8 @@ import { Loading } from 'element-ui'
 import XBBCODE from '~/utils/xbbcode'
 import CommonHelper from '~/common/CommonHelper'
 export default {
-  async asyncData({ $axios, params, error, store }) {
+  async asyncData({ $axios, params, error }) {
     let topic
-    let liked = null
-    let favorited = null
-    let likeUsers
     try {
       topic = await $axios.get('/api/topic/' + params.id, {
         params: params.page ? { count_view: 0 } : undefined,
@@ -327,50 +332,17 @@ export default {
       return
     }
     const page = parseInt(params.page) || 1
-    const commentsPage = await $axios.get('/api/comment/comments', {
-      params: {
-        entityType: 'topic',
-        entityId: params.id,
-        asc_order: store.state.env.ascOrder,
-        page,
-      },
-    })
-    if (!topic.isOldBBS) {
-      ;[liked, favorited, likeUsers] = await Promise.all([
-        $axios.get('/api/like/liked', {
-          params: {
-            entityType: 'topic',
-            entityId: params.id,
-          },
-        }),
-        $axios.get('/api/favorite/favorited', {
-          params: {
-            entityType: 'topic',
-            entityId: params.id,
-          },
-        }),
-
-        $axios.get('/api/topic/recentlikes/' + params.id),
-      ])
-    }
     if (topic.isOldBBS) {
       topic.content = XBBCODE.process({
         text: topic.content,
       }).html
-      if (commentsPage?.results) {
-        commentsPage.results.forEach((comment) => {
-          comment.content = XBBCODE.process({
-            text: comment.content,
-          }).html
-        })
-      }
     }
     return {
       topic,
-      commentsPage,
-      favorited: favorited?.favorited,
-      liked: liked?.liked,
-      likeUsers,
+      commentsPage: {},
+      favorited: null,
+      liked: null,
+      likeUsers: [],
       entityId: params.id,
       page,
     }
@@ -387,6 +359,8 @@ export default {
         score: 1,
         reason: '',
       },
+      commentsLoading: true,
+      topicStateLoading: true,
     }
   },
   head() {
@@ -442,15 +416,73 @@ export default {
     },
   },
   mounted() {
-    // 加载隐藏内容
-    this.getHideContent()
     this.$store.commit('env/setCurrentTag', -1919810)
     this.$store.commit('env/setAscOrder', 0)
+    this.loadSecondaryData()
+    this.getHideContent()
     // 为了解决服务端渲染时，没有刷新meta中的script，callback没执行，导致代码高亮失败的问题
     // 所以服务端渲染时会调用这里的方法进行代码高亮
     CommonHelper.initHighlight(this)
   },
   methods: {
+    loadSecondaryData() {
+      this.$axios
+        .get('/api/comment/comments', {
+          params: {
+            entityType: 'topic',
+            entityId: this.entityId,
+            asc_order: this.ascOrder,
+            page: this.page,
+          },
+        })
+        .then((commentsPage) => {
+          if (this.isOld && commentsPage?.results) {
+            commentsPage.results.forEach((comment) => {
+              comment.content = XBBCODE.process({
+                text: comment.content,
+              }).html
+            })
+          }
+          this.commentsPage = commentsPage
+        })
+        .catch(() => {
+          this.commentsPage = { page: {}, results: [] }
+        })
+        .then(() => {
+          this.commentsLoading = false
+        })
+
+      const stateRequests = this.isOld
+        ? Promise.resolve([])
+        : Promise.all([
+            this.$axios
+              .get('/api/like/liked', {
+                params: {
+                  entityType: 'topic',
+                  entityId: this.entityId,
+                },
+              })
+              .catch(() => null),
+            this.$axios
+              .get('/api/favorite/favorited', {
+                params: {
+                  entityType: 'topic',
+                  entityId: this.entityId,
+                },
+              })
+              .catch(() => null),
+            this.$axios
+              .get('/api/topic/recentlikes/' + this.entityId)
+              .catch(() => null),
+          ])
+
+      stateRequests.then((state) => {
+        this.liked = state[0]?.liked || false
+        this.favorited = state[1]?.favorited || false
+        this.likeUsers = state[2] || []
+        this.topicStateLoading = false
+      })
+    },
     commentCreated() {
       this.getHideContent()
     },
@@ -465,7 +497,7 @@ export default {
       }
     },
     async addFavorite(topicId) {
-      if (this.topic.isOldBBS) {
+      if (this.topic.isOldBBS || this.topicStateLoading) {
         return
       }
       try {
@@ -544,7 +576,7 @@ export default {
       }
     },
     async like(topic) {
-      if (this.topic.isOldBBS) {
+      if (this.topic.isOldBBS || this.topicStateLoading) {
         return
       }
       try {
@@ -642,6 +674,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.comment-loading {
+  padding: 24px 0;
+  color: var(--text-light-color);
+  text-align: center;
+}
+
 .el-loading-mask {
   background-color: var(--bg-color) !important;
 }
