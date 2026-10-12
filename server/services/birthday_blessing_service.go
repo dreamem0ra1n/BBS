@@ -59,6 +59,5 @@ func (s *birthdayBlessingService) RandomForUser(userId int64) *model.BirthdayBle
 
 func (s *birthdayBlessingService) Normalize(item *model.BirthdayBlessing) bool {
 	item.Nickname = strings.TrimSpace(item.Nickname)
-	item.Content = strings.TrimSpace(item.Content)
-	return item.Content != ""
+	return strings.TrimSpace(item.Content) != ""
 }

@@ -256,7 +256,7 @@ export default {
         .message-content {
           font-size: 15px;
           color: var(--text-color);
-          white-space: pre-line;
+          white-space: pre-wrap;
 
           a {
             color: var(--text-link-color);

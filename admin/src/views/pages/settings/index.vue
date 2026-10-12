@@ -197,7 +197,11 @@
             >
               <el-table-column type="selection" width="55" />
               <el-table-column prop="nickname" label="昵称" width="160" />
-              <el-table-column prop="content" label="内容" />
+              <el-table-column prop="content" label="内容">
+                <template slot-scope="{ row }">
+                  <span class="birthday-blessing-content" v-text="row.content" />
+                </template>
+              </el-table-column>
             </el-table>
             <el-pagination
               :current-page="blessingPage.page"
@@ -428,6 +432,10 @@ export default {
 
 .config {
   padding: 10px 0;
+}
+
+.birthday-blessing-content {
+  white-space: pre-wrap;
 }
 
 .nav-panel {
