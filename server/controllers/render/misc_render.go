@@ -46,6 +46,8 @@ func handleHtmlContent(htmlContent string) string {
 				selection.ReplaceWithHtml(html.EscapeString(selection.Text()))
 				return
 			}
+			href = bbsurls.UserUrl(userId)
+			selection.SetAttr("href", href)
 			selection.SetAttr("title", selection.Text())
 		}
 
