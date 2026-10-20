@@ -11,19 +11,18 @@
       accept="image/*"
       type="file"
       @change="selectImage"
-      @input="selectImage"
     />
 
+    <!-- 拖拽在遮罩上松手也会产生 click，弹窗仅通过关闭/取消按钮关闭。 -->
     <div
       v-if="cropDialogVisible"
       class="crop-modal"
       role="dialog"
       aria-modal="true"
-      @click.self="cancelCrop"
     >
       <div class="crop-dialog">
         <div class="crop-dialog-header">
-          <span>裁剪头像</span>
+          <span>{{ isGif ? '确认头像' : '裁剪头像' }}</span>
           <button
             type="button"
             aria-label="关闭"
@@ -43,16 +42,18 @@
           >
             <img
               v-if="cropImageUrl"
+              :key="cropImageUrl"
               ref="cropImage"
               :src="cropImageUrl"
               class="crop-image"
               :style="cropImageStyle"
               draggable="false"
               @load="onCropImageLoad"
+              @error="onCropImageError"
             />
-            <div class="crop-frame" />
+            <div v-if="!isGif" class="crop-frame" />
           </div>
-          <div class="crop-zoom">
+          <div v-if="!isGif" class="crop-zoom">
             <span>缩放</span>
             <input
               v-model.number="cropZoom"
@@ -60,11 +61,15 @@
               min="1"
               max="3"
               step="0.01"
-              :disabled="!cropImageLoaded"
+              :disabled="!cropImageLoaded || uploading"
               @input="updateCropScale"
             />
           </div>
-          <p class="crop-tip">拖动图片调整裁剪区域</p>
+          <p class="crop-tip">
+            {{
+              isGif ? 'GIF 将保留动画，确认后上传原图' : '拖动图片调整裁剪区域'
+            }}
+          </p>
         </div>
         <div class="crop-dialog-footer">
           <button type="button" :disabled="uploading" @click="cancelCrop">
@@ -107,10 +112,13 @@ export default {
       dragging: false,
       dragStart: null,
       uploading: false,
-      processingFileSelection: false,
+      originalFile: null,
     }
   },
   computed: {
+    isGif() {
+      return !!this.originalFile && this.isGifFile(this.originalFile)
+    },
     cropStageStyle() {
       return {
         width: `${this.cropStageSize}px`,
@@ -118,6 +126,9 @@ export default {
       }
     },
     cropImageStyle() {
+      if (this.isGif) {
+        return { width: '100%', height: '100%', objectFit: 'contain' }
+      }
       return {
         width: `${this.cropImageWidth * this.cropScale}px`,
         height: `${this.cropImageHeight * this.cropScale}px`,
@@ -125,39 +136,37 @@ export default {
       }
     },
   },
+  mounted() {
+    window.addEventListener('resize', this.updateCropStageSize)
+  },
   beforeDestroy() {
+    window.removeEventListener('resize', this.updateCropStageSize)
     this.stopCropDrag()
     this.revokeCropImageUrl()
   },
   methods: {
     pickImage() {
-      this.$refs.uploadImage.dispatchEvent(new MouseEvent('click'))
-    },
-    async selectImage(e) {
-      if (this.processingFileSelection) {
-        return
+      if (!this.uploading) {
+        this.$refs.uploadImage.click()
       }
-      this.processingFileSelection = true
-      this.$nextTick(() => {
-        this.processingFileSelection = false
-      })
+    },
+    selectImage(e) {
       const file = e.target.files && e.target.files[0]
       e.target.value = ''
-      if (!file) {
+      if (!file || this.uploading) {
         return
       }
       if (!file.type || !file.type.startsWith('image/')) {
         this.$message.error('请选择图片文件')
         return
       }
-      if (this.isGifFile(file)) {
-        this.$message.info('GIF 将保留动画并直接上传')
-        await this.uploadOriginalAvatar(file)
+      if (this.isGifFile(file) && file.size > 30 * 1024 * 1024) {
+        this.$message.error('GIF 图片不能超过 30 MB')
         return
       }
-      this.revokeCropImageUrl()
+      this.resetCrop()
+      this.originalFile = file
       this.cropImageUrl = URL.createObjectURL(file)
-      this.cropImageLoaded = false
       this.cropDialogVisible = true
       this.$nextTick(() => this.updateCropStageSize())
     },
@@ -167,24 +176,14 @@ export default {
         file.name.toLowerCase().endsWith('.gif')
       )
     },
-    async uploadOriginalAvatar(file) {
-      if (this.uploading) {
-        return
-      }
-      this.uploading = true
-      try {
-        await this.uploadAvatarFile(file)
-      } catch (error) {
-        this.handleUploadError(error)
-      } finally {
-        this.uploading = false
-      }
-    },
     updateCropStageSize() {
       if (!this.$refs.cropStage) {
         return
       }
-      const stageWidth = this.$refs.cropStage.clientWidth
+      const stageWidth = Math.min(
+        280,
+        this.$refs.cropStage.parentElement.clientWidth
+      )
       if (stageWidth > 0 && stageWidth !== this.cropStageSize) {
         this.cropStageSize = stageWidth
         if (this.cropImageLoaded) {
@@ -192,8 +191,11 @@ export default {
         }
       }
     },
-    onCropImageLoad() {
-      const image = this.$refs.cropImage
+    onCropImageLoad(event) {
+      const image = event.target
+      if (image !== this.$refs.cropImage) {
+        return
+      }
       if (!image || !image.naturalWidth || !image.naturalHeight) {
         return
       }
@@ -201,6 +203,15 @@ export default {
       this.cropImageHeight = image.naturalHeight
       this.cropImageLoaded = true
       this.initializeCropPosition()
+    },
+    onCropImageError(event) {
+      if (event.target !== this.$refs.cropImage) {
+        return
+      }
+      this.resetCrop()
+      this.$message.error(
+        '图片无法读取，请选择可正常打开的 JPG、PNG、WebP 或 GIF 图片'
+      )
     },
     initializeCropPosition() {
       this.cropBaseScale = Math.max(
@@ -215,7 +226,7 @@ export default {
       }
     },
     updateCropScale() {
-      if (!this.cropImageLoaded) {
+      if (!this.cropImageLoaded || this.uploading) {
         return
       }
       const previousScale = this.cropScale
@@ -231,7 +242,7 @@ export default {
       })
     },
     startCropDrag(event) {
-      if (!this.cropImageLoaded || this.uploading) {
+      if (!this.cropImageLoaded || this.uploading || this.isGif) {
         return
       }
       const point = this.getPointerPosition(event)
@@ -250,6 +261,7 @@ export default {
       window.addEventListener('mouseup', this.stopCropDrag)
       window.addEventListener('touchmove', this.onCropDrag, { passive: false })
       window.addEventListener('touchend', this.stopCropDrag)
+      window.addEventListener('touchcancel', this.stopCropDrag)
     },
     onCropDrag(event) {
       if (!this.dragging || !this.dragStart) {
@@ -273,6 +285,7 @@ export default {
         window.removeEventListener('mouseup', this.stopCropDrag)
         window.removeEventListener('touchmove', this.onCropDrag)
         window.removeEventListener('touchend', this.stopCropDrag)
+        window.removeEventListener('touchcancel', this.stopCropDrag)
       }
     },
     getPointerPosition(event) {
@@ -293,16 +306,19 @@ export default {
     },
     cancelCrop() {
       if (!this.uploading) {
-        this.cropDialogVisible = false
+        this.resetCrop()
       }
     },
     async confirmCrop() {
       if (!this.cropImageLoaded || this.uploading) {
         return
       }
+      this.stopCropDrag()
       this.uploading = true
       try {
-        const file = await this.createCroppedFile()
+        const file = this.isGif
+          ? this.originalFile
+          : await this.createCroppedFile()
         await this.uploadAvatarFile(file)
       } catch (error) {
         this.handleUploadError(error)
@@ -315,6 +331,9 @@ export default {
       formData.append('image', file, file.name)
       formData.append('source', 'avatar')
       const ret = await this.$axios.post('/api/file/upload/img', formData)
+      if (!ret || !ret.url) {
+        throw new Error('上传未返回头像地址，请重试')
+      }
       await this.$axios.post('/api/user/update/avatar', { avatar: ret.url })
       this.cropDialogVisible = false
       this.$emit('input', ret.url)
@@ -333,7 +352,12 @@ export default {
     createCroppedFile() {
       return new Promise((resolve, reject) => {
         const image = this.$refs.cropImage
-        if (!image) {
+        if (
+          !image ||
+          !image.complete ||
+          !image.naturalWidth ||
+          !image.naturalHeight
+        ) {
           reject(new Error('图片加载失败'))
           return
         }
@@ -345,6 +369,10 @@ export default {
         canvas.width = outputSize
         canvas.height = outputSize
         const context = canvas.getContext('2d')
+        if (!context) {
+          reject(new Error('当前浏览器无法裁剪图片，请更换浏览器重试'))
+          return
+        }
         context.drawImage(
           image,
           sourceX,
@@ -380,6 +408,9 @@ export default {
       }
     },
     resetCrop() {
+      this.cropDialogVisible = false
+      this.originalFile = null
+      this.cropStageSize = 280
       this.stopCropDrag()
       this.revokeCropImageUrl()
       this.cropImageUrl = ''
@@ -453,8 +484,10 @@ export default {
   .crop-dialog {
     width: 420px;
     max-width: 100%;
-    max-height: calc(100vh - 48px);
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+    overflow: hidden;
     border-radius: 6px;
     background: var(--bg-color);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
@@ -465,6 +498,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
     padding: 14px 18px;
     color: var(--text-color);
   }
@@ -513,13 +547,16 @@ export default {
 }
 
 .crop-editor {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   align-items: center;
   flex-direction: column;
 
   .crop-stage {
-    max-width: calc(100vw - 48px);
-    max-height: calc(100vw - 48px);
+    flex-shrink: 0;
+    max-width: 100%;
     overflow: hidden;
     position: relative;
     background: #202020;
@@ -568,6 +605,7 @@ export default {
   }
 
   .crop-tip {
+    flex-shrink: 0;
     margin-top: 8px;
     color: var(--text-color-secondary);
     font-size: 12px;

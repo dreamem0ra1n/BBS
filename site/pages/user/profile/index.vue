@@ -22,7 +22,6 @@
               <avatar-edit
                 v-model="user.avatar"
                 @success="onAvatarUpdateSuccess"
-                @error="onAvatarUpdateError"
               />
             </div>
           </div>
@@ -297,9 +296,6 @@ export default {
     onAvatarUpdateSuccess() {
       this.$store.commit('user/setCurrent', { ...this.user })
       this.$message.success('头像更新成功')
-    },
-    onAvatarUpdateError(e) {
-      this.$message.error('头像更新失败')
     },
     formatDate(date) {
       const year = date.getFullYear()
