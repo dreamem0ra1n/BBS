@@ -1,8 +1,11 @@
 package scheduler
 
 import (
+	"bbs-go/controllers/api"
+	"bbs-go/model"
 	"bbs-go/pkg/config"
 	"bbs-go/pkg/sitemap"
+	"context"
 	"time"
 
 	"github.com/robfig/cron"
@@ -18,6 +21,20 @@ func Start() {
 	go services.BirthdayService.SendNotices(time.Now())
 	addCronFunc(c, "0 5 0 * * *", func() {
 		services.BirthdayService.SendNotices(time.Now())
+	})
+	addCronFunc(c, "0 0 3 * * *", func() {
+		result, err := services.FileService.CleanupPreviousDay(context.Background(), time.Now(), func(file *model.FileRecord) error {
+			return api.RemoveObject(file.BucketName, file.ObjectName, file.FileUUID)
+		})
+		entry := logrus.WithFields(logrus.Fields{
+			"scanned": result.Scanned, "deleted": result.Deleted,
+			"referenced": result.Referenced, "failed": result.Failed, "freedBytes": result.FreedBytes,
+		})
+		if err != nil {
+			entry.WithError(err).Error("daily file cleanup interrupted")
+		} else {
+			entry.Info("daily file cleanup completed")
+		}
 	})
 
 	// Generate RSS

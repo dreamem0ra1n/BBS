@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web/params"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -18,6 +20,16 @@ import (
 )
 
 var FileService = newFileService()
+
+var errFileReferenced = errors.New("文件仍被引用")
+
+type FileCleanupResult struct {
+	Scanned    int
+	Deleted    int
+	Referenced int
+	Failed     int
+	FreedBytes int64
+}
 
 func findFileReference(ctx context.Context, db *gorm.DB, file *model.FileRecord) (string, error) {
 	if file.FileUUID == "" {
@@ -65,7 +77,9 @@ func newFileService() *fileService {
 	return &fileService{}
 }
 
-type fileService struct{}
+type fileService struct {
+	cleanupMutex sync.Mutex
+}
 
 var fileUUIDPattern = regexp.MustCompile(`(?i)[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`)
 
@@ -94,7 +108,7 @@ func (s *fileService) Delete(ctx context.Context, id int64, removeObject func(*m
 			return fmt.Errorf("无法完成引用核验，未删除文件：%w", err)
 		}
 		if reference != "" {
-			return fmt.Errorf("仍被%s引用，不能删除", reference)
+			return fmt.Errorf("%w：%s，不能删除", errFileReferenced, reference)
 		}
 		if err := ctx.Err(); err != nil {
 			return err
@@ -104,6 +118,49 @@ func (s *fileService) Delete(ctx context.Context, id int64, removeObject func(*m
 		}
 		return tx.Delete(&file).Error
 	})
+}
+
+func (s *fileService) CleanupPreviousDay(ctx context.Context, now time.Time, removeObject func(*model.FileRecord) error) (FileCleanupResult, error) {
+	result := FileCleanupResult{}
+	if !s.cleanupMutex.TryLock() {
+		return result, errors.New("文件清理任务仍在运行")
+	}
+	defer s.cleanupMutex.Unlock()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	start := today.AddDate(0, 0, -1).UnixMilli()
+	end := today.UnixMilli()
+	var lastID int64
+	for {
+		var files []model.FileRecord
+		if err := sqls.DB().WithContext(ctx).Select("id", "file_size").
+			Where("create_time >= ? AND create_time < ? AND id > ?", start, end, lastID).
+			Order("id ASC").Limit(100).Find(&files).Error; err != nil {
+			return result, err
+		}
+		if len(files) == 0 {
+			return result, nil
+		}
+		for _, file := range files {
+			if err := ctx.Err(); err != nil {
+				return result, err
+			}
+			lastID = file.Id
+			result.Scanned++
+			err := s.Delete(ctx, file.Id, removeObject)
+			switch {
+			case err == nil:
+				result.Deleted++
+				result.FreedBytes += file.FileSize
+			case errors.Is(err, errFileReferenced):
+				result.Referenced++
+			case errors.Is(err, gorm.ErrRecordNotFound):
+				continue
+			default:
+				result.Failed++
+				logrus.WithError(err).WithField("fileId", file.Id).Warn("scheduled file cleanup failed")
+			}
+		}
+	}
 }
 
 // BindTopicFiles refreshes the topic association for files referenced by its
