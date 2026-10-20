@@ -1,8 +1,8 @@
 <template>
   <div v-viewer="viewerOptions" class="image-uploads">
     <div
-      v-for="(image, index) in previewFiles"
-      :key="index"
+      v-for="image in previewFiles"
+      :key="image.url"
       class="preview-item"
       :class="{ deleted: image.deleted }"
       :style="{ width: size, height: size, margin: previewItemMargin }"
@@ -21,7 +21,7 @@
           'upload-delete': true,
           'show-delete': image.progress === 100,
         }"
-        @click="removeItem(index)"
+        @click="removeItem(image)"
       >
         <i class="iconfont icon-delete" />
       </div>
@@ -37,7 +37,8 @@
         :accept="accept"
         type="file"
         multiple
-        @input="onInput"
+        @click.stop
+        @change="onInput"
       />
       <slot name="add-image-button">
         <i class="iconfont icon-add" />
@@ -80,7 +81,6 @@ export default {
     return {
       fileList: [],
       previewFiles: [],
-      currentInput: null,
       viewerOptions: {
         zIndex: 9999,
         navbar: false,
@@ -100,6 +100,9 @@ export default {
     }
   },
   computed: {
+    uploading() {
+      return this.previewFiles.some((image) => image.progress < 100)
+    },
     previewItemMargin() {
       if (this.previewFiles.length > 1 || this.limit > 1) {
         // margin-right: 10px;
@@ -110,40 +113,37 @@ export default {
     },
   },
   watch: {
-    fileList: {
-      handler() {
-        if (
-          this.fileList.length > this.previewFiles.length &&
-          this.previewFiles.length === 0
-        ) {
-          // 初始试，回显
-          this.previewFiles.push(...this.fileList)
-          this.previewFiles.map((item) => {
-            item.progress = 100
-          }) // 增加 deleted progress 属性
-        }
-      },
-      deep: true,
-      immediate: true,
+    uploading(value) {
+      this.$emit('update:onUpload', value)
     },
     value: {
       handler(value) {
         if (value !== this.fileList) {
+          this.releasePreviews()
           this.fileList = value ? [...value] : []
+          this.previewFiles = this.fileList.map((image) => ({
+            ...image,
+            progress: 100,
+            deleted: false,
+            result: image,
+            objectUrl: '',
+          }))
         }
       },
       deep: true,
       immediate: true,
     },
   },
+  beforeDestroy() {
+    this.clear()
+  },
   methods: {
     onClick() {
-      const currentObj = this.$refs.uploadImage
-      this.currentInput = currentObj
-      currentObj.dispatchEvent(new MouseEvent('click'))
+      this.$refs.uploadImage.click()
     },
     onInput(e) {
-      const files = e.target.files
+      const files = Array.from(e.target.files || [])
+      e.target.value = ''
       this.addFiles(files)
     },
     addFiles(files) {
@@ -151,91 +151,118 @@ export default {
       if (!this.checkSizeLimit(files)) return // 文件大小检查
       if (!this.checkLengthLimit(files)) return // 文件数量检查
 
-      const fileArray = []
-      for (let i = 0; i < files.length; i++) {
-        const url = this.getObjectURL(files[i])
-        this.previewFiles.push({
-          name: files[i].name,
+      for (const file of files) {
+        const url = this.getObjectURL(file)
+        const image = {
+          name: file.name,
           url,
           progress: 0,
           deleted: false,
-          size: files[i].size,
-        })
-        fileArray.push(files[i])
+          size: file.size,
+          result: null,
+          objectUrl: url,
+        }
+        this.previewFiles.push(image)
+        this.uploadFile(file, image)
       }
-      const promiseList = fileArray.reduce((result, file, index, array) => {
-        result.push(this.uploadFile(file, index, array.length))
-        return result
-      }, [])
-      this.uploadFiles(promiseList)
     },
-    uploadFile(file, index, length) {
-      const me = this
+    async uploadFile(file, image) {
       const config = {
-        onUploadProgress(progressEvent) {
-          if (!progressEvent.lengthComputable) {
-            // 当进度不可估量,直接等于 100
-            me.previewFiles[
-              me.previewFiles.length - length + index
-            ].progress = 100
+        onUploadProgress: (progressEvent) => {
+          if (!this.previewFiles.includes(image) || image.progress === 100) {
             return
           }
-          me.previewFiles[me.previewFiles.length - length + index].progress =
-            parseInt(
-              Math.round(
-                (progressEvent.loaded / progressEvent.total) * 100
-              ).toString()
-            ) * 0.9
+          if (progressEvent.lengthComputable && progressEvent.total > 0) {
+            image.progress = Math.min(
+              90,
+              Math.round((progressEvent.loaded / progressEvent.total) * 90)
+            )
+          }
         },
       }
-      const formData = new FormData()
-      formData.append('image', file, file.name)
-      return this.$axios.post('/api/file/upload/img', formData, config)
-    },
-    uploadFiles(promiseList) {
-      this.$emit(`update:onUpload`, true)
-      Promise.all(promiseList).then(
-        (resList) => {
-          this.previewFiles.map((item) => {
-            item.progress = 100
-          }) // 请求响应后，更新到 100%
-          // const _fileList = [...this.fileList]
-          // resList.forEach((item) => _fileList.push(item))
-          resList.forEach((item) => this.fileList.push(item))
-          if (this.currentInput) {
-            this.currentInput.value = ''
-          }
-          this.$emit('input', this.fileList)
-          this.$emit(`update:onUpload`, false)
-        },
-        (e) => {
-          // 失败的时候取消对应的预览照片
-          if (this.currentInput) {
-            this.currentInput.value = ''
-          }
-          const length = promiseList.length
-          this.$emit(`update:onUpload`, false)
-          this.previewFiles.splice(this.previewFiles.length - length, length)
-          // this.handleError(e).then(() => {})
-          console.error(e)
+      try {
+        const formData = new FormData()
+        formData.append('image', file, file.name)
+        const result = await this.$axios.post(
+          '/api/file/upload/img',
+          formData,
+          config
+        )
+        if (!this.previewFiles.includes(image)) {
+          return
         }
-      )
+        if (!result || !result.url) {
+          throw new Error('服务器未返回图片地址，请重试')
+        }
+        image.result = result
+        image.progress = 100
+        this.emitFiles()
+      } catch (error) {
+        const index = this.previewFiles.indexOf(image)
+        if (index < 0) {
+          return
+        }
+        this.previewFiles.splice(index, 1)
+        this.releasePreview(image)
+        this.$message.error(
+          `${file.name} 上传失败：${this.uploadErrorMessage(error)}`
+        )
+        this.$emit('error', error)
+      }
     },
-    removeItem(index) {
+    uploadErrorMessage(error) {
+      const response = error && error.response
+      const data = response && response.data
+      if (response && response.status === 413) {
+        return '图片超过服务器允许的大小，请压缩后重试'
+      }
+      const message =
+        (data && (data.message || data.msg)) ||
+        (error && (error.message || error.msg))
+      if (
+        typeof message === 'string' &&
+        message.includes(
+          'Storage backend has reached its minimum free drive threshold'
+        )
+      ) {
+        return '服务器存储空间不足，暂时无法上传，请联系管理员清理或扩容'
+      }
+      if (error && error.message === 'Network Error') {
+        return '网络连接失败，请检查网络后重试'
+      }
+      if (error && error.code === 'ECONNABORTED') {
+        return '上传超时，请稍后重试'
+      }
+      return message || '请稍后重试'
+    },
+    emitFiles() {
+      this.fileList = this.previewFiles
+        .filter((image) => image.result && !image.deleted)
+        .map((image) => image.result)
+      this.$emit('input', this.fileList)
+    },
+    removeItem(image) {
+      if (image.progress < 100 || image.deleted) {
+        return
+      }
       this.$confirm('确定删除此内容吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
       }).then(
         () => {
-          this.previewFiles[index].deleted = true // 删除动画
-          // const _fileList = [...this.fileList]
-          // _fileList.splice(index, 1)
-          this.fileList.splice(index, 1)
-          this.$emit('input', this.fileList) // 避免和回显冲突，先修改 fileList
+          if (!this.previewFiles.includes(image)) {
+            return
+          }
+          image.deleted = true
+          this.emitFiles()
           setTimeout(() => {
-            this.previewFiles.splice(index, 1)
-            this.$message.success('删除成功')
+            const index = this.previewFiles.indexOf(image)
+            if (index >= 0) {
+              this.previewFiles.splice(index, 1)
+              this.releasePreview(image)
+              this.$message.success('删除成功')
+            }
           }, 900)
         },
         () => console.log('取消删除')
@@ -278,8 +305,18 @@ export default {
       return url
     },
     clear() {
+      this.releasePreviews()
       this.fileList = []
       this.previewFiles = []
+    },
+    releasePreview(image) {
+      if (image.objectUrl) {
+        URL.revokeObjectURL(image.objectUrl)
+        image.objectUrl = ''
+      }
+    },
+    releasePreviews() {
+      this.previewFiles.forEach(this.releasePreview)
     },
   },
 }

@@ -1,18 +1,65 @@
 package services
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/mlogclub/simple/sqls"
 	"github.com/mlogclub/simple/web/params"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"bbs-go/model"
 	"bbs-go/repositories"
 )
 
 var FileService = newFileService()
+
+func findFileReference(ctx context.Context, db *gorm.DB, file *model.FileRecord) (string, error) {
+	if file.FileUUID == "" {
+		return "", errors.New("文件标识为空，无法核验引用")
+	}
+	checks := []struct {
+		model   interface{}
+		columns []string
+		label   string
+	}{
+		{&model.User{}, []string{"avatar"}, "用户头像"},
+		{&model.User{}, []string{"background_image"}, "用户背景图"},
+		{&model.User{}, []string{"description", "home_page"}, "用户简介或主页"},
+		{&model.TopicNode{}, []string{"logo", "description"}, "节点图标或描述"},
+		{&model.Link{}, []string{"logo", "url", "summary"}, "友情链接"},
+		{&model.SysConfig{}, []string{"value"}, "系统配置"},
+		{&model.Topic{}, []string{"content", "image_list", "hide_content", "extra_data"}, "帖子（含已删除帖子）"},
+		{&model.Comment{}, []string{"content", "image_list"}, "评论（含已删除评论）"},
+		{&model.Article{}, []string{"content", "summary", "source_url"}, "文章（含已删除文章）"},
+		{&model.Message{}, []string{"content", "quote_content", "extra_data"}, "站内消息"},
+		{&model.BirthdayBlessing{}, []string{"content"}, "生日祝福"},
+	}
+	identifier := strings.ToLower(file.FileUUID)
+	for _, check := range checks {
+		conditions := make([]string, 0, len(check.columns))
+		arguments := make([]interface{}, 0, len(check.columns))
+		for _, column := range check.columns {
+			conditions = append(conditions, "INSTR(LOWER("+column+"), ?) > 0")
+			arguments = append(arguments, identifier)
+		}
+		var reference struct{ Id int64 }
+		err := db.WithContext(ctx).Unscoped().Model(check.model).Select("id").
+			Where(strings.Join(conditions, " OR "), arguments...).Take(&reference).Error
+		if err == nil {
+			return fmt.Sprintf("%s #%d", check.label, reference.Id), nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", err
+		}
+	}
+	return "", nil
+}
 
 func newFileService() *fileService {
 	return &fileService{}
@@ -34,19 +81,29 @@ func (s *fileService) CreateRecord(t *model.FileRecord) error {
 	return repositories.FileRepository.Create(sqls.DB(), t)
 }
 
-func (s *fileService) Delete(id int64, removeObject func(*model.FileRecord) error) error {
-	file := s.Get(id)
-	if file == nil {
-		return errors.New("文件不存在")
-	}
-	if file.TopicId > 0 || file.CommentId > 0 || (file.SourceType != "unattached" && file.SourceType != "topic" && file.SourceType != "comment") {
-		return errors.New("文件已关联，不能删除")
-	}
-	if err := removeObject(file); err != nil {
-		return err
-	}
-	repositories.FileRepository.Delete(sqls.DB(), id)
-	return nil
+func (s *fileService) Delete(ctx context.Context, id int64, removeObject func(*model.FileRecord) error) error {
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+	return sqls.DB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var file model.FileRecord
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&file, id).Error; err != nil {
+			return err
+		}
+		reference, err := findFileReference(ctx, tx, &file)
+		if err != nil {
+			return fmt.Errorf("无法完成引用核验，未删除文件：%w", err)
+		}
+		if reference != "" {
+			return fmt.Errorf("仍被%s引用，不能删除", reference)
+		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if err := removeObject(&file); err != nil {
+			return err
+		}
+		return tx.Delete(&file).Error
+	})
 }
 
 // BindTopicFiles refreshes the topic association for files referenced by its

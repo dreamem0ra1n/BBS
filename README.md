@@ -836,6 +836,7 @@ sudo cp -a /opt/bbs-neo/admin/dist/. /var/www/html/bbsadmin/
 # }
 
 location ^~ /bbs2/api/ {
+    client_max_body_size 32m;
     rewrite ^/bbs2/api/(.*)$ /api/$1 break;
     proxy_pass http://127.0.0.1:8082;
     proxy_http_version 1.1;
@@ -872,6 +873,8 @@ location /bbsadmin/ {
 
 本项目的生产前端与 Passport 回调地址使用 `www.qsc.zju.edu.cn`。更换域名时，还必须同步修改 Admin 生产环境变量、前端 Passport 跳转地址和静态资源地址，不能只修改 Nginx。
 
+上传接口的请求体上限设为 `32m`，为后端允许的最大 30 MiB 文件及 multipart 表单留出空间。若未配置且未从上级继承更大的限制，Nginx 默认只允许 1 MiB 请求体，超过后会直接返回 HTTP 413，上传请求不会到达后端。若前面还有其他反向代理，也需要检查其上传大小限制。
+
 检查并重载 Nginx：
 
 ```bash
@@ -895,3 +898,26 @@ docker logs --tail 200 bbs-backend
 sudo journalctl -u bbs-site -n 200 --no-pager
 sudo tail -n 200 /var/log/nginx/error.log
 ```
+
+### 10. 上传失败：MinIO 存储空间不足
+
+若上传接口返回 `Storage backend has reached its minimum free drive threshold. Please delete a few objects to proceed.`，说明 MinIO 存储盘的剩余空间已触及写入保护阈值。这不是图片大小限制；头像、评论图片和附件共用该存储，均可能上传失败。磁盘不必完全写满就会触发保护。
+
+在实际承载上传的 MinIO 服务器上检查挂载位置、可用空间和日志（容器名按部署情况调整）：
+
+```bash
+docker inspect bbs-minio --format '{{range .Mounts}}{{println .Source .Destination}}{{end}}'
+docker exec bbs-minio df -h /data
+docker exec bbs-minio df -i /data
+docker logs --tail 200 bbs-minio
+```
+
+优先扩容数据盘，或清理同一文件系统中已确认不再需要的日志、缓存与备份；若删除上传文件，应通过 BBS 文件管理确认文件未被引用，或通过 MinIO 的对象管理接口处理。不要直接删除 `/data` 下的存储文件、`.minio.sys` 或 Docker 数据卷，也不要降低写入保护阈值来掩盖容量不足。
+
+恢复足够空间后，用原先失败的图片验证上传及预览。仅更新前端错误提示、调整 Nginx 上传限制或重启服务，不能解决存储容量不足。
+
+通过 Admin 文件管理清理时，直接勾选文件并点击“删除选中文件”。后端在每次删除时检查用户头像、背景图、简介及主页、节点、友链、系统配置、帖子（含回复可见内容）、评论、文章、站内消息和生日祝福中的实际文件引用，包含仍保存在数据库中的软删除内容。没有引用才会删除；来源分类、历史关联 ID、托管标记和上传时间均不作为禁止删除的依据。因此，已替换且不再被引用的旧头像、背景图、历史文件都可以清理。
+
+头像也会出现在列表中，可按来源筛选。来源标签仅表示记录的用途，不表示当前仍在使用；列表不会触发全表回填，也无需手动预核验。批量删除会跳过仍被引用或处理失败的文件，继续处理其他文件，最后显示成功数量和未删除原因。引用查询失败或超时时不会删除该文件。文件从对象存储删除后不能通过后台恢复；数据库以外的外链引用和未提交到服务器的草稿无法核验。
+
+此文件管理修复需要部署后端和 Admin，请先更新后端，使实际引用核验生效，再更新 Admin。

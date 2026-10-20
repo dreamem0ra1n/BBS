@@ -26,13 +26,13 @@ func (c *FileController) AnyList() *web.JsonResult {
 	query := params.NewQueryParams(c.Ctx)
 	query.EqByReq("id").EqByReq("user_id").EqByReq("topic_id").EqByReq("comment_id").
 		EqByReq("source_type").LikeByReq("file_name").PageByReq().Desc("id")
-	query.Cnd.Where("source_type <> ?", "avatar")
 	files, paging := services.FileService.FindPageByParams(query)
 	results := make([]map[string]interface{}, 0, len(files))
 	for index := range files {
 		file := &files[index]
 		item := web.NewRspBuilder(file).
-			Put("previewUrl", fmt.Sprintf("%s/api/file/preview/%s", config.Instance.BaseUrl, file.FileUUID))
+			Put("previewUrl", fmt.Sprintf("%s/api/file/preview/%s", config.Instance.BaseUrl, file.FileUUID)).
+			Put("sourceLabel", "未记录来源")
 		if file.TopicId > 0 {
 			if topic := services.TopicService.Get(file.TopicId); topic != nil {
 				item.Put("sourceLabel", "帖子："+topic.Title).
@@ -58,18 +58,19 @@ func (c *FileController) AnyList() *web.JsonResult {
 				if rootType == constants.EntityTopic {
 					if topic := services.TopicService.Get(topicId); topic != nil {
 						item.Put("sourceLabel", fmt.Sprintf("帖子：%s · 评论 #%d", topic.Title, file.CommentId)).
-						Put("sourceUrl", bbsurls.TopicUrl(topic.Id)+"#comment-"+fmt.Sprint(file.CommentId))
+							Put("sourceUrl", bbsurls.TopicUrl(topic.Id)+"#comment-"+fmt.Sprint(file.CommentId))
 					}
 				} else if rootType == constants.EntityArticle {
 					if article := services.ArticleService.Get(topicId); article != nil {
 						item.Put("sourceLabel", fmt.Sprintf("文章：%s · 评论 #%d", article.Title, file.CommentId)).
-						Put("sourceUrl", bbsurls.ArticleUrl(article.Id)+"#comment-"+fmt.Sprint(file.CommentId))
+							Put("sourceUrl", bbsurls.ArticleUrl(article.Id)+"#comment-"+fmt.Sprint(file.CommentId))
 					}
 				}
 			}
 		}
 		if file.SourceType != "unattached" && file.SourceType != "topic" && file.SourceType != "comment" {
 			labels := map[string]string{
+				"avatar":     "用户头像",
 				"background": "用户背景图",
 				"node_logo":  "节点图标",
 				"link_logo":  "友情链接图标",
@@ -93,7 +94,7 @@ func (c *FileController) GetBy(id int64) *web.JsonResult {
 
 func (c *FileController) PostDelete() *web.JsonResult {
 	id := c.Ctx.PostValueInt64Default("id", 0)
-	if err := services.FileService.Delete(id, apiDeleteObject); err != nil {
+	if err := services.FileService.Delete(c.Ctx.Request().Context(), id, apiDeleteObject); err != nil {
 		return web.JsonError(err)
 	}
 	return web.JsonSuccess()
