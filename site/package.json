@@ -29,7 +29,7 @@
     "cookie-universal-nuxt": "^2.2.2",
     "core-js": "^3.50.0",
     "element-ui": "^2.15.14",
-    "nuxt": "^2.18.1",
+    "nuxt": "^4.6.2",
     "qs": "^6.16.0",
     "v-viewer": "^1.7.4",
     "viewerjs": "^1.11.7",
