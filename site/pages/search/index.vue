@@ -19,7 +19,9 @@
       <div class="right-container">
         <site-notice />
         <check-in />
+        <online-users />
         <score-rank :score-rank="scoreRank" />
+        <site-stats />
         <friend-links :links="links" />
       </div>
     </div>

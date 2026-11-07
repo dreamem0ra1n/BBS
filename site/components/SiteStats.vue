@@ -25,13 +25,15 @@
 <script>
 export default {
   name: 'SiteStats',
-  props: {
-    stats: {
-      type: Object,
-      default() {
-        return null
-      },
-    },
+  data() {
+    return { stats: null }
+  },
+  async fetch() {
+    try {
+      this.stats = await this.$axios.get('/api/stats/site')
+    } catch (error) {
+      this.stats = null
+    }
   },
 }
 </script>

@@ -6,8 +6,10 @@
       </div>
       <div class="right-container">
         <check-in />
+        <online-users />
         <site-notice />
         <score-rank :score-rank="scoreRank" />
+        <site-stats />
         <friend-links :links="links" />
       </div>
     </div>

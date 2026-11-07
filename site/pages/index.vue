@@ -20,10 +20,10 @@
       <div class="right-container">
         <site-notice />
         <check-in />
-        <score-rank :score-rank="scoreRank" />
-        <friend-links :links="links" />
-        <site-stats :stats="stats" />
         <online-users />
+        <score-rank :score-rank="scoreRank" />
+        <site-stats />
+        <friend-links :links="links" />
       </div>
     </div>
   </section>
@@ -35,14 +35,13 @@ export default {
     store.commit('env/setCurrentNodeId', 0) // 设置当前所在node
     try {
       const sort = query.sort === 'create' ? 'create' : 'comment'
-      const [nodes, topicsPage, scoreRank, links, stats] = await Promise.all([
+      const [nodes, topicsPage, scoreRank, links] = await Promise.all([
         $axios.get('/api/topic/nodes'),
         $axios.get('/api/topic/topics', { params: { sort } }),
         $axios.get('/api/user/score/rank'),
         $axios.get('/api/link/toplinks'),
-        $axios.get('/api/stats/site'),
       ])
-      return { nodes, topicsPage, scoreRank, links, stats, sort }
+      return { nodes, topicsPage, scoreRank, links, sort }
     } catch (e) {
       console.error(e)
     }

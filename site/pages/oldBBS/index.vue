@@ -8,6 +8,8 @@
         </div>
       </div>
       <div class="right-container">
+        <online-users />
+        <site-stats />
         <friend-links :links="links" />
       </div>
     </div>
