@@ -1,5 +1,9 @@
 # bbs-neo
 
+开发文档：[文档索引](docs/README.md) · [开发指南](docs/development.md)。直接阅读 Markdown，无需启动或部署文档站。
+
+接口文档：[公共约定与示例](docs/api/README.md) · [Web 接口](docs/api/site.md) · [后台接口](docs/api/admin.md)。
+
 ## 项目说明
 
 该项目魔改自 [bbsgo](https://github.com/mlogclub/bbs-go)，由以下组件组成：
